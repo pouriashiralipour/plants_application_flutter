@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import './theme/theme.dart';
+import 'routes.dart';
+import 'screens/splash_screen/splash_screen.dart';
+import 'theme/theme.dart';
 
 void main() {
   runApp(const MyApp());
@@ -16,7 +18,8 @@ class MyApp extends StatelessWidget {
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
       themeMode: ThemeMode.system,
-      home: const Scaffold(),
+      routes: routes,
+      initialRoute: SplashScreen.routName,
     );
   }
 }
