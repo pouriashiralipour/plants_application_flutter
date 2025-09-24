@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'routes.dart';
-import 'screens/splash_screen/splash_screen.dart';
+import 'screens/splash/splash_screen.dart';
 import 'theme/theme.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
