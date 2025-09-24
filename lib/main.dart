@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'routes.dart';
 import 'screens/splash_screen/splash_screen.dart';
 import 'theme/theme.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 
 void main() {
   runApp(const MyApp());
@@ -15,6 +16,12 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Poteo Application',
       debugShowCheckedModeBanner: false,
+      localizationsDelegates: [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: [Locale('fa')],
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
       themeMode: ThemeMode.system,
