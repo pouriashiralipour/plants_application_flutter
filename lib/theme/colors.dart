@@ -73,8 +73,8 @@ class AppColors {
 
   // Gradianet
   static const LinearGradient gradientGreen = LinearGradient(
-    colors: [Color(0xFF14E585), AppColors.primary],
-    begin: Alignment.topLeft,
+    colors: [AppColors.primary, Color(0xFF14E585)],
+    begin: Alignment.bottomLeft,
     end: Alignment.bottomRight,
   );
 }

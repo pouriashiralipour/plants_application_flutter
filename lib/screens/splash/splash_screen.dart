@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
-import '../home/home_screen.dart';
+import '../welcome/welcome_screen.dart';
 import 'components/body.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -20,7 +20,7 @@ class _SplashScreenState extends State<SplashScreen> {
     super.initState();
 
     _timer = Timer(const Duration(seconds: 3), () {
-      Navigator.pushNamed(context, HomeScreen.routName);
+      Navigator.pushNamed(context, WelcomeScreen.routName);
     });
   }
 
