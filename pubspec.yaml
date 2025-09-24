@@ -73,17 +73,57 @@ flutter:
   # "family" key with the font family name, and a "fonts" key with a
   # list giving the asset and other descriptors for the font. For
   # example:
-  # fonts:
-  #   - family: Schyler
-  #     fonts:
-  #       - asset: fonts/Schyler-Regular.ttf
-  #       - asset: fonts/Schyler-Italic.ttf
-  #         style: italic
-  #   - family: Trajan Pro
-  #     fonts:
-  #       - asset: fonts/TrajanPro.ttf
-  #       - asset: fonts/TrajanPro_Bold.ttf
-  #         weight: 700
+  fonts:
+    - family: IranBakh
+      fonts:
+        - asset: assets/fonts/IranBakh/YekanBakh-Thin.ttf
+          weight: 100
+        - asset: assets/fonts/IranBakh/YekanBakh-Light.ttf
+          weight: 300
+        - asset: assets/fonts/IranBakh/YekanBakh-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/IranBakh/YekanBakh-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/IranBakh/YekanBakh-Bold.ttf
+          weight: 700
+        - asset: assets/fonts/IranBakh/YekanBakh-ExtraBold.ttf
+          weight: 800
+        - asset: assets/fonts/IranBakh/YekanBakh-Black.ttf
+          weight: 900
+    - family: IranYekan
+      fonts:
+        - asset: assets/fonts/IranYekan/IRANYekanMobileThin.ttf
+          weight: 100
+        - asset: assets/fonts/IranYekan/IRANYekanMobileLight.ttf
+          weight: 300
+        - asset: assets/fonts/IranYekan/IRANYekanMobileRegular.ttf
+          weight: 400
+        - asset: assets/fonts/IranYekan/IRANYekanMobileBold.ttf
+          weight: 700
+        - asset: assets/fonts/IranYekan/IRANYekanMobileExtraBold.ttf
+          weight: 800
+        - asset: assets/fonts/IranYekan/IRANYekanMobileBlack.ttf
+          weight: 900
+    - family: Kalameh
+      fonts:
+        - asset: assets/fonts/Kalameh/Kalameh-Thin.ttf
+          weight: 100
+        - asset: assets/fonts/Kalameh/Kalameh-ExtraLight.ttf
+          weight: 200
+        - asset: assets/fonts/Kalameh/Kalameh-Light.ttf
+          weight: 300
+        - asset: assets/fonts/Kalameh/Kalameh-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/Kalameh/Kalameh-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/Kalameh/Kalameh-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/Kalameh/Kalameh-Bold.ttf
+          weight: 700
+        - asset: assets/fonts/Kalameh/Kalameh-ExtraBold.ttf
+          weight: 800
+        - asset: assets/fonts/Kalameh/Kalameh-Black.ttf
+          weight: 900
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
