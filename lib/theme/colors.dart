@@ -70,4 +70,11 @@ class AppColors {
   static const Color transparentYellow = Color(0xFFFACC15);
   static const Color transparentRed = Color(0xFFF75555);
   static const Color transparentCyan = Color(0xFF00BCD4);
+
+  // Gradianet
+  static const LinearGradient gradientGreen = LinearGradient(
+    colors: [Color(0xFF14E585), AppColors.primary],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  );
 }
