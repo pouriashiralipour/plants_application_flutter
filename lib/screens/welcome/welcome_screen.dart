@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
+import '../on_boarding/on_boarding.dart';
 import '../welcome/components/body.dart';
 
 class WelcomeScreen extends StatefulWidget {
@@ -18,7 +19,10 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
   @override
   void initState() {
     super.initState();
-    _timer = Timer(const Duration(seconds: 3), () {});
+    _timer = Timer(
+      const Duration(seconds: 3),
+      () => Navigator.pushNamed(context, OnBoarding.routeName),
+    );
   }
 
   @override
