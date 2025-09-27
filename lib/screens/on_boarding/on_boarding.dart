@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 
 import '../../services/intro_prefs.dart';
-import '../home/home_screen.dart';
+
+import '../root/root_screen.dart';
 import 'components/body.dart';
 
 class OnBoarding extends StatefulWidget {
@@ -23,7 +24,7 @@ class _OnBoardingState extends State<OnBoarding> {
     final done = await IntroPrefs.isIntroDone();
     if (!mounted) return;
     if (done) {
-      Navigator.pushReplacementNamed(context, HomeScreen.routeName);
+      Navigator.pushReplacementNamed(context, RootScreen.routeName);
     }
   }
 

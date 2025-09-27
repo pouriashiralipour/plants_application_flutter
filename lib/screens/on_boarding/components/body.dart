@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:full_plants_ecommerce_app/screens/home/home_screen.dart';
 
 import '../../../models/on_boarding_models.dart';
 import '../../../services/intro_prefs.dart';
 import '../../../theme/colors.dart';
 import '../../../utils/size.dart';
+import '../../root/root_screen.dart';
 
 class Body extends StatefulWidget {
   const Body({super.key});
@@ -20,7 +20,7 @@ class _BodyState extends State<Body> {
   void _finishOnboarding() async {
     await IntroPrefs.setIntroDone();
     if (!mounted) return;
-    Navigator.pushNamedAndRemoveUntil(context, HomeScreen.routeName, (route) => false);
+    Navigator.pushNamedAndRemoveUntil(context, RootScreen.routeName, (route) => false);
   }
 
   @override

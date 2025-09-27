@@ -2,7 +2,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 import '../../services/intro_prefs.dart';
-import '../home/home_screen.dart';
+
+import '../root/root_screen.dart';
 import '../welcome/welcome_screen.dart';
 import 'components/body.dart';
 
@@ -30,7 +31,7 @@ class _SplashScreenState extends State<SplashScreen> {
     if (!mounted) return;
 
     if (done) {
-      Navigator.pushReplacementNamed(context, HomeScreen.routeName);
+      Navigator.pushReplacementNamed(context, RootScreen.routeName);
     } else {
       Navigator.pushReplacementNamed(context, WelcomeScreen.routeName);
     }
