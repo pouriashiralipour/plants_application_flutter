@@ -11,12 +11,11 @@ class Body extends StatelessWidget {
       body: Stack(
         children: [
           Center(child: SvgPicture.asset('assets/images/Logo.svg')),
-          Padding(
-            padding: EdgeInsetsGeometry.only(bottom: SizeConfig.screenHeight * 0.15),
-            child: Align(
-              alignment: Alignment.bottomCenter,
-              child: SvgPicture.asset('assets/images/progress_bar.svg'),
-            ),
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: SizeConfig.screenHeight * 0.15,
+            child: SvgPicture.asset('assets/images/progress_bar.svg'),
           ),
         ],
       ),

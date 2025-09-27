@@ -1,33 +1,39 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 
+import '../../services/intro_prefs.dart';
+import '../home/home_screen.dart';
 import '../welcome/welcome_screen.dart';
 import 'components/body.dart';
 
 class SplashScreen extends StatefulWidget {
-  static String routeName = './splash';
   const SplashScreen({super.key});
+
+  static String routeName = './splash';
 
   @override
   State<SplashScreen> createState() => _SplashScreenState();
 }
 
 class _SplashScreenState extends State<SplashScreen> {
-  Timer? _timer;
+  @override
   @override
   void initState() {
     super.initState();
-
-    _timer = Timer(const Duration(seconds: 3), () {
-      Navigator.pushReplacementNamed(context, WelcomeScreen.routeName);
-    });
+    _decideNext();
   }
 
-  @override
-  void dispose() {
-    super.dispose();
-    _timer?.cancel();
+  Future<void> _decideNext() async {
+    await Future.delayed(const Duration(seconds: 3));
+
+    final done = await IntroPrefs.isIntroDone();
+    if (!mounted) return;
+
+    if (done) {
+      Navigator.pushReplacementNamed(context, HomeScreen.routeName);
+    } else {
+      Navigator.pushReplacementNamed(context, WelcomeScreen.routeName);
+    }
   }
 
   @override

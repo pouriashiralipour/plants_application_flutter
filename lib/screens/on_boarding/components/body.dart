@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:full_plants_ecommerce_app/screens/home/home_screen.dart';
 
 import '../../../models/on_boarding_models.dart';
+import '../../../services/intro_prefs.dart';
 import '../../../theme/colors.dart';
 import '../../../utils/size.dart';
 
@@ -14,10 +16,19 @@ class Body extends StatefulWidget {
 class _BodyState extends State<Body> {
   int currentIndex = 0;
   PageController pageController = PageController(initialPage: 0);
+
+  void _finishOnboarding() async {
+    await IntroPrefs.setIntroDone();
+    if (!mounted) return;
+    Navigator.pushNamedAndRemoveUntil(context, HomeScreen.routeName, (route) => false);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.bgSilver1,
+      backgroundColor: Theme.of(context).brightness == Brightness.light
+          ? AppColors.bgSilver1
+          : AppColors.dark1,
       body: SafeArea(
         child: Stack(
           children: [
@@ -51,7 +62,9 @@ class _BodyState extends State<Body> {
                           item['content'],
                           textAlign: TextAlign.center,
                           style: TextStyle(
-                            color: AppColors.grey900,
+                            color: Theme.of(context).brightness == Brightness.light
+                                ? AppColors.grey900
+                                : AppColors.white,
                             fontWeight: FontWeight.w700,
                             fontSize: SizeConfig.getProportionateScreenWidth(21),
                           ),
@@ -80,7 +93,13 @@ class _BodyState extends State<Body> {
                     decoration: BoxDecoration(
                       gradient: currentIndex == index ? AppColors.gradientGreen : null,
                       borderRadius: BorderRadius.circular(8),
-                      color: currentIndex != index ? AppColors.grey300 : null,
+                      color: Theme.of(context).brightness == Brightness.light
+                          ? currentIndex != index
+                                ? AppColors.grey300
+                                : null
+                          : currentIndex != index
+                          ? AppColors.dark3
+                          : null,
                     ),
                   );
                 }),
@@ -93,7 +112,7 @@ class _BodyState extends State<Body> {
                 child: InkWell(
                   onTap: () {
                     if (currentIndex == 2) {
-                      // go to next page
+                      _finishOnboarding();
                     } else {
                       pageController.nextPage(
                         duration: const Duration(milliseconds: 400),
@@ -112,12 +131,20 @@ class _BodyState extends State<Body> {
                       color: AppColors.primary,
                       borderRadius: BorderRadius.circular(100),
                       boxShadow: [
-                        BoxShadow(
-                          offset: Offset(4, 8),
-                          blurRadius: 24,
-                          spreadRadius: 0,
-                          color: AppColors.primary.withValues(alpha: 0.25),
-                        ),
+                        if (Theme.of(context).brightness == Brightness.light)
+                          BoxShadow(
+                            offset: Offset(4, 8),
+                            blurRadius: 24,
+                            spreadRadius: 0,
+                            color: AppColors.primary.withValues(alpha: 0.25),
+                          ),
+                        if (Theme.of(context).brightness == Brightness.dark)
+                          BoxShadow(
+                            offset: Offset(4, 8),
+                            blurRadius: 12,
+                            spreadRadius: 0,
+                            color: AppColors.primary.withValues(alpha: 0.25),
+                          ),
                       ],
                     ),
                     child: Text(

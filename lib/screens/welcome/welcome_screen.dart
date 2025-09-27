@@ -6,29 +6,25 @@ import '../on_boarding/on_boarding.dart';
 import '../welcome/components/body.dart';
 
 class WelcomeScreen extends StatefulWidget {
-  static String routeName = './welcome';
   const WelcomeScreen({super.key});
+
+  static String routeName = './welcome';
 
   @override
   State<WelcomeScreen> createState() => _WelcomeScreenState();
 }
 
 class _WelcomeScreenState extends State<WelcomeScreen> {
-  Timer? _timer;
-
   @override
   void initState() {
     super.initState();
-    _timer = Timer(
-      const Duration(seconds: 3),
-      () => Navigator.pushReplacementNamed(context, OnBoarding.routeName),
-    );
+    _goToOnboarding();
   }
 
-  @override
-  void dispose() {
-    super.dispose();
-    _timer?.cancel();
+  Future<void> _goToOnboarding() async {
+    await Future.delayed(const Duration(seconds: 3));
+    if (!mounted) return;
+    Navigator.pushReplacementNamed(context, OnBoarding.routeName);
   }
 
   @override
