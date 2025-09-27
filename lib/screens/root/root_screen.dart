@@ -49,6 +49,7 @@ class _RootScreenState extends State<RootScreen> {
               height: isSelected
                   ? SizeConfig.getProportionateScreenWidth(26)
                   : SizeConfig.getProportionateScreenWidth(24),
+              // ignore: deprecated_member_use
               color: isSelected ? AppColors.primary : AppColors.grey500,
             ),
             activeIcon: SvgPicture.asset(
