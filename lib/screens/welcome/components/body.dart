@@ -61,7 +61,7 @@ class Body extends StatelessWidget {
                 Row(
                   children: [
                     Text(
-                      'خوش آمدید به',
+                      'خوش اومدی به',
                       style: TextStyle(
                         fontSize: SizeConfig.getProportionateScreenWidth(36),
                         fontWeight: FontWeight.w800,
@@ -94,7 +94,19 @@ class Body extends StatelessWidget {
                 ),
                 SizedBox(height: SizeConfig.getProportionateScreenHeight(16)),
                 Text(
-                  'بهترین پلتفرم فروشگاهی گیاه در کشور بر اساس نیاز شما !',
+                  'آماده‌ای خونه‌ات رو سبز کنیم؟',
+                  textAlign: TextAlign.justify,
+                  style: TextStyle(
+                    fontFamily: 'IranYekan',
+                    fontSize: SizeConfig.getProportionateScreenWidth(20),
+                    color: Theme.of(context).brightness == Brightness.light
+                        ? AppColors.grey800
+                        : AppColors.grey300,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+                Text(
+                  'از گلدون تا باغچه؛ هر چیزی که برای سبز شدن لازم داری، اینجاست',
                   textAlign: TextAlign.justify,
                   style: TextStyle(
                     fontFamily: 'IranYekan',

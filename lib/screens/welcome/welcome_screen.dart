@@ -6,7 +6,7 @@ import '../on_boarding/on_boarding.dart';
 import '../welcome/components/body.dart';
 
 class WelcomeScreen extends StatefulWidget {
-  static String routName = './welcome';
+  static String routeName = './welcome';
   const WelcomeScreen({super.key});
 
   @override
@@ -21,7 +21,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
     super.initState();
     _timer = Timer(
       const Duration(seconds: 3),
-      () => Navigator.pushNamed(context, OnBoarding.routeName),
+      () => Navigator.pushReplacementNamed(context, OnBoarding.routeName),
     );
   }
 

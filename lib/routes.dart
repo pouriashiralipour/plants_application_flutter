@@ -6,8 +6,8 @@ import 'screens/splash/splash_screen.dart';
 import 'screens/welcome/welcome_screen.dart';
 
 final Map<String, WidgetBuilder> routes = {
-  SplashScreen.routName: (context) => const SplashScreen(),
-  WelcomeScreen.routName: (context) => const WelcomeScreen(),
-  HomeScreen.routName: (context) => const HomeScreen(),
+  SplashScreen.routeName: (context) => const SplashScreen(),
+  WelcomeScreen.routeName: (context) => const WelcomeScreen(),
+  HomeScreen.routeName: (context) => const HomeScreen(),
   OnBoarding.routeName: (context) => const OnBoarding(),
 };

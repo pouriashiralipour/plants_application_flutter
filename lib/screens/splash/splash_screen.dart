@@ -1,12 +1,13 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:full_plants_ecommerce_app/screens/on_boarding/on_boarding.dart';
 
 import '../welcome/welcome_screen.dart';
 import 'components/body.dart';
 
 class SplashScreen extends StatefulWidget {
-  static String routName = './splash';
+  static String routeName = './splash';
   const SplashScreen({super.key});
 
   @override
@@ -20,7 +21,7 @@ class _SplashScreenState extends State<SplashScreen> {
     super.initState();
 
     _timer = Timer(const Duration(seconds: 3), () {
-      Navigator.pushNamed(context, WelcomeScreen.routName);
+      Navigator.pushReplacementNamed(context, WelcomeScreen.routeName);
     });
   }
 
