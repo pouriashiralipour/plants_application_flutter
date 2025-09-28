@@ -139,7 +139,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   ),
                                   SizedBox(width: SizeConfig.getProportionateScreenWidth(10)),
                                   Text(
-                                    '4.8',
+                                    '4.8'.farsiNumber,
                                     style: TextStyle(
                                       color: AppColors.grey700,
                                       fontSize: SizeConfig.getProportionateScreenWidth(16),
