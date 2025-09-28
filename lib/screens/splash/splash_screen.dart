@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:full_plants_ecommerce_app/utils/size.dart';
 import '../../services/intro_prefs.dart';
 
 import '../root/root_screen.dart';
@@ -20,17 +19,17 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
   late AnimationController _controller;
 
   @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
   void initState() {
     super.initState();
     _decideNext();
 
     _controller = AnimationController(duration: const Duration(seconds: 2), vsync: this)..repeat();
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
   }
 
   Future<void> _decideNext() async {
@@ -55,13 +54,11 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
             Spacer(),
             Center(child: SvgPicture.asset('assets/images/Logo.svg')),
             Spacer(),
-            Padding(
-              padding: EdgeInsets.only(bottom: SizeConfig.getProportionateScreenHeight(60)),
-              child: RotationTransition(
-                turns: _controller,
-                child: SvgPicture.asset('assets/images/progress_bar.svg'),
-              ),
+            RotationTransition(
+              turns: _controller,
+              child: SvgPicture.asset('assets/images/progress_bar.svg'),
             ),
+            Spacer(),
           ],
         ),
       ),
