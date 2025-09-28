@@ -9,6 +9,7 @@ class CustomTitleBarOfProducts extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bool isLightMode = Theme.of(context).brightness == Brightness.light;
     return Container(
       margin: EdgeInsetsDirectional.symmetric(
         horizontal: SizeConfig.getProportionateScreenWidth(24),
@@ -21,7 +22,7 @@ class CustomTitleBarOfProducts extends StatelessWidget {
           Text(
             title,
             style: TextStyle(
-              color: AppColors.grey900,
+              color: isLightMode ? AppColors.grey900 : AppColors.white,
               fontSize: SizeConfig.getProportionateScreenWidth(20),
               fontWeight: FontWeight.w800,
               fontFamily: 'IranYekan',
