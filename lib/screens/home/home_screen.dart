@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:full_plants_ecommerce_app/utils/persian_number.dart';
+import 'package:full_plants_ecommerce_app/utils/price_comma_seperator.dart';
 
 import '../../components/custom_app_bar.dart';
 import '../../components/custom_search_bar.dart';
@@ -168,7 +170,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                       ),
                                     ),
                                     child: Text(
-                                      '4268 فروش',
+                                      '${4268.toString().priceFormatter} فروش'.farsiNumber,
                                       style: TextStyle(
                                         color: AppColors.primary,
                                         fontSize: SizeConfig.getProportionateScreenWidth(10),
@@ -184,10 +186,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                 right: SizeConfig.getProportionateScreenWidth(16),
                               ),
                               child: Text(
-                                '1233000 تومان',
+                                '${1233000.toString().priceFormatter} تومان'.farsiNumber,
                                 style: TextStyle(
                                   color: AppColors.primary,
-                                  fontSize: SizeConfig.getProportionateScreenWidth(21),
+                                  fontSize: SizeConfig.getProportionateScreenWidth(18),
                                   fontWeight: FontWeight.w700,
                                 ),
                               ),
