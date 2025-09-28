@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+
 import 'package:full_plants_ecommerce_app/utils/persian_number.dart';
 import 'package:full_plants_ecommerce_app/utils/price_comma_seperator.dart';
 
@@ -39,11 +40,9 @@ class SpecialOfferCard extends StatelessWidget {
                       children: [
                         Align(
                           alignment: Alignment.center,
-                          child: Image.asset(
-                            'assets/images/Plants2.png',
-                            width: SizeConfig.getProportionateScreenWidth(240),
-                            height: SizeConfig.getProportionateScreenWidth(240),
-                            fit: BoxFit.contain,
+                          child: AspectRatio(
+                            aspectRatio: 1,
+                            child: Image.asset('assets/images/Plants2.png', fit: BoxFit.cover),
                           ),
                         ),
                         Positioned(

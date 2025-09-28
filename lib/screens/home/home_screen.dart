@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-
+import 'package:full_plants_ecommerce_app/components/custom_category_bar.dart';
 import '../../components/custom_app_bar.dart';
 import '../../components/custom_search_bar.dart';
 import '../../components/custom_title_bar.dart';
@@ -19,6 +19,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   final FocusNode _focusNode = FocusNode();
 
+  int _indexCategory = 0;
   bool _isFocused = false;
 
   @override
@@ -59,6 +60,9 @@ class _HomeScreenState extends State<HomeScreen> {
               SpecialOfferCard(isLightMode: isLightMode),
               SizedBox(height: SizeConfig.getProportionateScreenHeight(24)),
               CustomTitleBarOfProducts(title: 'محبوب ترین'),
+              SizedBox(height: SizeConfig.getProportionateScreenHeight(24)),
+              CustomCategoryBar(indexCategory: _indexCategory),
+              SizedBox(height: SizeConfig.getProportionateScreenHeight(24)),
             ],
           ),
         ),
