@@ -4,18 +4,25 @@ import '../theme/colors.dart';
 import '../utils/size.dart';
 
 class CustomButton extends StatelessWidget {
-  const CustomButton({super.key, required this.onTap, required this.text, required this.color});
+  const CustomButton({
+    super.key,
+    required this.onTap,
+    required this.text,
+    required this.color,
+    required this.width,
+  });
 
   final VoidCallback onTap;
   final String text;
   final Color color;
+  final double width;
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        width: SizeConfig.screenWidth,
+        width: width,
         height: SizeConfig.getProportionateScreenHeight(58),
         alignment: Alignment.center,
         decoration: BoxDecoration(

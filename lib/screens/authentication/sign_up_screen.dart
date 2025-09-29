@@ -46,7 +46,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           ? 'assets/images/sign_up_frame.svg'
                           : 'assets/images/sign_up_dark_frame.svg',
                     ),
-                    SizedBox(height: SizeConfig.getProportionateScreenHeight(40)),
+                    SizedBox(height: SizeConfig.screenHeight * 0.1),
                     CustomTitleAuth(title: 'عضوی از خانواده ما شو'),
                     SizedBox(height: SizeConfig.getProportionateScreenHeight(40)),
                     CustomTextField(
@@ -62,6 +62,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       onTap: () {
                         Navigator.pushNamed(context, OTPScreen.routeName);
                       },
+                      width: SizeConfig.screenWidth,
                     ),
                     SizedBox(height: SizeConfig.getProportionateScreenHeight(40)),
                     BottomAuthText(

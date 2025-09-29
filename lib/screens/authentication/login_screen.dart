@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
 
 import '../../components/custom_logo_widget.dart';
 import '../../components/custom_text_field.dart';
@@ -9,6 +8,7 @@ import '../../utils/size.dart';
 import 'components/bottom_auth_text.dart';
 import 'components/custom_title_auth.dart';
 import 'components/remember_me.dart';
+import 'forgot_password_screen.dart';
 import 'sign_up_screen.dart';
 
 class LoginScreen extends StatelessWidget {
@@ -58,14 +58,22 @@ class LoginScreen extends StatelessWidget {
                   SizedBox(height: SizeConfig.getProportionateScreenHeight(20)),
                   RememberMeWidget(),
                   SizedBox(height: SizeConfig.getProportionateScreenHeight(20)),
-                  CustomButton(onTap: () {}, text: 'ورود', color: AppColors.disabledButton),
+                  CustomButton(
+                    onTap: () {},
+                    text: 'ورود',
+                    color: AppColors.disabledButton,
+                    width: SizeConfig.screenWidth,
+                  ),
                   SizedBox(height: SizeConfig.getProportionateScreenHeight(20)),
-                  Text(
-                    'فراموشی رمز  عبور',
-                    style: TextStyle(
-                      color: AppColors.primary,
-                      fontSize: SizeConfig.getProportionateScreenWidth(16),
-                      fontWeight: FontWeight.w700,
+                  GestureDetector(
+                    onTap: () => Navigator.pushNamed(context, ForgotPasswordScreen.routeName),
+                    child: Text(
+                      'فراموشی رمز  عبور',
+                      style: TextStyle(
+                        color: AppColors.primary,
+                        fontSize: SizeConfig.getProportionateScreenWidth(16),
+                        fontWeight: FontWeight.w700,
+                      ),
                     ),
                   ),
                   SizedBox(height: SizeConfig.getProportionateScreenHeight(40)),
