@@ -19,7 +19,7 @@ class _RememberMeWidgetState extends State<RememberMeWidget> {
       children: [
         const SizedBox(width: 8),
         Text(
-          "منو یادت باشه",
+          "مرا بخاطر بسپار",
           style: TextStyle(
             fontSize: SizeConfig.getProportionateScreenWidth(14),
             fontWeight: FontWeight.w600,

@@ -5,6 +5,12 @@ import '../theme/colors.dart';
 import '../utils/size.dart';
 
 class CustomTextField extends StatefulWidget {
+  final String hintText;
+  final bool isLightMode;
+  final String preffixIcon;
+  final String? suffixIcon;
+  final TextInputType? textInputType;
+  final bool isPassword;
   const CustomTextField({
     super.key,
     required this.isLightMode,
@@ -12,15 +18,8 @@ class CustomTextField extends StatefulWidget {
     required this.preffixIcon,
     required this.hintText,
     this.suffixIcon,
-    required this.obscureText,
+    this.isPassword = false,
   });
-
-  final String hintText;
-  final bool isLightMode;
-  final bool obscureText;
-  final String preffixIcon;
-  final String? suffixIcon;
-  final TextInputType? textInputType;
 
   @override
   State<CustomTextField> createState() => _CustomTextFieldState();
@@ -29,6 +28,8 @@ class CustomTextField extends StatefulWidget {
 class _CustomTextFieldState extends State<CustomTextField> {
   late FocusNode _focusNode;
   bool _isFocused = false;
+  late bool _obscureText;
+  bool _hasText = false;
 
   @override
   void dispose() {
@@ -39,6 +40,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
   @override
   void initState() {
     super.initState();
+    _obscureText = widget.isPassword;
     _focusNode = FocusNode();
     _focusNode.addListener(() {
       setState(() {
@@ -47,12 +49,29 @@ class _CustomTextFieldState extends State<CustomTextField> {
     });
   }
 
+  Color _getIconColor(bool isFocused, bool hasText, bool isLightMode) {
+    if (isFocused) {
+      return isLightMode ? AppColors.primary : AppColors.white;
+    } else {
+      if (hasText) {
+        return AppColors.grey900;
+      } else {
+        return isLightMode ? AppColors.grey500 : AppColors.grey600;
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return TextFormField(
-      obscureText: widget.obscureText,
+      obscureText: _obscureText,
       focusNode: _focusNode,
       keyboardType: widget.textInputType,
+      onChanged: (value) {
+        setState(() {
+          _hasText = value.isNotEmpty;
+        });
+      },
       style: TextStyle(
         color: widget.isLightMode ? AppColors.grey900 : AppColors.white,
         fontWeight: FontWeight.w600,
@@ -76,29 +95,34 @@ class _CustomTextFieldState extends State<CustomTextField> {
               widget.preffixIcon,
               width: SizeConfig.getProportionateScreenWidth(20),
               height: SizeConfig.getProportionateScreenWidth(20),
-              color: widget.isLightMode
-                  ? _isFocused
-                        ? AppColors.primary
-                        : AppColors.grey500
-                  : _isFocused
-                  ? AppColors.white
-                  : AppColors.grey600,
+              color: _getIconColor(_isFocused, _hasText, widget.isLightMode),
             ),
           ),
         ),
-        suffixIcon: widget.suffixIcon != null
-            ? SizedBox(
-                width: SizeConfig.getProportionateScreenWidth(60),
-                child: Center(
-                  child: SvgPicture.asset(
-                    widget.suffixIcon!,
-                    width: SizeConfig.getProportionateScreenWidth(20),
-                    height: SizeConfig.getProportionateScreenWidth(20),
-                    color: _isFocused ? AppColors.primary : AppColors.grey500,
-                  ),
+        suffixIcon: widget.isPassword
+            ? IconButton(
+                onPressed: () {
+                  setState(() {
+                    _obscureText = !_obscureText;
+                  });
+                },
+                icon: SvgPicture.asset(
+                  _obscureText
+                      ? 'assets/images/icons/Hide_bold.svg'
+                      : 'assets/images/icons/Show_bold.svg',
+                  width: SizeConfig.getProportionateScreenWidth(20),
+                  height: SizeConfig.getProportionateScreenWidth(20),
+                  color: _getIconColor(_isFocused, _hasText, widget.isLightMode),
                 ),
               )
-            : null,
+            : (widget.suffixIcon != null
+                  ? SvgPicture.asset(
+                      widget.suffixIcon!,
+                      width: SizeConfig.getProportionateScreenWidth(20),
+                      height: SizeConfig.getProportionateScreenWidth(20),
+                      color: _getIconColor(_isFocused, _hasText, widget.isLightMode),
+                    )
+                  : null),
         filled: true,
         fillColor: widget.isLightMode
             ? _isFocused

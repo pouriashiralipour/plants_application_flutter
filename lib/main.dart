@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:full_plants_ecommerce_app/screens/authentication/sign_up.dart';
+import 'package:full_plants_ecommerce_app/screens/authentication/sign_up_screen.dart';
 import 'routes.dart';
 import 'theme/theme.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';

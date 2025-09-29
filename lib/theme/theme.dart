@@ -8,10 +8,11 @@ class AppTheme {
     brightness: Brightness.light,
     primaryColor: AppColors.primary,
     scaffoldBackgroundColor: AppColors.white,
-    appBarTheme: const AppBarTheme(
-      backgroundColor: AppColors.primary,
-      foregroundColor: AppColors.white,
+    appBarTheme: AppBarTheme(
+      backgroundColor: AppColors.white,
+      foregroundColor: AppColors.grey900,
       elevation: 0,
+      scrolledUnderElevation: 0,
     ),
     colorScheme: const ColorScheme.light(
       primary: AppColors.primary,

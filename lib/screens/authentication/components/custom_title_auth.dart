@@ -12,6 +12,7 @@ class CustomTitleAuth extends StatelessWidget {
   Widget build(BuildContext context) {
     return Text(
       title,
+      textAlign: TextAlign.center,
       style: TextStyle(
         color: AppColors.grey900,
         fontSize: SizeConfig.getProportionateScreenWidth(28),
