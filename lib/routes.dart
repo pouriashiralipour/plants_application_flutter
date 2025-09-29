@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:full_plants_ecommerce_app/screens/home/home_screen.dart';
 
+import 'screens/authentication/sign_up.dart';
 import 'screens/on_boarding/on_boarding.dart';
 import 'screens/root/root_screen.dart';
 import 'screens/splash/splash_screen.dart';
@@ -12,4 +13,5 @@ final Map<String, WidgetBuilder> routes = {
   HomeScreen.routeName: (context) => const HomeScreen(),
   OnBoarding.routeName: (context) => const OnBoarding(),
   RootScreen.routeName: (context) => const RootScreen(),
+  SignUpScreen.routeName:(context) => const SignUpScreen(),
 };
