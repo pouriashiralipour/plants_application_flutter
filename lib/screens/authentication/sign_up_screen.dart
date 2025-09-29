@@ -41,7 +41,11 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    AuthSvgAssetWidget(svg: 'assets/images/sign_up_frame.svg'),
+                    AuthSvgAssetWidget(
+                      svg: isLightMode
+                          ? 'assets/images/sign_up_frame.svg'
+                          : 'assets/images/sign_up_dark_frame.svg',
+                    ),
                     SizedBox(height: SizeConfig.getProportionateScreenHeight(40)),
                     CustomTitleAuth(title: 'عضوی از خانواده ما شو'),
                     SizedBox(height: SizeConfig.getProportionateScreenHeight(40)),

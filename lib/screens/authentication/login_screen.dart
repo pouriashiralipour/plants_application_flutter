@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
+import '../../components/custom_logo_widget.dart';
 import '../../components/custom_text_field.dart';
 import '../../components/cutsom_button.dart';
 import '../../theme/colors.dart';
@@ -36,26 +37,7 @@ class LoginScreen extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        'hiloropia',
-                        style: TextStyle(
-                          fontFamily: 'IranYekan',
-                          color: AppColors.grey900,
-                          fontWeight: FontWeight.w900,
-                          fontSize: SizeConfig.getProportionateScreenWidth(48),
-                        ),
-                      ),
-                      SizedBox(width: SizeConfig.getProportionateScreenWidth(10)),
-                      SvgPicture.asset(
-                        'assets/images/Logo.svg',
-                        height: SizeConfig.getProportionateScreenWidth(60),
-                        width: SizeConfig.getProportionateScreenWidth(60),
-                      ),
-                    ],
-                  ),
+                  CustomLogoWidget(),
                   SizedBox(height: SizeConfig.getProportionateScreenHeight(40)),
                   CustomTitleAuth(title: 'به حساب کاربری خود وارد شوید'),
                   SizedBox(height: SizeConfig.getProportionateScreenHeight(40)),

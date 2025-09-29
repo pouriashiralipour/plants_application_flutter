@@ -54,7 +54,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
       return isLightMode ? AppColors.primary : AppColors.white;
     } else {
       if (hasText) {
-        return AppColors.grey900;
+        return isLightMode ? AppColors.grey900 : AppColors.white;
       } else {
         return isLightMode ? AppColors.grey500 : AppColors.grey600;
       }

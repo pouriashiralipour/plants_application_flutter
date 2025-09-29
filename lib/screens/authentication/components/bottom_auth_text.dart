@@ -17,6 +17,7 @@ class BottomAuthText extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bool isLightMode = Theme.of(context).brightness == Brightness.light;
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -24,7 +25,7 @@ class BottomAuthText extends StatelessWidget {
           text,
           style: TextStyle(
             fontSize: SizeConfig.getProportionateScreenWidth(14),
-            color: AppColors.grey500,
+            color: isLightMode ? AppColors.grey500 : AppColors.white,
           ),
         ),
         SizedBox(width: SizeConfig.getProportionateScreenWidth(5)),

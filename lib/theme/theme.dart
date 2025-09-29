@@ -28,9 +28,10 @@ class AppTheme {
     primaryColor: AppColors.primary,
     scaffoldBackgroundColor: AppColors.dark1,
     appBarTheme: const AppBarTheme(
-      backgroundColor: AppColors.dark2,
+      backgroundColor: AppColors.dark1,
       foregroundColor: AppColors.white,
       elevation: 0,
+      scrolledUnderElevation: 0,
     ),
     colorScheme: const ColorScheme.dark(
       primary: AppColors.primary,

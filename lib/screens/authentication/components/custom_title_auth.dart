@@ -10,11 +10,12 @@ class CustomTitleAuth extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bool isLightMode = Theme.of(context).brightness == Brightness.light;
     return Text(
       title,
       textAlign: TextAlign.center,
       style: TextStyle(
-        color: AppColors.grey900,
+        color: isLightMode ? AppColors.grey900 : AppColors.white,
         fontSize: SizeConfig.getProportionateScreenWidth(28),
         fontWeight: FontWeight.w700,
       ),
