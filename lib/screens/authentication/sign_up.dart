@@ -2,8 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 import '../../components/custom_text_field.dart';
+import '../../components/cutsom_button.dart';
 import '../../theme/colors.dart';
 import '../../utils/size.dart';
+import 'components/auth_svg_asset_widget.dart';
+import 'components/bottom_auth_text.dart';
+import 'components/custom_title_auth.dart';
+import 'otp_scree.dart';
 
 class SignUpScreen extends StatefulWidget {
   static String routeName = './signUp';
@@ -14,7 +19,6 @@ class SignUpScreen extends StatefulWidget {
 }
 
 class _SignUpScreenState extends State<SignUpScreen> {
-  bool _isChecked = false;
   @override
   Widget build(BuildContext context) {
     final bool isLightMode = Theme.of(context).brightness == Brightness.light;
@@ -25,81 +29,54 @@ class _SignUpScreenState extends State<SignUpScreen> {
             horizontal: SizeConfig.getProportionateScreenWidth(24),
             vertical: SizeConfig.getProportionateScreenHeight(48),
           ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              SvgPicture.asset('assets/images/sign_up_frame.svg'),
-              Spacer(),
-              Text(
-                'عضوی از خانواده ما شو',
-                style: TextStyle(
-                  color: AppColors.grey900,
-                  fontSize: SizeConfig.getProportionateScreenWidth(28),
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-              Spacer(),
-              CustomTextField(
-                obscureText: false,
-                isLightMode: isLightMode,
-                preffixIcon: 'assets/images/icons/Message_bold.svg',
-                hintText: 'ایمیل یا شماره تلفن',
-                textInputType: TextInputType.emailAddress,
-              ),
-              SizedBox(height: SizeConfig.getProportionateScreenHeight(20)),
-              Container(
-                width: SizeConfig.screenWidth,
-                height: SizeConfig.getProportionateScreenHeight(58),
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  color: AppColors.disabledButton,
-                  borderRadius: BorderRadius.circular(100),
-                  boxShadow: [
-                    BoxShadow(
-                      offset: Offset(4, 8),
-                      blurRadius: 24,
-                      spreadRadius: 0,
-                      color: AppColors.primary.withValues(alpha: 0.25),
-                    ),
-                  ],
-                ),
-                child: Text(
-                  'تایید',
-                  style: TextStyle(
-                    color: AppColors.white,
-                    fontSize: SizeConfig.getProportionateScreenWidth(18),
-                    fontFamily: 'IranYekan',
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-              ),
-              Spacer(),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    'قبلا عضو خانوده ما بودی ؟',
-                    style: TextStyle(
-                      fontSize: SizeConfig.getProportionateScreenWidth(14),
-                      color: AppColors.grey500,
-                    ),
-                  ),
-                  SizedBox(width: SizeConfig.getProportionateScreenWidth(5)),
-                  Text(
-                    'ورود',
-                    style: TextStyle(
-                      fontSize: SizeConfig.getProportionateScreenWidth(14),
-                      color: AppColors.primary,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
+          child: CustomRegisterLoginData(isLightMode: isLightMode),
         ),
       ),
     );
   }
 }
+
+class CustomRegisterLoginData extends StatelessWidget {
+  const CustomRegisterLoginData({super.key, required this.isLightMode});
+
+  final bool isLightMode;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        AuthSvgAssetWidget(svg: 'assets/images/sign_up_frame.svg'),
+        Spacer(),
+        CustomTitleAuth(title: 'عضوی از خانواده ما شو'),
+        Spacer(),
+        CustomTextField(
+          obscureText: false,
+          isLightMode: isLightMode,
+          preffixIcon: 'assets/images/icons/Message_bold.svg',
+          hintText: 'ایمیل یا شماره تلفن',
+          textInputType: TextInputType.emailAddress,
+        ),
+        Spacer(),
+        CustomButton(
+          text: 'تایید',
+          color: AppColors.disabledButton,
+          onTap: () {
+            Navigator.pushNamed(context, OTPScreen.routeName);
+          },
+        ),
+        Spacer(),
+        BottomAuthText(text: 'قبلا عضو خانوده ما بودی ؟', buttonText: 'ورود', onTap: () {}),
+      ],
+    );
+  }
+}
+
+// CustomTextField(
+//                 obscureText: true,
+//                 suffixIcon: 'assets/images/icons/Hide_bold.svg',
+//                 isLightMode: isLightMode,
+//                 preffixIcon: 'assets/images/icons/Lock_bold.svg',
+//                 hintText: 'رمزعبور',
+//               ),
