@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 
 import '../../../theme/colors.dart';
 import '../../../utils/size.dart';
@@ -14,6 +15,7 @@ class _RememberMeWidgetState extends State<RememberMeWidget> {
   bool _isChecked = false;
   @override
   Widget build(BuildContext context) {
+    final bool isLightMode = Theme.of(context).brightness == Brightness.light;
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -23,24 +25,23 @@ class _RememberMeWidgetState extends State<RememberMeWidget> {
           style: TextStyle(
             fontSize: SizeConfig.getProportionateScreenWidth(14),
             fontWeight: FontWeight.w600,
-            color: AppColors.grey900,
+            color: isLightMode ? AppColors.grey900 : AppColors.white,
           ),
         ),
-        Checkbox(
-          value: _isChecked,
-          onChanged: (value) {
+        SizedBox(width: SizeConfig.getProportionateScreenWidth(10)),
+        GestureDetector(
+          onTap: () {
             setState(() {
-              _isChecked = value!;
+              _isChecked = !_isChecked;
             });
           },
-          activeColor: AppColors.primary,
-          side: BorderSide(
-            color: AppColors.primary,
-            width: 3,
-            style: BorderStyle.solid,
-            strokeAlign: 1,
+          child: SvgPicture.asset(
+            _isChecked
+                ? 'assets/images/icons/TickSquare_bold.svg'
+                : 'assets/images/icons/Rectangle.svg',
+            width: SizeConfig.getProportionateScreenWidth(24),
+            height: SizeConfig.getProportionateScreenWidth(24),
           ),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
         ),
       ],
     );
