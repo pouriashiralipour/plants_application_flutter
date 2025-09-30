@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:full_plants_ecommerce_app/screens/home/home_screen.dart';
 
+import 'screens/authentication/change_password_screen.dart';
 import 'screens/authentication/forgot_password_screen.dart';
 import 'screens/authentication/login_screen.dart';
 import 'screens/authentication/otp_scree.dart';
@@ -20,4 +21,5 @@ final Map<String, WidgetBuilder> routes = {
   OTPScreen.routeName: (context) => const OTPScreen(),
   LoginScreen.routeName: (contxet) => const LoginScreen(),
   ForgotPasswordScreen.routeName: (contxet) => const ForgotPasswordScreen(),
+  ChangePasswordScreen.routeName: (contxet) => const ChangePasswordScreen(),
 };

@@ -7,7 +7,7 @@ import 'package:full_plants_ecommerce_app/utils/persian_number.dart';
 import '../../components/cutsom_button.dart';
 import '../../theme/colors.dart';
 import '../../utils/size.dart';
-import 'components/auth_svg_asset_widget.dart';
+import 'change_password_screen.dart';
 
 class OTPScreen extends StatefulWidget {
   const OTPScreen({super.key});
@@ -119,7 +119,16 @@ class _OTPScreenState extends State<OTPScreen> {
   Widget build(BuildContext context) {
     final bool isLightMode = Theme.of(context).brightness == Brightness.light;
     return Scaffold(
-      appBar: AppBar(),
+      appBar: AppBar(
+        title: Text(
+          'فراموشی رمز عبور',
+          style: TextStyle(
+            color: isLightMode ? AppColors.grey900 : AppColors.white,
+            fontWeight: FontWeight.w600,
+            fontSize: SizeConfig.getProportionateScreenWidth(21),
+          ),
+        ),
+      ),
       body: GestureDetector(
         behavior: HitTestBehavior.translucent,
         onTap: () {
@@ -216,10 +225,11 @@ class _OTPScreenState extends State<OTPScreen> {
                       onTap: () {
                         final otp = _controllers.map((c) => c.text).join();
                         print("OTP: $otp");
+                        Navigator.pushNamed(context, ChangePasswordScreen.routeName);
                       },
                       width: SizeConfig.getProportionateScreenWidth(77),
                     ),
-                    SizedBox(height: SizeConfig.screenHeight * 0.4),
+                    SizedBox(height: SizeConfig.screenHeight * 0.2),
                   ],
                 ),
               ),
