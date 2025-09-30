@@ -10,7 +10,8 @@ class CustmoSearchBar extends StatelessWidget {
     required FocusNode focusNode,
     required this.isLightMode,
     required bool isFocused,
-  }) : _focusNode = focusNode, _isFocused = isFocused;
+  }) : _focusNode = focusNode,
+       _isFocused = isFocused;
 
   final FocusNode _focusNode;
   final bool isLightMode;
@@ -25,7 +26,7 @@ class CustmoSearchBar extends StatelessWidget {
         style: TextStyle(
           color: isLightMode ? AppColors.grey900 : AppColors.white,
           fontWeight: FontWeight.w600,
-          fontSize: SizeConfig.getProportionateScreenWidth(14),
+          fontSize: SizeConfig.getProportionateFontSize(14),
         ),
         decoration: InputDecoration(
           contentPadding: EdgeInsets.symmetric(
@@ -35,7 +36,7 @@ class CustmoSearchBar extends StatelessWidget {
           hintText: "جستجو",
           hintStyle: TextStyle(
             color: isLightMode ? AppColors.grey400 : AppColors.grey600,
-            fontSize: SizeConfig.getProportionateScreenWidth(14),
+            fontSize: SizeConfig.getProportionateFontSize(14),
             fontFamily: 'IranYekan',
           ),
           prefixIcon: SizedBox(

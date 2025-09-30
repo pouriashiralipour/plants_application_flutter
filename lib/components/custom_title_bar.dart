@@ -23,7 +23,7 @@ class CustomTitleBarOfProducts extends StatelessWidget {
             title,
             style: TextStyle(
               color: isLightMode ? AppColors.grey900 : AppColors.white,
-              fontSize: SizeConfig.getProportionateScreenWidth(20),
+              fontSize: SizeConfig.getProportionateFontSize(20),
               fontWeight: FontWeight.w800,
               fontFamily: 'IranYekan',
             ),
@@ -34,7 +34,7 @@ class CustomTitleBarOfProducts extends StatelessWidget {
               'مشاهده همه',
               style: TextStyle(
                 color: AppColors.primary,
-                fontSize: SizeConfig.getProportionateScreenWidth(16),
+                fontSize: SizeConfig.getProportionateFontSize(16),
                 fontWeight: FontWeight.w700,
                 fontFamily: 'IranYekan',
               ),

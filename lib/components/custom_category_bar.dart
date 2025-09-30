@@ -58,7 +58,7 @@ class _CustomCategoryBarState extends State<CustomCategoryBar> {
                   'همه',
                   style: TextStyle(
                     color: _currentIndex == index ? AppColors.white : AppColors.primary,
-                    fontSize: SizeConfig.getProportionateScreenWidth(16),
+                    fontSize: SizeConfig.getProportionateFontSize(14),
                     fontWeight: FontWeight.w600,
                   ),
                 ),

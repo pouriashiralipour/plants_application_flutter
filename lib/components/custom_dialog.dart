@@ -20,7 +20,8 @@ class CustomSuccessDialog extends StatelessWidget {
         child: Padding(
           padding: EdgeInsets.all(SizeConfig.getProportionateScreenWidth(24)),
           child: Column(
-            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               SvgPicture.asset(
                 'assets/images/successsvg.svg',
@@ -31,7 +32,7 @@ class CustomSuccessDialog extends StatelessWidget {
               Text(
                 "تبریک میگم!",
                 style: TextStyle(
-                  fontSize: SizeConfig.getProportionateScreenWidth(24),
+                  fontSize: SizeConfig.getProportionateFontSize(24),
                   fontWeight: FontWeight.w700,
                 ),
               ),
@@ -40,7 +41,7 @@ class CustomSuccessDialog extends StatelessWidget {
                 "رمز عبور شما با موفقیت تغییر کرد.\nحالا میتونی با رمزعبور جدید وارد بشی.\nشما تا لحظاتی دیگر به صفحه ورود هدایت می شوید",
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  fontSize: SizeConfig.getProportionateScreenWidth(16),
+                  fontSize: SizeConfig.getProportionateFontSize(14),
                   color: isLightMode ? AppColors.grey500 : AppColors.white,
                 ),
               ),

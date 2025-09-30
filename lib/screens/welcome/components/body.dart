@@ -63,7 +63,7 @@ class Body extends StatelessWidget {
                     Text(
                       'خوش اومدی به',
                       style: TextStyle(
-                        fontSize: SizeConfig.getProportionateScreenWidth(36),
+                        fontSize: SizeConfig.getProportionateFontSize(36),
                         fontWeight: FontWeight.w800,
                         color: Theme.of(context).brightness == Brightness.light
                             ? AppColors.grey900
@@ -71,10 +71,7 @@ class Body extends StatelessWidget {
                       ),
                     ),
                     SizedBox(width: SizeConfig.getProportionateScreenWidth(8)),
-                    Text(
-                      '👋',
-                      style: TextStyle(fontSize: SizeConfig.getProportionateScreenWidth(32)),
-                    ),
+                    Text('👋', style: TextStyle(fontSize: SizeConfig.getProportionateFontSize(32))),
                   ],
                 ),
                 ShaderMask(
@@ -85,7 +82,7 @@ class Body extends StatelessWidget {
                   child: Text(
                     'فیلوروپیا',
                     style: TextStyle(
-                      fontSize: SizeConfig.getProportionateScreenWidth(60),
+                      fontSize: SizeConfig.getProportionateFontSize(60),
                       fontWeight: FontWeight.bold,
                       color: AppColors.green,
                       height: 1.3,
@@ -98,7 +95,7 @@ class Body extends StatelessWidget {
                   textAlign: TextAlign.justify,
                   style: TextStyle(
                     fontFamily: 'IranYekan',
-                    fontSize: SizeConfig.getProportionateScreenWidth(20),
+                    fontSize: SizeConfig.getProportionateFontSize(20),
                     color: Theme.of(context).brightness == Brightness.light
                         ? AppColors.grey800
                         : AppColors.grey300,
@@ -110,7 +107,7 @@ class Body extends StatelessWidget {
                   textAlign: TextAlign.justify,
                   style: TextStyle(
                     fontFamily: 'IranYekan',
-                    fontSize: SizeConfig.getProportionateScreenWidth(18),
+                    fontSize: SizeConfig.getProportionateFontSize(18),
                     color: Theme.of(context).brightness == Brightness.light
                         ? AppColors.grey800
                         : AppColors.grey300,

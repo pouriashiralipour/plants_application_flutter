@@ -35,7 +35,7 @@ class CustomAppBar extends StatelessWidget {
                     'صبح بخیر 👋',
                     style: TextStyle(
                       color: isLightMode ? AppColors.grey600 : AppColors.grey300,
-                      fontSize: SizeConfig.getProportionateScreenWidth(16),
+                      fontSize: SizeConfig.getProportionateFontSize(16),
                       fontWeight: FontWeight.w500,
                     ),
                   ),
@@ -43,7 +43,7 @@ class CustomAppBar extends StatelessWidget {
                     'پوریا شیرالی پور',
                     style: TextStyle(
                       color: isLightMode ? AppColors.grey800 : AppColors.white,
-                      fontSize: SizeConfig.getProportionateScreenWidth(18),
+                      fontSize: SizeConfig.getProportionateFontSize(18),
                       fontWeight: FontWeight.w700,
                     ),
                   ),

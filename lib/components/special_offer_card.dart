@@ -16,10 +16,10 @@ class SpecialOfferCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return SizedBox(
       width: double.infinity,
-      height: SizeConfig.getProportionateScreenHeight(362),
+      height: SizeConfig.getProportionateScreenHeight(300),
       child: Container(
-        width: SizeConfig.getProportionateScreenWidth(240),
-        height: SizeConfig.getProportionateScreenHeight(362),
+        width: SizeConfig.getProportionateScreenWidth(220),
+        height: SizeConfig.getProportionateScreenHeight(300),
         child: SingleChildScrollView(
           scrollDirection: Axis.horizontal,
           child: Row(
@@ -30,8 +30,8 @@ class SpecialOfferCard extends StatelessWidget {
                 children: [
                   Container(
                     margin: EdgeInsets.only(right: SizeConfig.getProportionateScreenWidth(16)),
-                    width: SizeConfig.getProportionateScreenWidth(240),
-                    height: SizeConfig.getProportionateScreenHeight(240),
+                    width: SizeConfig.getProportionateScreenWidth(200),
+                    height: SizeConfig.getProportionateScreenHeight(200),
                     decoration: BoxDecoration(
                       color: isLightMode ? AppColors.bgSilver1 : AppColors.dark3,
                       borderRadius: BorderRadius.circular(36),
@@ -68,7 +68,7 @@ class SpecialOfferCard extends StatelessWidget {
                       'سانسوریا',
                       style: TextStyle(
                         color: isLightMode ? AppColors.grey900 : AppColors.white,
-                        fontSize: SizeConfig.getProportionateScreenWidth(24),
+                        fontSize: SizeConfig.getProportionateFontSize(22),
                         fontWeight: FontWeight.w700,
                       ),
                     ),
@@ -90,7 +90,7 @@ class SpecialOfferCard extends StatelessWidget {
                           '4.8'.farsiNumber,
                           style: TextStyle(
                             color: isLightMode ? AppColors.grey700 : AppColors.grey300,
-                            fontSize: SizeConfig.getProportionateScreenWidth(16),
+                            fontSize: SizeConfig.getProportionateFontSize(14),
                             fontWeight: FontWeight.w500,
                           ),
                         ),
@@ -101,7 +101,7 @@ class SpecialOfferCard extends StatelessWidget {
                             fontFamily: 'IranYekan',
                             color: isLightMode ? AppColors.grey700 : AppColors.grey300,
                             fontWeight: FontWeight.w700,
-                            fontSize: SizeConfig.getProportionateScreenWidth(16),
+                            fontSize: SizeConfig.getProportionateFontSize(14),
                           ),
                         ),
                         SizedBox(width: SizeConfig.getProportionateScreenWidth(10)),
@@ -121,7 +121,7 @@ class SpecialOfferCard extends StatelessWidget {
                             '${4268.toString().priceFormatter} فروش'.farsiNumber,
                             style: TextStyle(
                               color: AppColors.primary,
-                              fontSize: SizeConfig.getProportionateScreenWidth(10),
+                              fontSize: SizeConfig.getProportionateFontSize(10),
                               fontWeight: FontWeight.w600,
                             ),
                           ),
@@ -135,7 +135,7 @@ class SpecialOfferCard extends StatelessWidget {
                       '${1233000.toString().priceFormatter} تومان'.farsiNumber,
                       style: TextStyle(
                         color: AppColors.primary,
-                        fontSize: SizeConfig.getProportionateScreenWidth(18),
+                        fontSize: SizeConfig.getProportionateFontSize(16),
                         fontWeight: FontWeight.w700,
                       ),
                     ),

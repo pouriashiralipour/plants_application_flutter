@@ -25,7 +25,7 @@ class CustomLogoWidget extends StatelessWidget {
             fontFamily: 'Kalameh',
             color: isLightMode ? AppColors.grey900 : AppColors.white,
             fontWeight: FontWeight.w900,
-            fontSize: SizeConfig.getProportionateScreenWidth(48),
+            fontSize: SizeConfig.getProportionateFontSize(48),
           ),
         ),
       ],

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:full_plants_ecommerce_app/screens/authentication/components/auth_scaffold.dart';
 
+import '../../components/adaptive_gap.dart';
 import '../../components/custom_dialog.dart';
 
 import '../../components/custom_text_field.dart';
@@ -22,7 +24,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
   @override
   Widget build(BuildContext context) {
     final bool isLightMode = Theme.of(context).brightness == Brightness.light;
-    return Scaffold(
+    return AuthScaffold(
       appBar: AppBar(
         title: Text(
           'ساخت رمزعبور جدید',
@@ -33,72 +35,53 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
           ),
         ),
       ),
-      body: GestureDetector(
-        behavior: HitTestBehavior.translucent,
-        onTap: () {
-          FocusScope.of(context).unfocus();
-        },
-        child: SafeArea(
-          child: SingleChildScrollView(
-            child: SizedBox(
-              width: SizeConfig.screenWidth,
-              height: SizeConfig.screenHeight,
-              child: Padding(
-                padding: EdgeInsets.symmetric(
-                  horizontal: SizeConfig.getProportionateScreenWidth(24),
-                ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    AuthSvgAssetWidget(
-                      svg: isLightMode
-                          ? 'assets/images/new_pass_light.svg'
-                          : 'assets/images/new_pass_dark.svg',
-                    ),
-                    SizedBox(height: SizeConfig.screenHeight * 0.1),
-                    Text(
-                      'رمزعبور جدید خود را وارد کنید',
-                      style: TextStyle(
-                        color: isLightMode ? AppColors.grey900 : AppColors.white,
-                        fontWeight: FontWeight.w500,
-                        fontSize: SizeConfig.getProportionateScreenWidth(16),
-                      ),
-                    ),
-                    SizedBox(height: SizeConfig.getProportionateScreenHeight(24)),
-                    Column(
-                      children: List.generate(
-                        2,
-                        (index) => Padding(
-                          padding: EdgeInsets.only(
-                            bottom: SizeConfig.getProportionateScreenHeight(24),
-                          ),
-                          child: CustomTextField(
-                            isPassword: true,
-                            suffixIcon: 'assets/images/icons/Hide_bold.svg',
-                            isLightMode: isLightMode,
-                            preffixIcon: 'assets/images/icons/Lock_bold.svg',
-                            hintText: index == 0 ? 'رمزعبور' : 'تکرار رمزعبور',
-                          ),
-                        ),
-                      ),
-                    ),
-                    RememberMeWidget(),
-                    SizedBox(height: SizeConfig.screenHeight * 0.05),
-                    CustomButton(
-                      onTap: () {
-                        customSuccessShowDialog(context);
-                      },
-                      text: 'ادامه',
-                      color: AppColors.primary,
-                      width: SizeConfig.getProportionateScreenWidth(98),
-                    ),
-                    SizedBox(height: SizeConfig.screenHeight * 0.1),
-                  ],
-                ),
-              ),
+      header: Column(
+        children: [
+          AdaptiveGap(SizeConfig.getProportionateScreenHeight(20)),
+          AuthSvgAssetWidget(
+            svg: isLightMode
+                ? 'assets/images/new_pass_light.svg'
+                : 'assets/images/new_pass_dark.svg',
+          ),
+        ],
+      ),
+      form: Column(
+        children: [
+          Text(
+            'رمزعبور جدید خود را وارد کنید',
+            style: TextStyle(
+              color: isLightMode ? AppColors.grey900 : AppColors.white,
+              fontWeight: FontWeight.w500,
+              fontSize: SizeConfig.getProportionateScreenWidth(16),
             ),
           ),
-        ),
+          AdaptiveGap(SizeConfig.getProportionateScreenHeight(40)),
+          CustomTextField(
+            isPassword: true,
+            suffixIcon: 'assets/images/icons/Hide_bold.svg',
+            isLightMode: isLightMode,
+            preffixIcon: 'assets/images/icons/Lock_bold.svg',
+            hintText: 'رمزعبور',
+          ),
+          AdaptiveGap(SizeConfig.getProportionateScreenHeight(20)),
+          CustomTextField(
+            isPassword: true,
+            suffixIcon: 'assets/images/icons/Hide_bold.svg',
+            isLightMode: isLightMode,
+            preffixIcon: 'assets/images/icons/Lock_bold.svg',
+            hintText: 'رمزعبور',
+          ),
+          AdaptiveGap(SizeConfig.getProportionateScreenHeight(20)),
+          RememberMeWidget(),
+        ],
+      ),
+      footer: CustomButton(
+        onTap: () {
+          customSuccessShowDialog(context);
+        },
+        text: 'ادامه',
+        color: AppColors.primary,
+        width: SizeConfig.getProportionateScreenWidth(98),
       ),
     );
   }

@@ -2,8 +2,10 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:full_plants_ecommerce_app/screens/authentication/components/auth_scaffold.dart';
 import 'package:full_plants_ecommerce_app/utils/persian_number.dart';
 
+import '../../components/adaptive_gap.dart';
 import '../../components/cutsom_button.dart';
 import '../../theme/colors.dart';
 import '../../utils/size.dart';
@@ -118,7 +120,7 @@ class _OTPScreenState extends State<OTPScreen> {
   @override
   Widget build(BuildContext context) {
     final bool isLightMode = Theme.of(context).brightness == Brightness.light;
-    return Scaffold(
+    return AuthScaffold(
       appBar: AppBar(
         title: Text(
           'فراموشی رمز عبور',
@@ -129,113 +131,95 @@ class _OTPScreenState extends State<OTPScreen> {
           ),
         ),
       ),
-      body: GestureDetector(
-        behavior: HitTestBehavior.translucent,
-        onTap: () {
-          FocusScope.of(context).unfocus();
-        },
-        child: SafeArea(
-          child: SingleChildScrollView(
-            child: SizedBox(
-              width: SizeConfig.screenWidth,
-              height: SizeConfig.screenHeight,
-              child: Padding(
-                padding: EdgeInsets.symmetric(
-                  horizontal: SizeConfig.getProportionateScreenWidth(24),
-                ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    SvgPicture.asset(
-                      isLightMode
-                          ? 'assets/images/Forgot_Password_Light_Frame.svg'
-                          : 'assets/images/Forgot_Password_Dark_Frame.svg',
-                      width: SizeConfig.getProportionateScreenWidth(150),
-                      height: SizeConfig.getProportionateScreenWidth(150),
-                    ),
-                    SizedBox(height: SizeConfig.screenHeight * 0.1),
-                    Text(
-                      "کد به شماره 22 ***** 98916+ ارسال شد",
-                      style: TextStyle(
-                        fontSize: SizeConfig.getProportionateScreenWidth(18),
-                        fontWeight: FontWeight.w500,
-                        color: isLightMode ? AppColors.grey900 : AppColors.white,
-                      ),
-                    ),
-                    SizedBox(height: SizeConfig.getProportionateScreenHeight(60)),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      textDirection: TextDirection.ltr,
-                      children: List.generate(5, (index) {
-                        return Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 6),
-                          child: _buildOtpBox(index),
-                        );
-                      }),
-                    ),
-                    SizedBox(height: SizeConfig.getProportionateScreenHeight(60)),
-                    _secondsRemaining > 0
-                        ? RichText(
-                            text: TextSpan(
-                              style: TextStyle(
-                                fontFamily: 'IranBakh',
-                                fontWeight: FontWeight.w500,
-                                fontSize: SizeConfig.getProportionateScreenWidth(18),
-                                color: AppColors.grey900,
-                              ),
-                              children: [
-                                TextSpan(
-                                  text: "ارسال دوباره کد در ",
-                                  style: TextStyle(
-                                    color: isLightMode ? AppColors.grey900 : AppColors.white,
-                                    fontWeight: FontWeight.w500,
-                                    fontSize: SizeConfig.getProportionateScreenWidth(16),
-                                  ),
-                                ),
-                                TextSpan(
-                                  text: '$_secondsRemaining'.farsiNumber,
-                                  style: const TextStyle(color: AppColors.primary),
-                                ),
-                                TextSpan(
-                                  text: " ثانیه",
-                                  style: TextStyle(
-                                    color: isLightMode ? AppColors.grey900 : AppColors.white,
-                                    fontWeight: FontWeight.w500,
-                                    fontSize: SizeConfig.getProportionateScreenWidth(16),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          )
-                        : TextButton(
-                            onPressed: _startTimer,
-                            child: Text(
-                              "ارسال مجدد",
-                              style: TextStyle(
-                                color: AppColors.primary,
-                                fontWeight: FontWeight.w900,
-                                fontSize: SizeConfig.getProportionateScreenWidth(16),
-                              ),
-                            ),
-                          ),
-                    SizedBox(height: SizeConfig.getProportionateScreenHeight(60)),
-                    CustomButton(
-                      text: 'تایید',
-                      color: AppColors.disabledButton,
-                      onTap: () {
-                        final otp = _controllers.map((c) => c.text).join();
-                        print("OTP: $otp");
-                        Navigator.pushNamed(context, ChangePasswordScreen.routeName);
-                      },
-                      width: SizeConfig.getProportionateScreenWidth(77),
-                    ),
-                    SizedBox(height: SizeConfig.screenHeight * 0.2),
-                  ],
-                ),
-              ),
+      header: Column(
+        children: [
+          AdaptiveGap(SizeConfig.getProportionateScreenHeight(20)),
+          SvgPicture.asset(
+            isLightMode
+                ? 'assets/images/Forgot_Password_Light_Frame.svg'
+                : 'assets/images/Forgot_Password_Dark_Frame.svg',
+            width: SizeConfig.getProportionateScreenWidth(150),
+            height: SizeConfig.getProportionateScreenWidth(150),
+          ),
+        ],
+      ),
+      form: Column(
+        children: [
+          Text(
+            "کد به شماره 22 ***** 98916+ ارسال شد",
+            style: TextStyle(
+              fontSize: SizeConfig.getProportionateFontSize(16),
+              fontWeight: FontWeight.w500,
+              color: isLightMode ? AppColors.grey900 : AppColors.white,
             ),
           ),
-        ),
+          AdaptiveGap(SizeConfig.getProportionateScreenHeight(40)),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            textDirection: TextDirection.ltr,
+            children: List.generate(5, (index) {
+              return Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 6),
+                child: _buildOtpBox(index),
+              );
+            }),
+          ),
+          AdaptiveGap(SizeConfig.getProportionateScreenHeight(20)),
+          _secondsRemaining > 0
+              ? RichText(
+                  text: TextSpan(
+                    style: TextStyle(
+                      fontFamily: 'IranBakh',
+                      fontWeight: FontWeight.w500,
+                      fontSize: SizeConfig.getProportionateFontSize(16),
+                      color: AppColors.grey900,
+                    ),
+                    children: [
+                      TextSpan(
+                        text: "ارسال دوباره کد در ",
+                        style: TextStyle(
+                          color: isLightMode ? AppColors.grey900 : AppColors.white,
+                          fontWeight: FontWeight.w500,
+                          fontSize: SizeConfig.getProportionateFontSize(16),
+                        ),
+                      ),
+                      TextSpan(
+                        text: '$_secondsRemaining'.farsiNumber,
+                        style: const TextStyle(color: AppColors.primary),
+                      ),
+                      TextSpan(
+                        text: " ثانیه",
+                        style: TextStyle(
+                          color: isLightMode ? AppColors.grey900 : AppColors.white,
+                          fontWeight: FontWeight.w500,
+                          fontSize: SizeConfig.getProportionateFontSize(16),
+                        ),
+                      ),
+                    ],
+                  ),
+                )
+              : TextButton(
+                  onPressed: _startTimer,
+                  child: Text(
+                    "ارسال مجدد",
+                    style: TextStyle(
+                      color: AppColors.primary,
+                      fontWeight: FontWeight.w900,
+                      fontSize: SizeConfig.getProportionateFontSize(16),
+                    ),
+                  ),
+                ),
+        ],
+      ),
+      footer: CustomButton(
+        text: 'تایید',
+        color: AppColors.disabledButton,
+        onTap: () {
+          final otp = _controllers.map((c) => c.text).join();
+          print("OTP: $otp");
+          Navigator.pushNamed(context, ChangePasswordScreen.routeName);
+        },
+        width: SizeConfig.getProportionateScreenWidth(77),
       ),
     );
   }

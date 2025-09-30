@@ -24,7 +24,7 @@ class BottomAuthText extends StatelessWidget {
         Text(
           text,
           style: TextStyle(
-            fontSize: SizeConfig.getProportionateScreenWidth(14),
+            fontSize: SizeConfig.getProportionateFontSize(14),
             color: isLightMode ? AppColors.grey500 : AppColors.white,
           ),
         ),
@@ -34,7 +34,7 @@ class BottomAuthText extends StatelessWidget {
           child: Text(
             buttonText,
             style: TextStyle(
-              fontSize: SizeConfig.getProportionateScreenWidth(14),
+              fontSize: SizeConfig.getProportionateFontSize(14),
               color: AppColors.primary,
               fontWeight: FontWeight.w600,
             ),

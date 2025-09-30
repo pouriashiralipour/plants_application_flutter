@@ -75,7 +75,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
       style: TextStyle(
         color: widget.isLightMode ? AppColors.grey900 : AppColors.white,
         fontWeight: FontWeight.w600,
-        fontSize: SizeConfig.getProportionateScreenWidth(14),
+        fontSize: SizeConfig.getProportionateFontSize(14),
       ),
       decoration: InputDecoration(
         contentPadding: EdgeInsets.symmetric(
@@ -85,7 +85,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
         hintText: widget.hintText,
         hintStyle: TextStyle(
           color: widget.isLightMode ? AppColors.grey500 : AppColors.grey600,
-          fontSize: SizeConfig.getProportionateScreenWidth(14),
+          fontSize: SizeConfig.getProportionateFontSize(14),
           fontFamily: 'IranYekan',
         ),
         prefixIcon: SizedBox(

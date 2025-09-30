@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:full_plants_ecommerce_app/screens/authentication/components/auth_scaffold.dart';
 
+import '../../components/adaptive_gap.dart';
 import '../../components/custom_logo_widget.dart';
 import '../../components/custom_text_field.dart';
 import '../../components/cutsom_button.dart';
@@ -19,76 +21,64 @@ class LoginScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final bool isLightMode = Theme.of(context).brightness == Brightness.light;
-    return Scaffold(
+    return AuthScaffold(
       appBar: AppBar(),
-      body: GestureDetector(
-        behavior: HitTestBehavior.translucent,
-        onTap: () {
-          FocusScope.of(context).unfocus();
-        },
-        child: SafeArea(
-          child: SingleChildScrollView(
-            child: Padding(
-              padding: EdgeInsets.symmetric(
-                horizontal: SizeConfig.getProportionateScreenWidth(24),
-                vertical: SizeConfig.getProportionateScreenHeight(40),
-              ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  CustomLogoWidget(),
-                  SizedBox(height: SizeConfig.getProportionateScreenHeight(40)),
-                  CustomTitleAuth(title: 'به حساب کاربری خود وارد شوید'),
-                  SizedBox(height: SizeConfig.getProportionateScreenHeight(40)),
-                  CustomTextField(
-                    isLightMode: isLightMode,
-                    preffixIcon: 'assets/images/icons/Message_bold.svg',
-                    hintText: 'ایمیل یا شماره تلفن',
-                    textInputType: TextInputType.emailAddress,
-                  ),
-                  SizedBox(height: SizeConfig.getProportionateScreenHeight(20)),
-                  CustomTextField(
-                    isPassword: true,
-                    suffixIcon: 'assets/images/icons/Hide_bold.svg',
-                    isLightMode: isLightMode,
-                    preffixIcon: 'assets/images/icons/Lock_bold.svg',
-                    hintText: 'رمزعبور',
-                  ),
-                  SizedBox(height: SizeConfig.getProportionateScreenHeight(20)),
-                  RememberMeWidget(),
-                  SizedBox(height: SizeConfig.getProportionateScreenHeight(20)),
-                  CustomButton(
-                    onTap: () {},
-                    text: 'ورود',
-                    color: AppColors.disabledButton,
-                    width: SizeConfig.screenWidth,
-                  ),
-                  SizedBox(height: SizeConfig.getProportionateScreenHeight(20)),
-                  GestureDetector(
-                    onTap: () => Navigator.pushNamed(context, ForgotPasswordScreen.routeName),
-                    child: Text(
-                      'فراموشی رمز  عبور',
-                      style: TextStyle(
-                        color: AppColors.primary,
-                        fontSize: SizeConfig.getProportionateScreenWidth(16),
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                  ),
-                  SizedBox(height: SizeConfig.getProportionateScreenHeight(40)),
-                  BottomAuthText(
-                    text: 'هنوز عضو خانواده ما نشدی ؟',
-                    buttonText: 'ثبت نام',
-                    onTap: () {
-                      Navigator.pushNamed(context, SignUpScreen.routeName);
-                    },
-                  ),
-                ],
+      header: Column(
+        children: [
+          CustomLogoWidget(),
+          AdaptiveGap(SizeConfig.getProportionateScreenHeight(60)),
+          CustomTitleAuth(title: 'به حساب کاربری خود وارد شوید'),
+        ],
+      ),
+      form: Column(
+        children: [
+          CustomTextField(
+            isLightMode: isLightMode,
+            preffixIcon: 'assets/images/icons/Message_bold.svg',
+            hintText: 'ایمیل یا شماره تلفن',
+            textInputType: TextInputType.emailAddress,
+          ),
+          AdaptiveGap(SizeConfig.getProportionateScreenHeight(20)),
+          CustomTextField(
+            isPassword: true,
+            suffixIcon: 'assets/images/icons/Hide_bold.svg',
+            isLightMode: isLightMode,
+            preffixIcon: 'assets/images/icons/Lock_bold.svg',
+            hintText: 'رمزعبور',
+          ),
+          AdaptiveGap(SizeConfig.getProportionateScreenHeight(20)),
+          RememberMeWidget(),
+        ],
+      ),
+      footer: Column(
+        children: [
+          CustomButton(
+            onTap: () {},
+            text: 'ورود',
+            color: AppColors.disabledButton,
+            width: SizeConfig.screenWidth,
+          ),
+          AdaptiveGap(SizeConfig.getProportionateScreenHeight(40)),
+          GestureDetector(
+            onTap: () => Navigator.pushNamed(context, ForgotPasswordScreen.routeName),
+            child: Text(
+              'فراموشی رمز  عبور',
+              style: TextStyle(
+                color: AppColors.primary,
+                fontSize: SizeConfig.getProportionateFontSize(16),
+                fontWeight: FontWeight.w700,
               ),
             ),
           ),
-        ),
+          AdaptiveGap(SizeConfig.getProportionateScreenHeight(40)),
+          BottomAuthText(
+            text: 'هنوز عضو خانواده ما نشدی ؟',
+            buttonText: 'ثبت نام',
+            onTap: () {
+              Navigator.pushNamed(context, SignUpScreen.routeName);
+            },
+          ),
+        ],
       ),
     );
   }

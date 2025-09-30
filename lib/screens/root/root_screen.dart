@@ -59,8 +59,8 @@ class _RootScreenState extends State<RootScreen> {
                 style: TextStyle(
                   color: bottonIndex == index ? AppColors.primary : AppColors.grey500,
                   fontSize: bottonIndex == index
-                      ? SizeConfig.getProportionateScreenWidth(12)
-                      : SizeConfig.getProportionateScreenWidth(10),
+                      ? SizeConfig.getProportionateFontSize(12)
+                      : SizeConfig.getProportionateFontSize(10),
                   fontWeight: bottonIndex == index ? FontWeight.w800 : FontWeight.w600,
                 ),
               ),
