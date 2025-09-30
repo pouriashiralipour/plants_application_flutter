@@ -13,19 +13,20 @@ class CustomLogoWidget extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Text(
-          'hiloropia',
-          style: TextStyle(
-            color: isLightMode ? AppColors.grey900 : AppColors.white,
-            fontWeight: FontWeight.w900,
-            fontSize: SizeConfig.getProportionateScreenWidth(48),
-          ),
-        ),
-        SizedBox(width: SizeConfig.getProportionateScreenWidth(10)),
         SvgPicture.asset(
           'assets/images/Logo.svg',
           height: SizeConfig.getProportionateScreenWidth(60),
           width: SizeConfig.getProportionateScreenWidth(60),
+        ),
+        SizedBox(width: SizeConfig.getProportionateScreenWidth(10)),
+        Text(
+          'فیلوروپیا',
+          style: TextStyle(
+            fontFamily: 'Kalameh',
+            color: isLightMode ? AppColors.grey900 : AppColors.white,
+            fontWeight: FontWeight.w900,
+            fontSize: SizeConfig.getProportionateScreenWidth(48),
+          ),
         ),
       ],
     );
