@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
-import '../theme/colors.dart';
-import '../utils/size.dart';
+import '../../theme/colors.dart';
+import '../../utils/size.dart';
 
 class CustomLogoWidget extends StatelessWidget {
   const CustomLogoWidget({super.key});

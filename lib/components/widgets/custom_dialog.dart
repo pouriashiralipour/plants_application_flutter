@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
-import '../theme/colors.dart';
-import '../utils/size.dart';
-import 'custom_progress_bar.dart';
+import '../../theme/colors.dart';
+import '../../utils/size.dart';
+import '../custom_progress_bar.dart';
 
 class CustomSuccessDialog extends StatelessWidget {
-  const CustomSuccessDialog({super.key});
+  const CustomSuccessDialog({super.key, required this.text});
+  final String text;
 
   @override
   Widget build(BuildContext context) {
@@ -38,7 +39,7 @@ class CustomSuccessDialog extends StatelessWidget {
               ),
               SizedBox(height: SizeConfig.getProportionateScreenWidth(12)),
               Text(
-                "رمز عبور شما با موفقیت تغییر کرد.\nحالا میتونی با رمزعبور جدید وارد بشی.\nشما تا لحظاتی دیگر به صفحه ورود هدایت می شوید",
+                text,
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: SizeConfig.getProportionateFontSize(14),

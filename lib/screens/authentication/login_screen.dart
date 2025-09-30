@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:full_plants_ecommerce_app/screens/authentication/components/auth_scaffold.dart';
 
 import '../../components/adaptive_gap.dart';
-import '../../components/custom_logo_widget.dart';
-import '../../components/custom_text_field.dart';
-import '../../components/cutsom_button.dart';
+import '../../components/widgets/custom_logo_widget.dart';
+import '../../components/widgets/custom_text_field.dart';
+import '../../components/widgets/cutsom_button.dart';
 import '../../theme/colors.dart';
 import '../../utils/size.dart';
 import 'components/bottom_auth_text.dart';

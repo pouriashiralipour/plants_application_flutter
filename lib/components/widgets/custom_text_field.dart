@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
-import '../theme/colors.dart';
-import '../utils/size.dart';
+import '../../theme/colors.dart';
+import '../../utils/size.dart';
 
 class CustomTextField extends StatefulWidget {
   final String hintText;
   final bool isLightMode;
-  final String preffixIcon;
+  final String? preffixIcon;
   final String? suffixIcon;
   final TextInputType? textInputType;
   final bool isPassword;
@@ -15,7 +15,7 @@ class CustomTextField extends StatefulWidget {
     super.key,
     required this.isLightMode,
     this.textInputType,
-    required this.preffixIcon,
+    this.preffixIcon,
     required this.hintText,
     this.suffixIcon,
     this.isPassword = false,
@@ -88,17 +88,19 @@ class _CustomTextFieldState extends State<CustomTextField> {
           fontSize: SizeConfig.getProportionateFontSize(14),
           fontFamily: 'IranYekan',
         ),
-        prefixIcon: SizedBox(
-          width: SizeConfig.getProportionateScreenWidth(60),
-          child: Center(
-            child: SvgPicture.asset(
-              widget.preffixIcon,
-              width: SizeConfig.getProportionateScreenWidth(20),
-              height: SizeConfig.getProportionateScreenWidth(20),
-              color: _getIconColor(_isFocused, _hasText, widget.isLightMode),
-            ),
-          ),
-        ),
+        prefixIcon: widget.preffixIcon != null
+            ? SizedBox(
+                width: SizeConfig.getProportionateScreenWidth(60),
+                child: Center(
+                  child: SvgPicture.asset(
+                    widget.preffixIcon!,
+                    width: SizeConfig.getProportionateScreenWidth(20),
+                    height: SizeConfig.getProportionateScreenWidth(20),
+                    color: _getIconColor(_isFocused, _hasText, widget.isLightMode),
+                  ),
+                ),
+              )
+            : null,
         suffixIcon: widget.isPassword
             ? IconButton(
                 onPressed: () {
@@ -116,11 +118,16 @@ class _CustomTextFieldState extends State<CustomTextField> {
                 ),
               )
             : (widget.suffixIcon != null
-                  ? SvgPicture.asset(
-                      widget.suffixIcon!,
-                      width: SizeConfig.getProportionateScreenWidth(20),
-                      height: SizeConfig.getProportionateScreenWidth(20),
-                      color: _getIconColor(_isFocused, _hasText, widget.isLightMode),
+                  ? SizedBox(
+                      width: SizeConfig.getProportionateScreenWidth(40),
+                      child: Center(
+                        child: SvgPicture.asset(
+                          widget.suffixIcon!,
+                          width: SizeConfig.getProportionateScreenWidth(20),
+                          height: SizeConfig.getProportionateScreenWidth(20),
+                          color: _getIconColor(_isFocused, _hasText, widget.isLightMode),
+                        ),
+                      ),
                     )
                   : null),
         filled: true,

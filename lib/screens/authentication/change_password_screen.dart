@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:full_plants_ecommerce_app/screens/authentication/components/auth_scaffold.dart';
 
 import '../../components/adaptive_gap.dart';
-import '../../components/custom_dialog.dart';
+import '../../components/widgets/custom_dialog.dart';
 
-import '../../components/custom_text_field.dart';
-import '../../components/cutsom_button.dart';
+import '../../components/widgets/custom_text_field.dart';
+import '../../components/widgets/cutsom_button.dart';
 import '../../theme/colors.dart';
 import '../../utils/size.dart';
 import 'components/auth_svg_asset_widget.dart';
@@ -96,7 +96,10 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
           Navigator.pop(context);
           Navigator.pushReplacementNamed(context, LoginScreen.routeName);
         });
-        return CustomSuccessDialog();
+        return CustomSuccessDialog(
+          text:
+              "رمز عبور شما با موفقیت تغییر کرد.\nحالا میتونی با رمزعبور جدید وارد بشی.\nشما تا لحظاتی دیگر به صفحه ورود هدایت می شوید",
+        );
       },
     );
   }

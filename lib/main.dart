@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:full_plants_ecommerce_app/screens/authentication/sign_up_screen.dart';
+
 import 'routes.dart';
+import 'screens/splash/splash_screen.dart';
 import 'theme/theme.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
@@ -32,7 +33,7 @@ class MyApp extends StatelessWidget {
           darkTheme: AppTheme.darkTheme,
           themeMode: ThemeMode.system,
           routes: routes,
-          initialRoute: SignUpScreen.routeName,
+          initialRoute: SplashScreen.routeName,
         );
       },
     );

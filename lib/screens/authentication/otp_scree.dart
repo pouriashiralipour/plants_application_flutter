@@ -6,7 +6,7 @@ import 'package:full_plants_ecommerce_app/screens/authentication/components/auth
 import 'package:full_plants_ecommerce_app/utils/persian_number.dart';
 
 import '../../components/adaptive_gap.dart';
-import '../../components/cutsom_button.dart';
+import '../../components/widgets/cutsom_button.dart';
 import '../../theme/colors.dart';
 import '../../utils/size.dart';
 import 'change_password_screen.dart';

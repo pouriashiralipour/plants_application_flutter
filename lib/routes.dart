@@ -5,6 +5,7 @@ import 'screens/authentication/change_password_screen.dart';
 import 'screens/authentication/forgot_password_screen.dart';
 import 'screens/authentication/login_screen.dart';
 import 'screens/authentication/otp_scree.dart';
+import 'screens/authentication/profile_form_screen.dart';
 import 'screens/authentication/sign_up_screen.dart';
 import 'screens/on_boarding/on_boarding.dart';
 import 'screens/root/root_screen.dart';
@@ -22,4 +23,5 @@ final Map<String, WidgetBuilder> routes = {
   LoginScreen.routeName: (contxet) => const LoginScreen(),
   ForgotPasswordScreen.routeName: (contxet) => const ForgotPasswordScreen(),
   ChangePasswordScreen.routeName: (contxet) => const ChangePasswordScreen(),
+  ProfileFormScreen.routeName: (contxet) => const ProfileFormScreen(),
 };

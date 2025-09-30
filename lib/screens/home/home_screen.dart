@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:full_plants_ecommerce_app/components/custom_category_bar.dart';
-import '../../components/custom_app_bar.dart';
+import '../../components/widgets/custom_app_bar.dart';
 import '../../components/custom_search_bar.dart';
 import '../../components/custom_title_bar.dart';
 import '../../components/special_offer_card.dart';
