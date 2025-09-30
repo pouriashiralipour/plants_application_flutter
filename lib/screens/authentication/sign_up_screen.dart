@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:full_plants_ecommerce_app/components/custom_logo_widget.dart';
 
 import '../../components/custom_text_field.dart';
 import '../../components/cutsom_button.dart';
@@ -41,12 +42,14 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
+                    CustomLogoWidget(),
+                    SizedBox(height: SizeConfig.screenHeight * 0.1),
                     AuthSvgAssetWidget(
                       svg: isLightMode
                           ? 'assets/images/sign_up_frame.svg'
                           : 'assets/images/sign_up_dark_frame.svg',
                     ),
-                    SizedBox(height: SizeConfig.screenHeight * 0.1),
+                    SizedBox(height: SizeConfig.screenHeight * 0.05),
                     CustomTitleAuth(title: 'عضوی از خانواده ما شو'),
                     SizedBox(height: SizeConfig.getProportionateScreenHeight(40)),
                     CustomTextField(

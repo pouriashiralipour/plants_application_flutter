@@ -13,6 +13,7 @@ class CustomSuccessDialog extends StatelessWidget {
     final bool isLightMode = Theme.of(context).brightness == Brightness.light;
     return Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(44)),
+      backgroundColor: isLightMode ? AppColors.white : AppColors.dark2,
       child: SizedBox(
         width: SizeConfig.getProportionateScreenWidth(340),
         height: SizeConfig.getProportionateScreenHeight(487),

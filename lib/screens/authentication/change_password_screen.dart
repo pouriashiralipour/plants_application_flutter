@@ -83,7 +83,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                       ),
                     ),
                     RememberMeWidget(),
-                    SizedBox(height: SizeConfig.screenHeight * 0.1),
+                    SizedBox(height: SizeConfig.screenHeight * 0.05),
                     CustomButton(
                       onTap: () {
                         customSuccessShowDialog(context);
@@ -107,7 +107,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
     return showDialog(
       context: context,
       barrierDismissible: false,
-      barrierColor: Colors.black.withValues(alpha: 0.85),
+      barrierColor: AppColors.grey900.withValues(alpha: 0.8),
       builder: (BuildContext context) {
         Future.delayed(const Duration(seconds: 5), () {
           Navigator.pop(context);
