@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
-import 'package:full_plants_ecommerce_app/components/custom_text_field.dart';
-import 'package:full_plants_ecommerce_app/components/cutsom_button.dart';
-import 'package:full_plants_ecommerce_app/screens/authentication/components/auth_svg_asset_widget.dart';
-import 'package:full_plants_ecommerce_app/screens/authentication/components/remember_me.dart';
 
+import '../../components/custom_dialog.dart';
 
+import '../../components/custom_text_field.dart';
+import '../../components/cutsom_button.dart';
 import '../../theme/colors.dart';
 import '../../utils/size.dart';
+import 'components/auth_svg_asset_widget.dart';
+import 'components/remember_me.dart';
 import 'login_screen.dart';
 
 class ChangePasswordScreen extends StatefulWidget {
@@ -18,23 +18,7 @@ class ChangePasswordScreen extends StatefulWidget {
   State<ChangePasswordScreen> createState() => _ChangePasswordScreenState();
 }
 
-class _ChangePasswordScreenState extends State<ChangePasswordScreen>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  void initState() {
-    super.initState();
-
-    _controller = AnimationController(duration: const Duration(seconds: 2), vsync: this)..repeat();
-  }
-
+class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
   @override
   Widget build(BuildContext context) {
     final bool isLightMode = Theme.of(context).brightness == Brightness.light;
@@ -102,63 +86,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen>
                     SizedBox(height: SizeConfig.screenHeight * 0.1),
                     CustomButton(
                       onTap: () {
-                        showDialog(
-                          context: context,
-                          barrierDismissible: false,
-                          barrierColor: Colors.black.withValues(alpha: 0.85),
-                          builder: (BuildContext context) {
-                            Future.delayed(const Duration(minutes: 4), () {
-                              Navigator.pop(context);
-                              Navigator.pushReplacementNamed(context, LoginScreen.routeName);
-                            });
-                            return Dialog(
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(44),
-                              ),
-                              child: SizedBox(
-                                width: SizeConfig.getProportionateScreenWidth(340),
-                                height: SizeConfig.getProportionateScreenHeight(487),
-                                child: Padding(
-                                  padding: EdgeInsets.all(
-                                    SizeConfig.getProportionateScreenWidth(24),
-                                  ),
-                                  child: Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      SvgPicture.asset(
-                                        'assets/images/successsvg.svg',
-                                        width: SizeConfig.getProportionateScreenWidth(185),
-                                        height: SizeConfig.getProportionateScreenHeight(180),
-                                      ),
-                                      SizedBox(height: SizeConfig.getProportionateScreenWidth(24)),
-                                      Text(
-                                        "تبریک میگم!",
-                                        style: TextStyle(
-                                          fontSize: SizeConfig.getProportionateScreenWidth(24),
-                                          fontWeight: FontWeight.w700,
-                                        ),
-                                      ),
-                                      SizedBox(height: SizeConfig.getProportionateScreenWidth(12)),
-                                      Text(
-                                        "رمز عبور شما با موفقیت تغییر کرد.\nحالا میتونی با رمزعبور جدید وارد بشی.\nشما تا لحظاتی دیگر به صفحه ورود هدایت می شوید",
-                                        textAlign: TextAlign.center,
-                                        style: TextStyle(
-                                          fontSize: SizeConfig.getProportionateScreenWidth(16),
-                                          color: AppColors.grey500,
-                                        ),
-                                      ),
-                                      SizedBox(height: SizeConfig.getProportionateScreenWidth(24)),
-                                      RotationTransition(
-                                        turns: _controller,
-                                        child: SvgPicture.asset('assets/images/progress_bar.svg'),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            );
-                          },
-                        );
+                        customSuccessShowDialog(context);
                       },
                       text: 'ادامه',
                       color: AppColors.primary,
@@ -172,6 +100,21 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen>
           ),
         ),
       ),
+    );
+  }
+
+  Future<dynamic> customSuccessShowDialog(BuildContext context) {
+    return showDialog(
+      context: context,
+      barrierDismissible: false,
+      barrierColor: Colors.black.withValues(alpha: 0.85),
+      builder: (BuildContext context) {
+        Future.delayed(const Duration(seconds: 5), () {
+          Navigator.pop(context);
+          Navigator.pushReplacementNamed(context, LoginScreen.routeName);
+        });
+        return CustomSuccessDialog();
+      },
     );
   }
 }
