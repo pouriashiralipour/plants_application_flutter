@@ -1,35 +1,50 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:full_plants_ecommerce_app/utils/persian_number.dart';
+import 'package:persian_datetime_picker/persian_datetime_picker.dart';
 
 import '../../theme/colors.dart';
 import '../../utils/size.dart';
 
 class CustomTextField extends StatefulWidget {
-  final String hintText;
-  final bool isLightMode;
-  final String? preffixIcon;
-  final String? suffixIcon;
-  final TextInputType? textInputType;
-  final bool isPassword;
   const CustomTextField({
     super.key,
-    required this.isLightMode,
-    this.textInputType,
+    this.isLightMode = false,
     this.preffixIcon,
-    required this.hintText,
+    this.hintText,
+    this.controller,
     this.suffixIcon,
+    this.isDateField = false,
     this.isPassword = false,
+    this.keyboardType,
+    this.validator,
+    this.inputFormatters,
+    this.enabled,
   });
+
+  final TextEditingController? controller;
+  final String? hintText;
+  final bool? isLightMode;
+  final bool? isDateField;
+  final bool? isPassword;
+  final String? preffixIcon;
+  final String? suffixIcon;
+  final TextInputType? keyboardType;
+  final FormFieldValidator<String>? validator;
+  final List<TextInputFormatter>? inputFormatters;
+  final bool? enabled;
 
   @override
   State<CustomTextField> createState() => _CustomTextFieldState();
 }
 
 class _CustomTextFieldState extends State<CustomTextField> {
-  late FocusNode _focusNode;
-  bool _isFocused = false;
-  late bool _obscureText;
+  late final FocusNode _focusNode;
+
   bool _hasText = false;
+  bool _isFocused = false;
+  bool _obscure = false;
 
   @override
   void dispose() {
@@ -40,13 +55,26 @@ class _CustomTextFieldState extends State<CustomTextField> {
   @override
   void initState() {
     super.initState();
-    _obscureText = widget.isPassword;
+    _obscure = widget.isPassword!;
     _focusNode = FocusNode();
     _focusNode.addListener(() {
       setState(() {
         _isFocused = _focusNode.hasFocus;
       });
     });
+  }
+
+  String? _dateValidator(String? val) {
+    if (val == null || val.trim().isEmpty) {
+      return 'تاریخ را انتخاب کنید';
+    }
+    final v = val.englishNumber.trim();
+
+    final re = RegExp(r'^(13|14)\d{2}\/(0[1-9]|1[0-2])\/(0[1-9]|[12]\d|3[01])$');
+    if (!re.hasMatch(v)) {
+      return 'فرمت تاریخ صحیح نیست (مثال: ۱۴۰۳/۰۷/۱۲)';
+    }
+    return null;
   }
 
   Color _getIconColor(bool isFocused, bool hasText, bool isLightMode) {
@@ -61,19 +89,62 @@ class _CustomTextFieldState extends State<CustomTextField> {
     }
   }
 
+  Future<void> _handleDateTap() async {
+    final picked = await showPersianDatePicker(
+      context: context,
+      initialDate: Jalali.now(),
+      firstDate: Jalali(1300, 1, 1),
+      lastDate: Jalali(1450, 12, 29),
+      locale: const Locale('fa', 'IR'),
+      initialEntryMode: PersianDatePickerEntryMode.calendar,
+      // helpText: 'انتخاب تاریخ تولد',
+      fieldLabelText: 'تاریخ تولد',
+      fieldHintText: '1378/07/12'.farsiNumber,
+      errorFormatText: 'فرمت تاریخ نادرست است',
+      errorInvalidText: 'تاریخ نامعتبر است',
+    );
+
+    if (picked != null) {
+      final f = picked.formatter;
+      final value = '${f.yyyy}/${f.mm}/${f.dd}'.farsiNumber;
+      widget.controller?.text = value;
+
+      _focusNode.unfocus();
+      FocusScope.of(context).unfocus();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final isDate = widget.isDateField == true;
     return TextFormField(
-      obscureText: _obscureText,
+      controller: widget.controller,
+      obscureText: _obscure,
       focusNode: _focusNode,
-      keyboardType: widget.textInputType,
+      enabled: widget.enabled ?? true,
+      readOnly: isDate,
+      keyboardType: isDate ? TextInputType.none : (widget.keyboardType ?? TextInputType.text),
+      inputFormatters: isDate ? const [] : (widget.inputFormatters ?? const []),
+      textDirection: TextDirection.rtl,
       onChanged: (value) {
         setState(() {
           _hasText = value.isNotEmpty;
         });
       },
+      onTap: () async {
+        if (isDate) {
+          await _handleDateTap();
+        }
+      },
+      validator: isDate
+          ? (val) {
+              final v = widget.validator?.call(val);
+              if (v != null) return v;
+              return _dateValidator(val);
+            }
+          : widget.validator,
       style: TextStyle(
-        color: widget.isLightMode ? AppColors.grey900 : AppColors.white,
+        color: widget.isLightMode! ? AppColors.grey900 : AppColors.white,
         fontWeight: FontWeight.w600,
         fontSize: SizeConfig.getProportionateFontSize(14),
       ),
@@ -84,7 +155,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
         ),
         hintText: widget.hintText,
         hintStyle: TextStyle(
-          color: widget.isLightMode ? AppColors.grey500 : AppColors.grey600,
+          color: widget.isLightMode! ? AppColors.grey500 : AppColors.grey600,
           fontSize: SizeConfig.getProportionateFontSize(14),
           fontFamily: 'IranYekan',
         ),
@@ -96,25 +167,25 @@ class _CustomTextFieldState extends State<CustomTextField> {
                     widget.preffixIcon!,
                     width: SizeConfig.getProportionateScreenWidth(20),
                     height: SizeConfig.getProportionateScreenWidth(20),
-                    color: _getIconColor(_isFocused, _hasText, widget.isLightMode),
+                    color: _getIconColor(_isFocused, _hasText, widget.isLightMode!),
                   ),
                 ),
               )
             : null,
-        suffixIcon: widget.isPassword
+        suffixIcon: widget.isPassword!
             ? IconButton(
                 onPressed: () {
                   setState(() {
-                    _obscureText = !_obscureText;
+                    _obscure = !_obscure;
                   });
                 },
                 icon: SvgPicture.asset(
-                  _obscureText
+                  _obscure
                       ? 'assets/images/icons/Hide_bold.svg'
                       : 'assets/images/icons/Show_bold.svg',
                   width: SizeConfig.getProportionateScreenWidth(20),
                   height: SizeConfig.getProportionateScreenWidth(20),
-                  color: _getIconColor(_isFocused, _hasText, widget.isLightMode),
+                  color: _getIconColor(_isFocused, _hasText, widget.isLightMode!),
                 ),
               )
             : (widget.suffixIcon != null
@@ -125,13 +196,13 @@ class _CustomTextFieldState extends State<CustomTextField> {
                           widget.suffixIcon!,
                           width: SizeConfig.getProportionateScreenWidth(20),
                           height: SizeConfig.getProportionateScreenWidth(20),
-                          color: _getIconColor(_isFocused, _hasText, widget.isLightMode),
+                          color: _getIconColor(_isFocused, _hasText, widget.isLightMode!),
                         ),
                       ),
                     )
                   : null),
         filled: true,
-        fillColor: widget.isLightMode
+        fillColor: widget.isLightMode!
             ? _isFocused
                   ? AppColors.primary.withValues(alpha: 0.08)
                   : AppColors.grey50

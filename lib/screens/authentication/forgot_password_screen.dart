@@ -33,7 +33,6 @@ class ForgotPasswordScreen extends StatelessWidget {
             isLightMode: isLightMode,
             preffixIcon: 'assets/images/icons/Message_bold.svg',
             hintText: 'ایمیل یا شماره تلفن',
-            textInputType: TextInputType.emailAddress,
           ),
         ],
       ),

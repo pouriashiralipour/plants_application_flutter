@@ -43,27 +43,33 @@ class _HomeScreenState extends State<HomeScreen> {
     final bool isLightMode = Theme.of(context).brightness == Brightness.light;
     return Scaffold(
       body: SafeArea(
-        child: SingleChildScrollView(
-          child: Column(
-            children: [
-              SizedBox(height: SizeConfig.getProportionateScreenHeight(24)),
-              CustomAppBar(isLightMode: isLightMode),
-              SizedBox(height: SizeConfig.getProportionateScreenHeight(24)),
-              CustmoSearchBar(
-                focusNode: _focusNode,
-                isLightMode: isLightMode,
-                isFocused: _isFocused,
-              ),
-              SizedBox(height: SizeConfig.getProportionateScreenHeight(24)),
-              CustomTitleBarOfProducts(title: 'پیشنهاد ویژه'),
-              SizedBox(height: SizeConfig.getProportionateScreenHeight(24)),
-              SpecialOfferCard(isLightMode: isLightMode),
-              SizedBox(height: SizeConfig.getProportionateScreenHeight(24)),
-              CustomTitleBarOfProducts(title: 'محبوب ترین'),
-              SizedBox(height: SizeConfig.getProportionateScreenHeight(24)),
-              CustomCategoryBar(indexCategory: _indexCategory),
-              SizedBox(height: SizeConfig.getProportionateScreenHeight(24)),
-            ],
+        child: GestureDetector(
+          behavior: HitTestBehavior.translucent,
+          onTap: () {
+            FocusScope.of(context).unfocus();
+          },
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                SizedBox(height: SizeConfig.getProportionateScreenHeight(24)),
+                CustomAppBar(isLightMode: isLightMode),
+                SizedBox(height: SizeConfig.getProportionateScreenHeight(24)),
+                CustmoSearchBar(
+                  focusNode: _focusNode,
+                  isLightMode: isLightMode,
+                  isFocused: _isFocused,
+                ),
+                SizedBox(height: SizeConfig.getProportionateScreenHeight(24)),
+                CustomTitleBarOfProducts(title: 'پیشنهاد ویژه'),
+                SizedBox(height: SizeConfig.getProportionateScreenHeight(24)),
+                SpecialOfferCard(isLightMode: isLightMode),
+                SizedBox(height: SizeConfig.getProportionateScreenHeight(24)),
+                CustomTitleBarOfProducts(title: 'محبوب ترین'),
+                SizedBox(height: SizeConfig.getProportionateScreenHeight(24)),
+                CustomCategoryBar(indexCategory: _indexCategory),
+                SizedBox(height: SizeConfig.getProportionateScreenHeight(24)),
+              ],
+            ),
           ),
         ),
       ),

@@ -1,11 +1,20 @@
 extension FarsiNumberExtension on String {
+  static const _en = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+  static const _fa = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹'];
+
   String get farsiNumber {
-    const english = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
-    const farsi = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹'];
-    String text = this;
-    for (int i = 0; i < english.length; i++) {
-      text = text.replaceAll(english[i], farsi[i]);
+    var s = this;
+    for (var i = 0; i < _en.length; i++) {
+      s = s.replaceAll(_en[i], _fa[i]);
     }
-    return text;
+    return s;
+  }
+
+  String get englishNumber {
+    var s = this;
+    for (var i = 0; i < _fa.length; i++) {
+      s = s.replaceAll(_fa[i], _en[i]);
+    }
+    return s;
   }
 }

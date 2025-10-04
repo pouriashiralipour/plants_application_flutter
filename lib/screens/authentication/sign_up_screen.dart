@@ -45,7 +45,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
         isLightMode: isLightMode,
         preffixIcon: 'assets/images/icons/Message_bold.svg',
         hintText: 'ایمیل یا شماره تلفن',
-        textInputType: TextInputType.emailAddress,
       ),
       footer: Column(
         children: [

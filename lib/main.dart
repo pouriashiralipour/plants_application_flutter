@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 
 import 'routes.dart';
+import 'screens/authentication/profile_form_screen.dart';
 import 'screens/splash/splash_screen.dart';
+import 'package:persian_datetime_picker/persian_datetime_picker.dart';
 import 'theme/theme.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
@@ -21,19 +23,23 @@ class MyApp extends StatelessWidget {
       builder: (context, constraints) {
         SizeConfig.init(context);
         return MaterialApp(
-          title: 'Poteo Application',
+          title: 'Philoroupia Application',
           debugShowCheckedModeBanner: false,
+          locale: const Locale("fa", "IR"),
+          supportedLocales: const [Locale("fa", "IR"), Locale("en", "US")],
           localizationsDelegates: [
+            PersianMaterialLocalizations.delegate,
+            PersianCupertinoLocalizations.delegate,
             GlobalMaterialLocalizations.delegate,
             GlobalWidgetsLocalizations.delegate,
             GlobalCupertinoLocalizations.delegate,
           ],
-          supportedLocales: [Locale('fa')],
+
           theme: AppTheme.lightTheme,
           darkTheme: AppTheme.darkTheme,
           themeMode: ThemeMode.system,
           routes: routes,
-          initialRoute: SplashScreen.routeName,
+          initialRoute: ProfileFormScreen.routeName,
         );
       },
     );

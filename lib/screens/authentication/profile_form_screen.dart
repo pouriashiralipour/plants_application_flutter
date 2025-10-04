@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:full_plants_ecommerce_app/screens/authentication/components/auth_scaffold.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'dart:io';
 
 import '../../components/adaptive_gap.dart';
 import '../../components/widgets/custom_dialog.dart';
@@ -10,11 +12,66 @@ import '../../components/widgets/cutsom_button.dart';
 import '../../theme/colors.dart';
 import '../../utils/size.dart';
 import '../root/root_screen.dart';
+import 'components/auth_scaffold.dart';
 
-class ProfileFormScreen extends StatelessWidget {
+class ProfileFormScreen extends StatefulWidget {
   const ProfileFormScreen({super.key});
 
   static String routeName = './profile_form';
+
+  @override
+  State<ProfileFormScreen> createState() => _ProfileFormScreenState();
+}
+
+class _ProfileFormScreenState extends State<ProfileFormScreen> {
+  final ImagePicker _picker = ImagePicker();
+  final _formKey = GlobalKey<FormState>();
+  late final TextEditingController _birthDateController;
+
+  File? _imageFile;
+
+  @override
+  void initState() {
+    super.initState();
+    _birthDateController = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    _birthDateController.dispose();
+    super.dispose();
+  }
+
+  void _submit() {
+    final ok = _formKey.currentState?.validate() ?? false;
+    if (!ok) return;
+  }
+
+  Future<void> _pickImage() async {
+    var status = await Permission.photos.request();
+
+    if (status.isDenied || status.isPermanentlyDenied) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text("اجازه دسترسی به تصاویر داده نشد")));
+      return;
+    }
+
+    try {
+      final XFile? pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+
+      if (pickedFile != null) {
+        setState(() {
+          _imageFile = File(pickedFile.path);
+        });
+      }
+    } catch (e) {
+      debugPrint("❌ خطا در انتخاب تصویر: $e");
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("خطا در انتخاب تصویر: $e")));
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -33,14 +90,19 @@ class ProfileFormScreen extends StatelessWidget {
       header: Stack(
         children: [
           Container(
-            width: SizeConfig.getProportionateScreenWidth(140),
-            height: SizeConfig.getProportionateScreenWidth(140),
+            width: SizeConfig.getProportionateScreenWidth(120),
+            height: SizeConfig.getProportionateScreenWidth(120),
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               image: DecorationImage(
-                image: AssetImage(
-                  isLightMode ? 'assets/images/profile.png' : 'assets/images/profile_dark.png',
-                ),
+                fit: BoxFit.contain,
+                image: _imageFile != null
+                    ? FileImage(_imageFile!)
+                    : AssetImage(
+                        isLightMode
+                            ? 'assets/images/profile.png'
+                            : 'assets/images/profile_dark.png',
+                      ),
               ),
             ),
           ),
@@ -48,7 +110,7 @@ class ProfileFormScreen extends StatelessWidget {
             top: 105,
             left: 105,
             child: GestureDetector(
-              onTap: () {},
+              onTap: _pickImage,
               child: SizedBox(
                 width: SizeConfig.getProportionateScreenWidth(35),
                 height: SizeConfig.getProportionateScreenWidth(35),
@@ -61,35 +123,41 @@ class ProfileFormScreen extends StatelessWidget {
           ),
         ],
       ),
-      form: Column(
-        children: [
-          CustomTextField(isPassword: false, isLightMode: isLightMode, hintText: 'نام کامل'),
-          AdaptiveGap(SizeConfig.getProportionateScreenHeight(15)),
-          CustomTextField(isPassword: false, isLightMode: isLightMode, hintText: 'نام مستعار'),
-          AdaptiveGap(SizeConfig.getProportionateScreenHeight(15)),
-          CustomTextField(
-            isPassword: false,
-            isLightMode: isLightMode,
-            hintText: 'تاریخ تولد',
-            suffixIcon: 'assets/images/icons/Calendar_curve.svg',
-          ),
-          AdaptiveGap(SizeConfig.getProportionateScreenHeight(15)),
-          CustomTextField(
-            isPassword: false,
-            isLightMode: isLightMode,
-            hintText: 'ایمیل',
-            suffixIcon: 'assets/images/icons/Message_curve.svg',
-          ),
-          AdaptiveGap(SizeConfig.getProportionateScreenHeight(15)),
-          CustomTextField(
-            isPassword: false,
-            isLightMode: isLightMode,
-            hintText: 'شماره موبایل',
-            suffixIcon: 'assets/images/icons/Call_curve.svg',
-          ),
-          AdaptiveGap(SizeConfig.getProportionateScreenHeight(15)),
-          FancyDropdownFormField(hint: 'جنسیت', items: const ['زن', 'مرد'], onChanged: (v) {}),
-        ],
+      form: Form(
+        key: _formKey,
+        child: Column(
+          children: [
+            CustomTextField(isPassword: false, isLightMode: isLightMode, hintText: 'نام کامل'),
+            AdaptiveGap(SizeConfig.getProportionateScreenHeight(15)),
+            CustomTextField(isPassword: false, isLightMode: isLightMode, hintText: 'نام مستعار'),
+            AdaptiveGap(SizeConfig.getProportionateScreenHeight(15)),
+            CustomTextField(
+              isPassword: false,
+              isLightMode: isLightMode,
+              hintText: 'تاریخ تولد',
+              suffixIcon: 'assets/images/icons/Calendar_curve.svg',
+              isDateField: true,
+              controller: _birthDateController,
+              validator: (value) {},
+            ),
+            AdaptiveGap(SizeConfig.getProportionateScreenHeight(15)),
+            CustomTextField(
+              isPassword: false,
+              isLightMode: isLightMode,
+              hintText: 'ایمیل',
+              suffixIcon: 'assets/images/icons/Message_curve.svg',
+            ),
+            AdaptiveGap(SizeConfig.getProportionateScreenHeight(15)),
+            CustomTextField(
+              isPassword: false,
+              isLightMode: isLightMode,
+              hintText: 'شماره موبایل',
+              suffixIcon: 'assets/images/icons/Call_curve.svg',
+            ),
+            AdaptiveGap(SizeConfig.getProportionateScreenHeight(15)),
+            FancyDropdownFormField(hint: 'جنسیت', items: const ['زن', 'مرد'], onChanged: (v) {}),
+          ],
+        ),
       ),
       footer: CustomButton(
         onTap: () {
