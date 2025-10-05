@@ -17,7 +17,8 @@ class CustomTitleAuth extends StatelessWidget {
       style: TextStyle(
         color: isLightMode ? AppColors.grey900 : AppColors.white,
         fontSize: SizeConfig.getProportionateFontSize(22),
-        fontWeight: FontWeight.w700,
+        fontWeight: FontWeight.w900,
+        fontFamily: 'Peyda',
       ),
     );
   }

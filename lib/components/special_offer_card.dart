@@ -70,6 +70,7 @@ class SpecialOfferCard extends StatelessWidget {
                         color: isLightMode ? AppColors.grey900 : AppColors.white,
                         fontSize: SizeConfig.getProportionateFontSize(22),
                         fontWeight: FontWeight.w700,
+                        fontFamily: 'Peyda',
                       ),
                     ),
                   ),
@@ -98,7 +99,6 @@ class SpecialOfferCard extends StatelessWidget {
                         Text(
                           '|',
                           style: TextStyle(
-                            fontFamily: 'IranYekan',
                             color: isLightMode ? AppColors.grey700 : AppColors.grey300,
                             fontWeight: FontWeight.w700,
                             fontSize: SizeConfig.getProportionateFontSize(14),

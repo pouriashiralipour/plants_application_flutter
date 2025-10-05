@@ -169,7 +169,7 @@ class _OTPScreenState extends State<OTPScreen> {
               ? RichText(
                   text: TextSpan(
                     style: TextStyle(
-                      fontFamily: 'IranBakh',
+                      fontFamily: 'Shabnam',
                       fontWeight: FontWeight.w500,
                       fontSize: SizeConfig.getProportionateFontSize(16),
                       color: AppColors.grey900,

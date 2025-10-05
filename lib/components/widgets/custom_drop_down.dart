@@ -292,12 +292,10 @@ class _FancyDropdownFormFieldState extends State<FancyDropdownFormField>
             labelStyle: TextStyle(
               color: isLightMode ? AppColors.grey500 : AppColors.grey600,
               fontSize: SizeConfig.getProportionateFontSize(14),
-              fontFamily: 'IranYekan',
             ),
             hintStyle: TextStyle(
               color: isLightMode ? AppColors.grey500 : AppColors.grey600,
               fontSize: SizeConfig.getProportionateFontSize(14),
-              fontFamily: 'IranYekan',
             ),
             suffixIcon: InkWell(
               onTap: () {

@@ -27,6 +27,7 @@ class CustmoSearchBar extends StatelessWidget {
           color: isLightMode ? AppColors.grey900 : AppColors.white,
           fontWeight: FontWeight.w600,
           fontSize: SizeConfig.getProportionateFontSize(14),
+          fontFamily: 'Peyda',
         ),
         decoration: InputDecoration(
           contentPadding: EdgeInsets.symmetric(
@@ -37,7 +38,7 @@ class CustmoSearchBar extends StatelessWidget {
           hintStyle: TextStyle(
             color: isLightMode ? AppColors.grey400 : AppColors.grey600,
             fontSize: SizeConfig.getProportionateFontSize(14),
-            fontFamily: 'IranYekan',
+            fontFamily: 'Peyda',
           ),
           prefixIcon: SizedBox(
             width: SizeConfig.getProportionateScreenWidth(60),

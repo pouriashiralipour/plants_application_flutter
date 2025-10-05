@@ -42,7 +42,7 @@ class CustomButton extends StatelessWidget {
           style: TextStyle(
             color: AppColors.white,
             fontSize: SizeConfig.getProportionateFontSize(18),
-            fontFamily: 'IranYekan',
+            fontFamily: 'Peyda',
             fontWeight: FontWeight.w800,
           ),
         ),

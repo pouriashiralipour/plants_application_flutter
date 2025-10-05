@@ -57,6 +57,7 @@ class _RootScreenState extends State<RootScreen> {
               Text(
                 item['lable'],
                 style: TextStyle(
+                  fontFamily: 'Peyda',
                   color: bottonIndex == index ? AppColors.primary : AppColors.grey500,
                   fontSize: bottonIndex == index
                       ? SizeConfig.getProportionateFontSize(12)

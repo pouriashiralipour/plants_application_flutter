@@ -146,6 +146,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
       style: TextStyle(
         color: widget.isLightMode! ? AppColors.grey900 : AppColors.white,
         fontWeight: FontWeight.w600,
+        fontFamily: 'Peyda',
         fontSize: SizeConfig.getProportionateFontSize(14),
       ),
       decoration: InputDecoration(
@@ -157,7 +158,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
         hintStyle: TextStyle(
           color: widget.isLightMode! ? AppColors.grey500 : AppColors.grey600,
           fontSize: SizeConfig.getProportionateFontSize(14),
-          fontFamily: 'IranYekan',
+          fontFamily: 'Peyda',
         ),
         prefixIcon: widget.preffixIcon != null
             ? SizedBox(

@@ -22,7 +22,7 @@ class CustomLogoWidget extends StatelessWidget {
         Text(
           'فیلوروپیا',
           style: TextStyle(
-            fontFamily: 'Kalameh',
+            fontFamily: 'Peyda',
             color: isLightMode ? AppColors.grey900 : AppColors.white,
             fontWeight: FontWeight.w900,
             fontSize: SizeConfig.getProportionateFontSize(48),

@@ -23,9 +23,9 @@ class CustomTitleBarOfProducts extends StatelessWidget {
             title,
             style: TextStyle(
               color: isLightMode ? AppColors.grey900 : AppColors.white,
-              fontSize: SizeConfig.getProportionateFontSize(20),
+              fontSize: SizeConfig.getProportionateFontSize(18),
               fontWeight: FontWeight.w800,
-              fontFamily: 'IranYekan',
+              fontFamily: 'Peyda',
             ),
           ),
           GestureDetector(
@@ -34,9 +34,9 @@ class CustomTitleBarOfProducts extends StatelessWidget {
               'مشاهده همه',
               style: TextStyle(
                 color: AppColors.primary,
-                fontSize: SizeConfig.getProportionateFontSize(16),
+                fontSize: SizeConfig.getProportionateFontSize(14),
                 fontWeight: FontWeight.w700,
-                fontFamily: 'IranYekan',
+                fontFamily: 'Peyda',
               ),
             ),
           ),

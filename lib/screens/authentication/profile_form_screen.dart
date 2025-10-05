@@ -42,18 +42,24 @@ class _ProfileFormScreenState extends State<ProfileFormScreen> {
     super.dispose();
   }
 
-  void _submit() {
-    final ok = _formKey.currentState?.validate() ?? false;
-    if (!ok) return;
-  }
+  // void _submit() {
+  //   final ok = _formKey.currentState?.validate() ?? false;
+  //   if (!ok) return;
+  // }
 
   Future<void> _pickImage() async {
     var status = await Permission.photos.request();
 
     if (status.isDenied || status.isPermanentlyDenied) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text("اجازه دسترسی به تصاویر داده نشد")));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            "اجازه دسترسی به تصاویر داده نشد",
+            style: TextStyle(color: AppColors.white, fontFamily: 'Peyda'),
+          ),
+          backgroundColor: AppColors.transparentRed,
+        ),
+      );
       return;
     }
 
@@ -67,9 +73,15 @@ class _ProfileFormScreenState extends State<ProfileFormScreen> {
       }
     } catch (e) {
       debugPrint("❌ خطا در انتخاب تصویر: $e");
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text("خطا در انتخاب تصویر: $e")));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            "خطا در انتخاب تصویر: $e",
+            style: TextStyle(color: AppColors.white, fontFamily: 'Peyda'),
+          ),
+          backgroundColor: AppColors.transparentRed,
+        ),
+      );
     }
   }
 
@@ -82,8 +94,9 @@ class _ProfileFormScreenState extends State<ProfileFormScreen> {
           'تکمیل کردن پروفایل',
           style: TextStyle(
             color: isLightMode ? AppColors.grey900 : AppColors.white,
-            fontWeight: FontWeight.w600,
+            fontWeight: FontWeight.bold,
             fontSize: SizeConfig.getProportionateScreenWidth(21),
+            fontFamily: 'Peyda',
           ),
         ),
       ),
@@ -138,7 +151,9 @@ class _ProfileFormScreenState extends State<ProfileFormScreen> {
               suffixIcon: 'assets/images/icons/Calendar_curve.svg',
               isDateField: true,
               controller: _birthDateController,
-              validator: (value) {},
+              validator: (value) {
+                return null;
+              },
             ),
             AdaptiveGap(SizeConfig.getProportionateScreenHeight(15)),
             CustomTextField(

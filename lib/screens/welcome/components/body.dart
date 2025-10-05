@@ -64,7 +64,8 @@ class Body extends StatelessWidget {
                       'خوش اومدی به',
                       style: TextStyle(
                         fontSize: SizeConfig.getProportionateFontSize(36),
-                        fontWeight: FontWeight.w800,
+                        fontWeight: FontWeight.w900,
+                        fontFamily: 'Peyda',
                         color: Theme.of(context).brightness == Brightness.light
                             ? AppColors.grey900
                             : AppColors.white,
@@ -83,9 +84,10 @@ class Body extends StatelessWidget {
                     'فیلوروپیا',
                     style: TextStyle(
                       fontSize: SizeConfig.getProportionateFontSize(60),
-                      fontWeight: FontWeight.bold,
+                      fontWeight: FontWeight.w900,
                       color: AppColors.green,
                       height: 1.3,
+                      fontFamily: 'Peyda',
                     ),
                   ),
                 ),
@@ -94,7 +96,6 @@ class Body extends StatelessWidget {
                   'آماده‌ای خونه‌ات رو سبز کنیم؟',
                   textAlign: TextAlign.justify,
                   style: TextStyle(
-                    fontFamily: 'IranYekan',
                     fontSize: SizeConfig.getProportionateFontSize(20),
                     color: Theme.of(context).brightness == Brightness.light
                         ? AppColors.grey800
@@ -106,7 +107,6 @@ class Body extends StatelessWidget {
                   'از گلدون تا باغچه؛ هر چیزی که برای سبز شدن لازم داری، اینجاست',
                   textAlign: TextAlign.justify,
                   style: TextStyle(
-                    fontFamily: 'IranYekan',
                     fontSize: SizeConfig.getProportionateFontSize(18),
                     color: Theme.of(context).brightness == Brightness.light
                         ? AppColors.grey800

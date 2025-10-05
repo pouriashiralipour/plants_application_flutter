@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
-
-import 'routes.dart';
-import 'screens/authentication/profile_form_screen.dart';
-import 'screens/splash/splash_screen.dart';
 import 'package:persian_datetime_picker/persian_datetime_picker.dart';
-import 'theme/theme.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
+import 'routes.dart';
+import 'screens/splash/splash_screen.dart';
 import 'utils/size.dart';
+import 'theme/theme.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -39,7 +37,7 @@ class MyApp extends StatelessWidget {
           darkTheme: AppTheme.darkTheme,
           themeMode: ThemeMode.system,
           routes: routes,
-          initialRoute: ProfileFormScreen.routeName,
+          initialRoute: SplashScreen.routeName,
         );
       },
     );

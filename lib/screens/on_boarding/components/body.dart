@@ -65,7 +65,8 @@ class _BodyState extends State<Body> {
                             color: Theme.of(context).brightness == Brightness.light
                                 ? AppColors.grey900
                                 : AppColors.white,
-                            fontWeight: FontWeight.w700,
+                            fontWeight: FontWeight.w800,
+                            fontFamily: 'Peyda',
                             fontSize: SizeConfig.getProportionateScreenWidth(21),
                           ),
                         ),
@@ -151,9 +152,9 @@ class _BodyState extends State<Body> {
                       currentIndex == 2 ? 'بزن بریم' : 'بعدی',
                       style: TextStyle(
                         color: AppColors.white,
-                        fontSize: SizeConfig.getProportionateScreenWidth(20),
-                        fontFamily: 'IranYekan',
-                        fontWeight: FontWeight.w800,
+                        fontSize: SizeConfig.getProportionateScreenWidth(18),
+                        fontFamily: 'Peyda',
+                        fontWeight: FontWeight.w700,
                       ),
                     ),
                   ),
