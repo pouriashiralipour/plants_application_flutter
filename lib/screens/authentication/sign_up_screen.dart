@@ -100,7 +100,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
       if (!mounted) return;
 
       if (result.ok) {
-        Navigator.of(context).pushNamed(OTPScreen.routeName);
+        Navigator.of(
+          context,
+        ).push(MaterialPageRoute(builder: (_) => OTPScreen(target: normalized, fromSignup: true)));
       } else {
         _showServerError(result.error ?? 'ارسال کد با خطا مواجه شد');
       }

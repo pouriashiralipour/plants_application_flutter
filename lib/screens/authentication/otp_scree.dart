@@ -12,11 +12,12 @@ import '../../utils/size.dart';
 import 'change_password_screen.dart';
 
 class OTPScreen extends StatefulWidget {
-  const OTPScreen({super.key, this.fromSignup = false});
+  const OTPScreen({super.key, this.fromSignup = false, required this.target});
 
   static String routeName = './otp';
 
   final bool fromSignup;
+  final String target;
 
   @override
   State<OTPScreen> createState() => _OTPScreenState();
@@ -131,9 +132,30 @@ class _OTPScreenState extends State<OTPScreen> {
     });
   }
 
+  String _maskPhone(String p) {
+    final digits = p.replaceAll(RegExp(r'\D'), '');
+    if (digits.length >= 10) {
+      final tail2 = digits.substring(digits.length - 2);
+      final head4 = digits.substring(0, 4);
+      return '${p.startsWith('+') ? '+' : ''}$head4******$tail2';
+    }
+    return p;
+  }
+
+  String _maskEmail(String e) {
+    final parts = e.split('@');
+    if (parts.length != 2) return e;
+    final user = parts[0];
+    final domain = parts[1];
+    final safeUser = user.length <= 2 ? user : '${user.substring(0, 2)}***';
+    return '$safeUser@$domain';
+  }
+
   @override
   Widget build(BuildContext context) {
     final bool isLightMode = Theme.of(context).brightness == Brightness.light;
+    final target = widget.target;
+    final masked = target.contains('@') ? _maskEmail(target) : _maskPhone(target);
     return AuthScaffold(
       appBar: AppBar(
         title: Text(
@@ -159,13 +181,43 @@ class _OTPScreenState extends State<OTPScreen> {
       ),
       form: Column(
         children: [
-          Text(
-            "کد به شماره 22 ***** 98916+ ارسال شد",
-            style: TextStyle(
-              fontSize: SizeConfig.getProportionateFontSize(16),
-              fontWeight: FontWeight.w500,
-              color: isLightMode ? AppColors.grey900 : AppColors.white,
+          Text.rich(
+            TextSpan(
+              children: [
+                TextSpan(
+                  text: target.contains('@') ? 'کد به ایمیل ' : 'کد به شماره ',
+                  style: TextStyle(
+                    fontSize: SizeConfig.getProportionateFontSize(16),
+                    fontWeight: FontWeight.w500,
+                    color: isLightMode ? AppColors.grey900 : AppColors.white,
+                  ),
+                ),
+                WidgetSpan(
+                  alignment: PlaceholderAlignment.baseline,
+                  baseline: TextBaseline.alphabetic,
+                  child: Directionality(
+                    textDirection: TextDirection.ltr,
+                    child: Text(
+                      masked,
+                      style: TextStyle(
+                        fontSize: SizeConfig.getProportionateFontSize(16),
+                        fontWeight: FontWeight.w500,
+                        color: isLightMode ? AppColors.grey900 : AppColors.white,
+                      ),
+                    ),
+                  ),
+                ),
+                TextSpan(
+                  text: ' ارسال شد',
+                  style: TextStyle(
+                    fontSize: SizeConfig.getProportionateFontSize(16),
+                    fontWeight: FontWeight.w500,
+                    color: isLightMode ? AppColors.grey900 : AppColors.white,
+                  ),
+                ),
+              ],
             ),
+            textDirection: TextDirection.rtl,
           ),
           AdaptiveGap(SizeConfig.getProportionateScreenHeight(40)),
           Row(
