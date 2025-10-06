@@ -1,4 +1,3 @@
-// otp_models.dart
 class OtpRequestModels {
   OtpRequestModels({this.target, this.purpose = 'register'});
 
@@ -6,4 +5,12 @@ class OtpRequestModels {
   String? target;
 
   Map<String, dynamic> toJson() => {'target': target, 'purpose': purpose};
+}
+
+class OtpVerifyModels {
+  OtpVerifyModels({required this.code});
+
+  String? code;
+
+  Map<String, dynamic> toJson() => {'code': code};
 }
