@@ -40,7 +40,7 @@ class ForgotPasswordScreen extends StatelessWidget {
         text: 'ادامه',
         color: AppColors.primary,
         onTap: () {
-          Navigator.pushNamed(context, OTPScreen.routeName);
+          Navigator.pushNamed(context, OTPScreen.routeName, arguments: {'fromSignup': false});
         },
         width: SizeConfig.getProportionateScreenWidth(98),
       ),

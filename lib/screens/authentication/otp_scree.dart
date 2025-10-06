@@ -12,43 +12,23 @@ import '../../utils/size.dart';
 import 'change_password_screen.dart';
 
 class OTPScreen extends StatefulWidget {
-  const OTPScreen({super.key});
+  const OTPScreen({super.key, this.fromSignup = false});
 
   static String routeName = './otp';
+
+  final bool fromSignup;
 
   @override
   State<OTPScreen> createState() => _OTPScreenState();
 }
 
 class _OTPScreenState extends State<OTPScreen> {
-  final List<FocusNode> _focusNodes = List.generate(5, (_) => FocusNode());
   final List<TextEditingController> _controllers = List.generate(5, (_) => TextEditingController());
-  Timer? _timer;
+  final List<FocusNode> _focusNodes = List.generate(5, (_) => FocusNode());
+
   int _secondsRemaining = 120;
 
-  @override
-  void initState() {
-    super.initState();
-    _startTimer();
-
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      FocusScope.of(context).requestFocus(_focusNodes[0]);
-    });
-  }
-
-  void _startTimer() {
-    _secondsRemaining = 120;
-    _timer?.cancel();
-    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      if (_secondsRemaining > 0) {
-        setState(() {
-          _secondsRemaining--;
-        });
-      } else {
-        timer.cancel();
-      }
-    });
-  }
+  Timer? _timer;
 
   @override
   void dispose() {
@@ -60,6 +40,16 @@ class _OTPScreenState extends State<OTPScreen> {
     }
     _timer?.cancel();
     super.dispose();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _startTimer();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      FocusScope.of(context).requestFocus(_focusNodes[0]);
+    });
   }
 
   Widget _buildOtpBox(int index) {
@@ -117,13 +107,27 @@ class _OTPScreenState extends State<OTPScreen> {
     );
   }
 
+  void _startTimer() {
+    _secondsRemaining = 120;
+    _timer?.cancel();
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (_secondsRemaining > 0) {
+        setState(() {
+          _secondsRemaining--;
+        });
+      } else {
+        timer.cancel();
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final bool isLightMode = Theme.of(context).brightness == Brightness.light;
     return AuthScaffold(
       appBar: AppBar(
         title: Text(
-          'فراموشی رمز عبور',
+          widget.fromSignup ? 'ثبت‌نام' : 'فراموشی رمز عبور',
           style: TextStyle(
             color: isLightMode ? AppColors.grey900 : AppColors.white,
             fontWeight: FontWeight.w600,
