@@ -8,7 +8,6 @@ import '../../theme/colors.dart';
 import '../../utils/size.dart';
 import 'components/auth_svg_asset_widget.dart';
 import 'components/custom_title_auth.dart';
-import 'otp_scree.dart';
 
 class ForgotPasswordScreen extends StatelessWidget {
   const ForgotPasswordScreen({super.key});

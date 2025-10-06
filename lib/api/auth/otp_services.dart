@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:dio/io.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
 
 import 'package:full_plants_ecommerce_app/models/otp_models.dart';
 import 'package:full_plants_ecommerce_app/utils/constant.dart';
