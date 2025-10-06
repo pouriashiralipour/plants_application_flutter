@@ -21,6 +21,9 @@ class CustomTextField extends StatefulWidget {
     this.validator,
     this.inputFormatters,
     this.enabled,
+    this.textDirection = TextDirection.rtl,
+    this.onChanged,
+    this.initialValue,
   });
 
   final TextEditingController? controller;
@@ -34,6 +37,9 @@ class CustomTextField extends StatefulWidget {
   final FormFieldValidator<String>? validator;
   final List<TextInputFormatter>? inputFormatters;
   final bool? enabled;
+  final TextDirection? textDirection;
+  final ValueChanged<String>? onChanged;
+  final String? initialValue;
 
   @override
   State<CustomTextField> createState() => _CustomTextFieldState();
@@ -108,6 +114,10 @@ class _CustomTextFieldState extends State<CustomTextField> {
       final f = picked.formatter;
       final value = '${f.yyyy}/${f.mm}/${f.dd}'.farsiNumber;
       widget.controller?.text = value;
+      widget.onChanged?.call(value);
+      setState(() {
+        _hasText = value.isNotEmpty;
+      });
 
       _focusNode.unfocus();
       FocusScope.of(context).unfocus();
@@ -118,6 +128,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
   Widget build(BuildContext context) {
     final isDate = widget.isDateField == true;
     return TextFormField(
+      initialValue: widget.initialValue,
       controller: widget.controller,
       obscureText: _obscure,
       focusNode: _focusNode,
@@ -125,11 +136,12 @@ class _CustomTextFieldState extends State<CustomTextField> {
       readOnly: isDate,
       keyboardType: isDate ? TextInputType.none : (widget.keyboardType ?? TextInputType.text),
       inputFormatters: isDate ? const [] : (widget.inputFormatters ?? const []),
-      textDirection: TextDirection.rtl,
+      textDirection: widget.textDirection,
       onChanged: (value) {
         setState(() {
           _hasText = value.isNotEmpty;
         });
+        widget.onChanged?.call(value);
       },
       onTap: () async {
         if (isDate) {

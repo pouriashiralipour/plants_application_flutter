@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:full_plants_ecommerce_app/api/auth/otp_services.dart';
 import 'package:full_plants_ecommerce_app/components/widgets/custom_logo_widget.dart';
+import 'package:full_plants_ecommerce_app/models/otp_models.dart';
 import 'package:full_plants_ecommerce_app/screens/authentication/components/auth_scaffold.dart';
 
 import '../../components/adaptive_gap.dart';
@@ -23,6 +25,17 @@ class SignUpScreen extends StatefulWidget {
 }
 
 class _SignUpScreenState extends State<SignUpScreen> {
+  late OtpServices otpServices;
+  late OtpRequestModels otpRequestModels;
+  bool isApiCalled = false;
+
+  @override
+  void initState() {
+    super.initState();
+    otpServices = OtpServices();
+    otpRequestModels = OtpRequestModels();
+  }
+
   @override
   Widget build(BuildContext context) {
     final bool isLightMode = Theme.of(context).brightness == Brightness.light;
@@ -45,6 +58,12 @@ class _SignUpScreenState extends State<SignUpScreen> {
         isLightMode: isLightMode,
         preffixIcon: 'assets/images/icons/Message_bold.svg',
         hintText: 'ایمیل یا شماره تلفن',
+        initialValue: otpRequestModels.target,
+        onChanged: (value) {
+          setState(() {
+            otpRequestModels.target = value;
+          });
+        },
       ),
       footer: Column(
         children: [
@@ -52,7 +71,48 @@ class _SignUpScreenState extends State<SignUpScreen> {
             text: 'تایید',
             color: AppColors.disabledButton,
             onTap: () {
-              Navigator.pushNamed(context, OTPScreen.routeName);
+              debugPrint('${otpRequestModels.toJson()}');
+              otpServices.requestOtp(otpRequestModels).then((returnResponse) {
+                if (returnResponse == true) {
+                  showDialog(
+                    context: context,
+                    builder: (context) {
+                      return AlertDialog(
+                        title: Text('Woocommerce App'),
+                        content: Text('Registration Successfull'),
+                        actions: [
+                          TextButton(
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                            },
+                            child: Text('OK'),
+                          ),
+                        ],
+                      );
+                    },
+                  );
+                } else {
+                  showDialog(
+                    context: context,
+                    builder: (context) {
+                      return AlertDialog(
+                        title: Text('Woocommerce App'),
+                        content: Text('Email Already Registred!'),
+                        actions: [
+                          TextButton(
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                            },
+                            child: Text('OK'),
+                          ),
+                        ],
+                      );
+                    },
+                  );
+                }
+              });
+
+              // Navigator.pushNamed(context, OTPScreen.routeName);
             },
             width: SizeConfig.screenWidth,
           ),
