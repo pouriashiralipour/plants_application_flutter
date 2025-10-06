@@ -3,15 +3,17 @@ import 'dart:io';
 import 'package:dio/io.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
+import 'package:cookie_jar/cookie_jar.dart';
+import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 
 import 'package:full_plants_ecommerce_app/models/otp_models.dart';
 import 'package:full_plants_ecommerce_app/utils/constant.dart';
 
 class OtpResult {
-  final bool ok;
-  final String? error;
   const OtpResult(this.ok, {this.error});
+
+  final String? error;
+  final bool ok;
 }
 
 class OtpServices {
@@ -21,7 +23,13 @@ class OtpServices {
       client.badCertificateCallback = (X509Certificate cert, String host, int port) => true;
       return client;
     };
+
+    if (!_dio.interceptors.any((i) => i is CookieManager)) {
+      _dio.interceptors.add(CookieManager(_sharedCookieJar));
+    }
   }
+
+  static final CookieJar _sharedCookieJar = CookieJar();
 
   final Dio _dio =
       Dio(
