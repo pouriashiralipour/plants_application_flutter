@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:full_plants_ecommerce_app/api/auth/otp_services.dart';
+import 'package:full_plants_ecommerce_app/components/custom_progress_bar.dart';
 import 'package:full_plants_ecommerce_app/components/widgets/custom_logo_widget.dart';
 import 'package:full_plants_ecommerce_app/models/otp_models.dart';
 import 'package:full_plants_ecommerce_app/screens/authentication/components/auth_scaffold.dart';
@@ -27,13 +28,13 @@ class SignUpScreen extends StatefulWidget {
 }
 
 class _SignUpScreenState extends State<SignUpScreen> {
-  bool isApiCalled = false;
   late OtpRequestModels otpRequestModels;
   late OtpServices otpServices;
 
   final _emailOrPhoneCtrl = TextEditingController();
 
   GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  bool _isLoading = false;
   bool _showErrors = false;
 
   String? _serverErrorMessage;
@@ -100,6 +101,13 @@ class _SignUpScreenState extends State<SignUpScreen> {
       if (!mounted) return;
 
       if (result.ok) {
+        setState(() {
+          _isLoading = true;
+        });
+        await Future.delayed(const Duration(seconds: 2));
+        setState(() {
+          _isLoading = false;
+        });
         Navigator.of(
           context,
         ).push(MaterialPageRoute(builder: (_) => OTPScreen(target: normalized, fromSignup: true)));
@@ -153,12 +161,14 @@ class _SignUpScreenState extends State<SignUpScreen> {
       ),
       footer: Column(
         children: [
-          CustomButton(
-            text: 'تایید',
-            color: AppColors.disabledButton,
-            onTap: _submit,
-            width: SizeConfig.screenWidth,
-          ),
+          _isLoading
+              ? CusstomProgressBar()
+              : CustomButton(
+                  text: 'تایید',
+                  color: AppColors.disabledButton,
+                  onTap: _submit,
+                  width: SizeConfig.screenWidth,
+                ),
           AdaptiveGap(SizeConfig.getProportionateScreenHeight(40)),
           BottomAuthText(
             text: 'قبلا عضو خانوده ما بودی ؟',
