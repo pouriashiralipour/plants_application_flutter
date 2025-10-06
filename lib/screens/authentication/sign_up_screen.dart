@@ -108,9 +108,11 @@ class _SignUpScreenState extends State<SignUpScreen> {
         setState(() {
           _isLoading = false;
         });
-        Navigator.of(
-          context,
-        ).push(MaterialPageRoute(builder: (_) => OTPScreen(target: normalized, fromSignup: true)));
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (_) => OTPScreen(target: normalized, purpose: 'register', fromSignup: true),
+          ),
+        );
       } else {
         _showServerError(result.error ?? 'ارسال کد با خطا مواجه شد');
       }

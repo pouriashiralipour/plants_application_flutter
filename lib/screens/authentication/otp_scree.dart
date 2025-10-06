@@ -1,22 +1,34 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:full_plants_ecommerce_app/screens/authentication/components/auth_scaffold.dart';
+import 'package:full_plants_ecommerce_app/screens/authentication/profile_form_screen.dart';
+
 import 'package:full_plants_ecommerce_app/utils/persian_number.dart';
 
+import '../../api/auth/otp_services.dart';
 import '../../components/adaptive_gap.dart';
+import '../../components/custom_progress_bar.dart';
+import '../../components/widgets/custom_alert.dart';
 import '../../components/widgets/cutsom_button.dart';
+import '../../models/otp_models.dart';
 import '../../theme/colors.dart';
 import '../../utils/size.dart';
-import 'change_password_screen.dart';
 
 class OTPScreen extends StatefulWidget {
-  const OTPScreen({super.key, this.fromSignup = false, required this.target});
+  const OTPScreen({
+    super.key,
+    this.fromSignup = false,
+    required this.target,
+    this.purpose = 'register',
+  });
 
   static String routeName = './otp';
 
   final bool fromSignup;
+  final String purpose;
   final String target;
 
   @override
@@ -24,11 +36,16 @@ class OTPScreen extends StatefulWidget {
 }
 
 class _OTPScreenState extends State<OTPScreen> {
+  late OtpServices otpServices;
+  late OtpVerifyModels otpVerifyModels;
+
   final List<TextEditingController> _controllers = List.generate(6, (_) => TextEditingController());
   final List<FocusNode> _focusNodes = List.generate(6, (_) => FocusNode());
 
+  bool _isLoading = false;
   int _secondsRemaining = 120;
 
+  String? _serverErrorMessage;
   Timer? _timer;
 
   @override
@@ -45,11 +62,28 @@ class _OTPScreenState extends State<OTPScreen> {
 
   @override
   void initState() {
+    otpServices = OtpServices();
+    otpVerifyModels = OtpVerifyModels(code: '');
     super.initState();
     _startTimer();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       FocusScope.of(context).requestFocus(_focusNodes[0]);
+    });
+  }
+
+  String normalizeDigits(String input) {
+    const fa = '۰۱۲۳۴۵۶۷۸۹';
+    const ar = '٠١٢٣٤٥٦٧٨٩';
+    const en = '0123456789';
+
+    return input.replaceAllMapped(RegExp(r'[۰-۹٠-٩]'), (m) {
+      final ch = m.group(0)!;
+      final iFa = fa.indexOf(ch);
+      if (iFa != -1) return en[iFa];
+      final iAr = ar.indexOf(ch);
+      if (iAr != -1) return en[iAr];
+      return ch;
     });
   }
 
@@ -62,10 +96,14 @@ class _OTPScreenState extends State<OTPScreen> {
       child: TextField(
         controller: _controllers[index],
         focusNode: _focusNodes[index],
+        textDirection: TextDirection.ltr,
         textAlign: TextAlign.center,
         textAlignVertical: TextAlignVertical.center,
         keyboardType: TextInputType.number,
-        textDirection: TextDirection.ltr,
+        inputFormatters: [
+          FilteringTextInputFormatter.allow(RegExp(r'[0-9۰-۹٠-٩]')),
+          LengthLimitingTextInputFormatter(1),
+        ],
         maxLength: 1,
         style: TextStyle(
           fontFamily: 'Peyda',
@@ -118,6 +156,62 @@ class _OTPScreenState extends State<OTPScreen> {
     );
   }
 
+  String _maskEmail(String e) {
+    final parts = e.split('@');
+    if (parts.length != 2) return e;
+    final user = parts[0];
+    final domain = parts[1];
+    final safeUser = user.length <= 2 ? user : '${user.substring(0, 2)}***';
+    return '$safeUser@$domain';
+  }
+
+  String _maskPhone(String p) {
+    final digits = p.replaceAll(RegExp(r'\D'), '');
+    if (digits.length >= 10) {
+      final tail2 = digits.substring(digits.length - 2);
+      final head4 = digits.substring(0, 4);
+      return '${p.startsWith('+') ? '+' : ''}$head4******$tail2';
+    }
+    return p;
+  }
+
+  Future<void> _resendOtp() async {
+    if (_isLoading) return;
+    if (_secondsRemaining > 0) return;
+
+    setState(() {
+      _isLoading = true;
+      _serverErrorMessage = null;
+    });
+
+    final res = await otpServices.requestOtp(
+      OtpRequestModels(target: widget.target, purpose: widget.purpose),
+    );
+
+    setState(() => _isLoading = false);
+
+    if (res.ok) {
+      _secondsRemaining = 120;
+      _startTimer();
+    } else {
+      _showServerError(res.error ?? 'ارسال مجدد ناموفق بود');
+    }
+  }
+
+  void _showServerError(String message) {
+    setState(() {
+      _serverErrorMessage = message;
+    });
+
+    Future.delayed(const Duration(seconds: 5), () {
+      if (mounted) {
+        setState(() {
+          _serverErrorMessage = null;
+        });
+      }
+    });
+  }
+
   void _startTimer() {
     _secondsRemaining = 120;
     _timer?.cancel();
@@ -132,23 +226,30 @@ class _OTPScreenState extends State<OTPScreen> {
     });
   }
 
-  String _maskPhone(String p) {
-    final digits = p.replaceAll(RegExp(r'\D'), '');
-    if (digits.length >= 10) {
-      final tail2 = digits.substring(digits.length - 2);
-      final head4 = digits.substring(0, 4);
-      return '${p.startsWith('+') ? '+' : ''}$head4******$tail2';
-    }
-    return p;
-  }
+  Future<void> _verify() async {
+    final raw = _controllers.map((c) => c.text).join();
+    final cleaned = normalizeDigits(raw).replaceAll(RegExp(r'\s+'), '');
+    debugPrint(cleaned);
+    final expectedLen = _controllers.length;
 
-  String _maskEmail(String e) {
-    final parts = e.split('@');
-    if (parts.length != 2) return e;
-    final user = parts[0];
-    final domain = parts[1];
-    final safeUser = user.length <= 2 ? user : '${user.substring(0, 2)}***';
-    return '$safeUser@$domain';
+    if (cleaned.length != expectedLen || !RegExp(r'^[0-9]+$').hasMatch(cleaned)) {
+      _showServerError('کد ۶ رقمی را کامل و صحیح وارد کنید');
+      return;
+    }
+
+    setState(() => _isLoading = true);
+    await Future.delayed(const Duration(seconds: 2));
+
+    final result = await otpServices.verifyOtp(OtpVerifyModels(code: cleaned));
+
+    if (!mounted) return;
+    setState(() => _isLoading = false);
+
+    if (result.ok) {
+      Navigator.pushNamed(context, ProfileFormScreen.routeName);
+    } else {
+      _showServerError(result.error ?? 'تایید کد با خطا مواجه شد');
+    }
   }
 
   @override
@@ -169,6 +270,12 @@ class _OTPScreenState extends State<OTPScreen> {
       ),
       header: Column(
         children: [
+          if (_serverErrorMessage != null) ...[
+            Padding(
+              padding: const EdgeInsets.only(bottom: 16),
+              child: CustomAlert(text: _serverErrorMessage!, isError: true),
+            ),
+          ],
           AdaptiveGap(SizeConfig.getProportionateScreenHeight(20)),
           SvgPicture.asset(
             isLightMode
@@ -268,7 +375,7 @@ class _OTPScreenState extends State<OTPScreen> {
                   ),
                 )
               : TextButton(
-                  onPressed: _startTimer,
+                  onPressed: _resendOtp,
                   child: Text(
                     "ارسال مجدد",
                     style: TextStyle(
@@ -280,16 +387,14 @@ class _OTPScreenState extends State<OTPScreen> {
                 ),
         ],
       ),
-      footer: CustomButton(
-        text: 'تایید',
-        color: AppColors.disabledButton,
-        onTap: () {
-          final otp = _controllers.map((c) => c.text).join();
-          print("OTP: $otp");
-          Navigator.pushNamed(context, ChangePasswordScreen.routeName);
-        },
-        width: SizeConfig.getProportionateScreenWidth(77),
-      ),
+      footer: _isLoading
+          ? CusstomProgressBar()
+          : CustomButton(
+              text: 'تایید',
+              color: AppColors.disabledButton,
+              onTap: _verify,
+              width: SizeConfig.getProportionateScreenWidth(77),
+            ),
     );
   }
 }
