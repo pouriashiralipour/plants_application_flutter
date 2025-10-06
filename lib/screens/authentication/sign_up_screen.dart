@@ -6,6 +6,7 @@ import 'package:full_plants_ecommerce_app/screens/authentication/components/auth
 import 'package:full_plants_ecommerce_app/screens/authentication/otp_scree.dart';
 
 import '../../components/adaptive_gap.dart';
+import '../../components/widgets/custom_alert.dart';
 import '../../components/widgets/custom_text_field.dart';
 import '../../components/widgets/cutsom_button.dart';
 import '../../theme/colors.dart';
@@ -34,6 +35,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
   GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   bool _showErrors = false;
+
+  String? _serverErrorMessage;
 
   @override
   void initState() {
@@ -65,42 +68,42 @@ class _SignUpScreenState extends State<SignUpScreen> {
     return null;
   }
 
+  void _showServerError(String message) {
+    setState(() {
+      _serverErrorMessage = message;
+    });
+
+    Future.delayed(const Duration(seconds: 5), () {
+      if (mounted) {
+        setState(() {
+          _serverErrorMessage = null;
+        });
+      }
+    });
+  }
+
   void _submit() async {
-    setState(() => _showErrors = true);
+    setState(() {
+      _showErrors = true;
+      _serverErrorMessage = null;
+    });
 
     if (_formKey.currentState!.validate()) {
       final raw = _emailOrPhoneCtrl.text.trim();
-      if (raw.isEmpty) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('فیلد خالی است')));
-        return;
-      }
 
       final prepared = raw.contains('@') ? raw : toEnglishDigits(raw);
       final normalized = prepared.contains('@') ? prepared : normalizeIranPhone(prepared);
 
-      if (normalized.trim().isEmpty) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text('مقدار ارسالی معتبر نیست')));
-        return;
-      }
-
       final model = OtpRequestModels(target: normalized, purpose: 'register');
 
-      debugPrint('Will send target="$normalized" purpose="register"');
-
-      final ok = await OtpServices().requestOtp(model);
+      final result = await OtpServices().requestOtp(model);
       if (!mounted) return;
 
-      if (ok) {
+      if (result.ok) {
         Navigator.of(context).pushNamed(OTPScreen.routeName);
       } else {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text('ارسال کد با خطا مواجه شد')));
+        _showServerError(result.error ?? 'ارسال کد با خطا مواجه شد');
       }
-
-      ;
     }
   }
 
@@ -110,6 +113,12 @@ class _SignUpScreenState extends State<SignUpScreen> {
     return AuthScaffold(
       header: Column(
         children: [
+          if (_serverErrorMessage != null) ...[
+            Padding(
+              padding: const EdgeInsets.only(bottom: 16),
+              child: CustomAlert(text: _serverErrorMessage!, isError: true),
+            ),
+          ],
           AdaptiveGap(SizeConfig.getProportionateScreenHeight(20)),
           CustomLogoWidget(),
           AdaptiveGap(SizeConfig.getProportionateScreenHeight(60)),
