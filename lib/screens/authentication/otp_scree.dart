@@ -23,8 +23,8 @@ class OTPScreen extends StatefulWidget {
 }
 
 class _OTPScreenState extends State<OTPScreen> {
-  final List<TextEditingController> _controllers = List.generate(5, (_) => TextEditingController());
-  final List<FocusNode> _focusNodes = List.generate(5, (_) => FocusNode());
+  final List<TextEditingController> _controllers = List.generate(6, (_) => TextEditingController());
+  final List<FocusNode> _focusNodes = List.generate(6, (_) => FocusNode());
 
   int _secondsRemaining = 120;
 
@@ -62,16 +62,26 @@ class _OTPScreenState extends State<OTPScreen> {
         controller: _controllers[index],
         focusNode: _focusNodes[index],
         textAlign: TextAlign.center,
+        textAlignVertical: TextAlignVertical.center,
         keyboardType: TextInputType.number,
+        textDirection: TextDirection.ltr,
         maxLength: 1,
         style: TextStyle(
+          fontFamily: 'Peyda',
           fontSize: SizeConfig.getProportionateScreenWidth(24),
           fontWeight: FontWeight.w700,
+          height: 1.0,
           color: isLightMode ? AppColors.grey900 : AppColors.white,
         ),
+        cursorHeight: SizeConfig.getProportionateScreenWidth(24) * 0.65,
+        cursorWidth: 2,
+        cursorRadius: const Radius.circular(2),
+        strutStyle: const StrutStyle(height: 1.0, forceStrutHeight: true),
         decoration: InputDecoration(
           counterText: "",
+          isDense: true,
           filled: true,
+
           fillColor: isLightMode
               ? (isFocused ? AppColors.primary.withValues(alpha: 0.08) : AppColors.grey50)
               : (isFocused ? AppColors.primary.withValues(alpha: 0.08) : AppColors.dark2),
@@ -95,7 +105,7 @@ class _OTPScreenState extends State<OTPScreen> {
               selection: TextSelection.collapsed(offset: persian.length),
             );
 
-            if (index < 4) {
+            if (index < _controllers.length - 1) {
               FocusScope.of(context).requestFocus(_focusNodes[index + 1]);
             }
           } else if (value.isEmpty && index > 0) {
@@ -161,13 +171,16 @@ class _OTPScreenState extends State<OTPScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             textDirection: TextDirection.ltr,
-            children: List.generate(5, (index) {
-              return Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 6),
-                child: _buildOtpBox(index),
+            children: List.generate(6, (index) {
+              return Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 6),
+                  child: AspectRatio(aspectRatio: 5 / 6, child: _buildOtpBox(index)),
+                ),
               );
             }),
           ),
+
           AdaptiveGap(SizeConfig.getProportionateScreenHeight(20)),
           _secondsRemaining > 0
               ? RichText(
