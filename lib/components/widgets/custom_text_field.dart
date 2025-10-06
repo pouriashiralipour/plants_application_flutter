@@ -147,161 +147,159 @@ class _CustomTextFieldState extends State<CustomTextField> {
     final initText = controller?.text ?? (widget.initialValue ?? '');
     final isLight = widget.isLightMode ?? false;
 
-    return Directionality(
-      textDirection: widget.textDirection ?? TextDirection.rtl,
-      child: FormField<String>(
-        initialValue: initText,
-        autovalidateMode: widget.showErrors ? AutovalidateMode.always : AutovalidateMode.disabled,
-        validator: (val) {
-          if (isDate) {
-            final userV = widget.validator?.call(val);
-            if (userV != null) return userV;
-            return _dateValidator(val);
-          }
-          return widget.validator?.call(val);
-        },
-        builder: (field) {
-          final textNow = controller?.text ?? field.value ?? '';
-          final hasText = textNow.trim().isNotEmpty;
-          final hasErrorNow = widget.showErrors && field.errorText != null;
-          final showPulse = _successPulse;
+    return FormField<String>(
+      initialValue: initText,
+      autovalidateMode: widget.showErrors ? AutovalidateMode.always : AutovalidateMode.disabled,
+      validator: (val) {
+        if (isDate) {
+          final userV = widget.validator?.call(val);
+          if (userV != null) return userV;
+          return _dateValidator(val);
+        }
+        return widget.validator?.call(val);
+      },
+      builder: (field) {
+        final textNow = controller?.text ?? field.value ?? '';
+        final hasText = textNow.trim().isNotEmpty;
+        final hasErrorNow = widget.showErrors && field.errorText != null;
+        final showPulse = _successPulse;
 
-          final targetIconColor = showPulse
-              ? AppColors.success
-              : _computeIconColor(
-                  hasError: hasErrorNow,
-                  isFocused: _isFocused,
-                  hasText: hasText,
-                  isLight: isLight,
-                  base: AppColors.primary,
-                  error: AppColors.error,
-                  success: AppColors.success,
-                );
+        final targetIconColor = showPulse
+            ? AppColors.success
+            : _computeIconColor(
+                hasError: hasErrorNow,
+                isFocused: _isFocused,
+                hasText: hasText,
+                isLight: isLight,
+                base: AppColors.primary,
+                error: AppColors.error,
+                success: AppColors.success,
+              );
 
-          if (!hasErrorNow && _hadError && widget.showErrors) {
-            _successPulse = true;
-            Future.delayed(const Duration(milliseconds: 800), () {
-              if (mounted) setState(() => _successPulse = false);
-            });
-          }
-          _hadError = hasErrorNow;
+        if (!hasErrorNow && _hadError && widget.showErrors) {
+          _successPulse = true;
+          Future.delayed(const Duration(milliseconds: 800), () {
+            if (mounted) setState(() => _successPulse = false);
+          });
+        }
+        _hadError = hasErrorNow;
 
-          final base = AppColors.primary;
-          final error = AppColors.error;
-          final success = AppColors.success;
+        final base = AppColors.primary;
+        final error = AppColors.error;
+        final success = AppColors.success;
 
-          final bgColor = hasErrorNow
-              ? error.withValues(alpha: 0.08)
-              : _successPulse
-              ? success.withValues(alpha: 0.08)
-              : (_isFocused
-                    ? base.withValues(alpha: 0.06)
-                    : (isLight ? AppColors.grey50 : AppColors.dark2));
+        final bgColor = hasErrorNow
+            ? error.withValues(alpha: 0.08)
+            : _successPulse
+            ? success.withValues(alpha: 0.08)
+            : (_isFocused
+                  ? base.withValues(alpha: 0.06)
+                  : (isLight ? AppColors.grey50 : AppColors.dark2));
 
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              AnimatedContainer(
-                duration: const Duration(milliseconds: 400),
-                curve: Curves.easeOut,
-                decoration: BoxDecoration(
-                  color: bgColor,
-                  borderRadius: BorderRadius.circular(16),
-                  border: _isFocused
-                      ? Border.all(
-                          color: hasErrorNow ? error : (_successPulse ? success : base),
-                          width: 1.5,
-                        )
-                      : null,
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            AnimatedContainer(
+              duration: const Duration(milliseconds: 400),
+              curve: Curves.easeOut,
+              decoration: BoxDecoration(
+                color: bgColor,
+                borderRadius: BorderRadius.circular(16),
+                border: _isFocused
+                    ? Border.all(
+                        color: hasErrorNow ? error : (_successPulse ? success : base),
+                        width: 1.5,
+                      )
+                    : null,
+              ),
+              child: TextFormField(
+                controller: controller,
+                initialValue: controller == null ? initText : null,
+                focusNode: _focusNode,
+                textDirection: widget.textDirection,
+                readOnly: isDate,
+                obscureText: _obscure,
+                enabled: widget.enabled ?? true,
+                keyboardType: isDate
+                    ? TextInputType.none
+                    : (widget.keyboardType ?? TextInputType.text),
+                inputFormatters: isDate ? const [] : (widget.inputFormatters ?? const []),
+                onTap: () async {
+                  if (isDate) await _handleDateTap();
+                },
+                onChanged: (v) {
+                  field.didChange(v);
+                  widget.onChanged?.call(v);
+                  setState(() {});
+                },
+                autovalidateMode: AutovalidateMode.disabled,
+                style: TextStyle(
+                  color: isLight ? AppColors.grey900 : AppColors.white,
+                  fontWeight: FontWeight.w600,
+                  fontFamily: 'Peyda',
+                  fontSize: SizeConfig.getProportionateFontSize(14),
                 ),
-                child: TextFormField(
-                  controller: controller,
-                  initialValue: controller == null ? initText : null,
-                  focusNode: _focusNode,
-                  readOnly: isDate,
-                  obscureText: _obscure,
-                  enabled: widget.enabled ?? true,
-                  keyboardType: isDate
-                      ? TextInputType.none
-                      : (widget.keyboardType ?? TextInputType.text),
-                  inputFormatters: isDate ? const [] : (widget.inputFormatters ?? const []),
-                  onTap: () async {
-                    if (isDate) await _handleDateTap();
-                  },
-                  onChanged: (v) {
-                    field.didChange(v);
-                    widget.onChanged?.call(v);
-                    setState(() {});
-                  },
-                  autovalidateMode: AutovalidateMode.disabled,
-                  style: TextStyle(
-                    color: isLight ? AppColors.grey900 : AppColors.white,
-                    fontWeight: FontWeight.w600,
-                    fontFamily: 'Peyda',
-                    fontSize: SizeConfig.getProportionateFontSize(14),
+                decoration: InputDecoration(
+                  contentPadding: EdgeInsets.symmetric(
+                    horizontal: SizeConfig.getProportionateScreenWidth(16),
+                    vertical: SizeConfig.getProportionateScreenHeight(18),
                   ),
-                  decoration: InputDecoration(
-                    contentPadding: EdgeInsets.symmetric(
-                      horizontal: SizeConfig.getProportionateScreenWidth(16),
-                      vertical: SizeConfig.getProportionateScreenHeight(18),
-                    ),
-                    hintText: widget.hintText,
-                    hintStyle: TextStyle(
-                      color: hasErrorNow
-                          ? error
-                          : isLight
-                          ? AppColors.grey500
-                          : AppColors.grey600,
-                      fontSize: SizeConfig.getProportionateFontSize(14),
-                      fontFamily: 'Peyda',
-                    ),
-                    border: InputBorder.none,
-                    errorText: null,
-                    errorStyle: const TextStyle(fontSize: 0, height: 0),
-                    prefixIcon: widget.preffixIcon != null
-                        ? SizedBox(
-                            width: SizeConfig.getProportionateScreenWidth(60),
-                            child: Center(
-                              child: _AnimatedSvgIcon(
-                                asset: widget.preffixIcon!,
-                                size: SizeConfig.getProportionateScreenWidth(20),
-                                targetColor: targetIconColor,
-                              ),
-                            ),
-                          )
-                        : null,
-                    suffixIcon: widget.isPassword == true
-                        ? IconButton(
-                            onPressed: () => setState(() => _obscure = !_obscure),
-                            icon: _AnimatedSvgIcon(
-                              asset: _obscure
-                                  ? 'assets/images/icons/Hide_bold.svg'
-                                  : 'assets/images/icons/Show_bold.svg',
+                  hintText: widget.hintText,
+                  hintStyle: TextStyle(
+                    color: hasErrorNow
+                        ? error
+                        : isLight
+                        ? AppColors.grey500
+                        : AppColors.grey600,
+                    fontSize: SizeConfig.getProportionateFontSize(14),
+                    fontFamily: 'Peyda',
+                  ),
+                  border: InputBorder.none,
+                  errorText: null,
+                  errorStyle: const TextStyle(fontSize: 0, height: 0),
+                  prefixIcon: widget.preffixIcon != null
+                      ? SizedBox(
+                          width: SizeConfig.getProportionateScreenWidth(60),
+                          child: Center(
+                            child: _AnimatedSvgIcon(
+                              asset: widget.preffixIcon!,
                               size: SizeConfig.getProportionateScreenWidth(20),
                               targetColor: targetIconColor,
                             ),
-                          )
-                        : (widget.suffixIcon != null
-                              ? SizedBox(
-                                  width: SizeConfig.getProportionateScreenWidth(40),
-                                  child: Center(
-                                    child: _AnimatedSvgIcon(
-                                      asset: widget.suffixIcon!,
-                                      size: SizeConfig.getProportionateScreenWidth(20),
-                                      targetColor: targetIconColor,
-                                    ),
+                          ),
+                        )
+                      : null,
+                  suffixIcon: widget.isPassword == true
+                      ? IconButton(
+                          onPressed: () => setState(() => _obscure = !_obscure),
+                          icon: _AnimatedSvgIcon(
+                            asset: _obscure
+                                ? 'assets/images/icons/Hide_bold.svg'
+                                : 'assets/images/icons/Show_bold.svg',
+                            size: SizeConfig.getProportionateScreenWidth(20),
+                            targetColor: targetIconColor,
+                          ),
+                        )
+                      : (widget.suffixIcon != null
+                            ? SizedBox(
+                                width: SizeConfig.getProportionateScreenWidth(40),
+                                child: Center(
+                                  child: _AnimatedSvgIcon(
+                                    asset: widget.suffixIcon!,
+                                    size: SizeConfig.getProportionateScreenWidth(20),
+                                    targetColor: targetIconColor,
                                   ),
-                                )
-                              : null),
-                  ),
+                                ),
+                              )
+                            : null),
                 ),
               ),
-              SizedBox(height: SizeConfig.getProportionateScreenHeight(10)),
-              if (hasErrorNow) CustomAlert(text: field.errorText!, isError: true),
-            ],
-          );
-        },
-      ),
+            ),
+            SizedBox(height: SizeConfig.getProportionateScreenHeight(10)),
+            if (hasErrorNow) CustomAlert(text: field.errorText!, isError: true),
+          ],
+        );
+      },
     );
   }
 }

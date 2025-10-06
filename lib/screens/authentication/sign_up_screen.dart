@@ -3,17 +3,18 @@ import 'package:full_plants_ecommerce_app/api/auth/otp_services.dart';
 import 'package:full_plants_ecommerce_app/components/widgets/custom_logo_widget.dart';
 import 'package:full_plants_ecommerce_app/models/otp_models.dart';
 import 'package:full_plants_ecommerce_app/screens/authentication/components/auth_scaffold.dart';
+import 'package:full_plants_ecommerce_app/screens/authentication/otp_scree.dart';
 
 import '../../components/adaptive_gap.dart';
 import '../../components/widgets/custom_text_field.dart';
 import '../../components/widgets/cutsom_button.dart';
 import '../../theme/colors.dart';
+import '../../utils/iran_contact.dart';
 import '../../utils/size.dart';
 import 'components/auth_svg_asset_widget.dart';
 import 'components/bottom_auth_text.dart';
 import 'components/custom_title_auth.dart';
 import 'login_screen.dart';
-import 'otp_scree.dart';
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
@@ -25,15 +26,82 @@ class SignUpScreen extends StatefulWidget {
 }
 
 class _SignUpScreenState extends State<SignUpScreen> {
-  late OtpServices otpServices;
-  late OtpRequestModels otpRequestModels;
   bool isApiCalled = false;
+  late OtpRequestModels otpRequestModels;
+  late OtpServices otpServices;
+
+  final _emailOrPhoneCtrl = TextEditingController();
+
+  GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  bool _showErrors = false;
 
   @override
   void initState() {
     super.initState();
     otpServices = OtpServices();
     otpRequestModels = OtpRequestModels();
+  }
+
+  @override
+  void reassemble() {
+    super.reassemble();
+    _showErrors = false;
+  }
+
+  String? _requiredValidator(String? v) {
+    final value = (v ?? '').trim();
+    if (v == null || v.trim().isEmpty) {
+      return 'شماره موبایل یا ایمیل خود را وارد کنید';
+    }
+    if (value.contains('@')) {
+      if (!isValidEmail(value)) {
+        return 'ایمیل را به‌درستی وارد کنید';
+      }
+    } else {
+      if (!isValidIranPhone(value)) {
+        return 'شماره موبایل را به‌درستی وارد کنید ';
+      }
+    }
+    return null;
+  }
+
+  void _submit() async {
+    setState(() => _showErrors = true);
+
+    if (_formKey.currentState!.validate()) {
+      final raw = _emailOrPhoneCtrl.text.trim();
+      if (raw.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('فیلد خالی است')));
+        return;
+      }
+
+      final prepared = raw.contains('@') ? raw : toEnglishDigits(raw);
+      final normalized = prepared.contains('@') ? prepared : normalizeIranPhone(prepared);
+
+      if (normalized.trim().isEmpty) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('مقدار ارسالی معتبر نیست')));
+        return;
+      }
+
+      final model = OtpRequestModels(target: normalized, purpose: 'register');
+
+      debugPrint('Will send target="$normalized" purpose="register"');
+
+      final ok = await OtpServices().requestOtp(model);
+      if (!mounted) return;
+
+      if (ok) {
+        Navigator.of(context).pushNamed(OTPScreen.routeName);
+      } else {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('ارسال کد با خطا مواجه شد')));
+      }
+
+      ;
+    }
   }
 
   @override
@@ -54,66 +122,30 @@ class _SignUpScreenState extends State<SignUpScreen> {
           CustomTitleAuth(title: 'عضوی از خانواده ما شو'),
         ],
       ),
-      form: CustomTextField(
-        isLightMode: isLightMode,
-        preffixIcon: 'assets/images/icons/Message_bold.svg',
-        hintText: 'ایمیل یا شماره تلفن',
-        initialValue: otpRequestModels.target,
-        onChanged: (value) {
-          setState(() {
-            otpRequestModels.target = value;
-          });
-        },
+      form: Form(
+        key: _formKey,
+        child: CustomTextField(
+          isLightMode: isLightMode,
+          preffixIcon: 'assets/images/icons/Message_bold.svg',
+          hintText: 'ایمیل یا شماره تلفن',
+          initialValue: otpRequestModels.target,
+          showErrors: _showErrors,
+          onChanged: (value) {
+            setState(() {
+              otpRequestModels.target = value;
+            });
+          },
+          controller: _emailOrPhoneCtrl,
+          validator: _requiredValidator,
+          textDirection: TextDirection.ltr,
+        ),
       ),
       footer: Column(
         children: [
           CustomButton(
             text: 'تایید',
             color: AppColors.disabledButton,
-            onTap: () {
-              debugPrint('${otpRequestModels.toJson()}');
-              otpServices.requestOtp(otpRequestModels).then((returnResponse) {
-                if (returnResponse == true) {
-                  showDialog(
-                    context: context,
-                    builder: (context) {
-                      return AlertDialog(
-                        title: Text('Woocommerce App'),
-                        content: Text('Registration Successfull'),
-                        actions: [
-                          TextButton(
-                            onPressed: () {
-                              Navigator.of(context).pop();
-                            },
-                            child: Text('OK'),
-                          ),
-                        ],
-                      );
-                    },
-                  );
-                } else {
-                  showDialog(
-                    context: context,
-                    builder: (context) {
-                      return AlertDialog(
-                        title: Text('Woocommerce App'),
-                        content: Text('Email Already Registred!'),
-                        actions: [
-                          TextButton(
-                            onPressed: () {
-                              Navigator.of(context).pop();
-                            },
-                            child: Text('OK'),
-                          ),
-                        ],
-                      );
-                    },
-                  );
-                }
-              });
-
-              // Navigator.pushNamed(context, OTPScreen.routeName);
-            },
+            onTap: _submit,
             width: SizeConfig.screenWidth,
           ),
           AdaptiveGap(SizeConfig.getProportionateScreenHeight(40)),
