@@ -94,7 +94,10 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
       builder: (BuildContext context) {
         Future.delayed(const Duration(seconds: 5), () {
           Navigator.pop(context);
-          Navigator.pushReplacementNamed(context, LoginScreen.routeName);
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => LoginScreen()),
+          );
         });
         return CustomSuccessDialog(
           text:

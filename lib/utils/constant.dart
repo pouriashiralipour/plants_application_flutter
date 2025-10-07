@@ -5,5 +5,6 @@ class UrlInfo {
   // static String baseUrl = 'http://<LAN-IP-OF-LAPTOP>:8000/';
 
   static String otpRequestUrl = 'auth/otp_request/';
-  static String otpVerify = 'auth/otp_verify/';
+  static String otpVerifyUrl = 'auth/otp_verify/';
+  static String profileCompleteUrl = 'auth/profile_complete/';
 }

@@ -8,7 +8,7 @@ import 'package:full_plants_ecommerce_app/screens/authentication/profile_form_sc
 
 import 'package:full_plants_ecommerce_app/utils/persian_number.dart';
 
-import '../../api/auth/otp_services.dart';
+import '../../api/api_services.dart';
 import '../../components/adaptive_gap.dart';
 import '../../components/custom_progress_bar.dart';
 import '../../components/widgets/custom_alert.dart';
@@ -24,8 +24,6 @@ class OTPScreen extends StatefulWidget {
     required this.target,
     this.purpose = 'register',
   });
-
-  static String routeName = './otp';
 
   final bool fromSignup;
   final String purpose;
@@ -245,8 +243,17 @@ class _OTPScreenState extends State<OTPScreen> {
     if (!mounted) return;
     setState(() => _isLoading = false);
 
-    if (result.ok) {
-      Navigator.pushNamed(context, ProfileFormScreen.routeName);
+    if (result.ok && result.tokens != null) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => ProfileFormScreen(
+            target: widget.target,
+            token: result.tokens!,
+            purpose: widget.purpose,
+          ),
+        ),
+      );
     } else {
       _showServerError(result.error ?? 'تایید کد با خطا مواجه شد');
     }

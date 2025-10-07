@@ -8,8 +8,6 @@ import '../../utils/size.dart';
 class RootScreen extends StatefulWidget {
   const RootScreen({super.key});
 
-  static String routeName = './routes';
-
   @override
   State<RootScreen> createState() => _RootScreenState();
 }

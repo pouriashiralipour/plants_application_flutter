@@ -1,66 +1,93 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:full_plants_ecommerce_app/models/otp_models.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'dart:io';
 
+import '../../api/api_services.dart';
 import '../../components/adaptive_gap.dart';
+import '../../components/custom_progress_bar.dart';
+import '../../components/widgets/custom_alert.dart';
 import '../../components/widgets/custom_dialog.dart';
 import '../../components/widgets/custom_drop_down.dart';
 import '../../components/widgets/custom_text_field.dart';
 import '../../components/widgets/cutsom_button.dart';
+import '../../models/profile_models.dart';
 import '../../theme/colors.dart';
 import '../../utils/size.dart';
+import '../../utils/validators.dart';
 import '../root/root_screen.dart';
 import 'components/auth_scaffold.dart';
 
 class ProfileFormScreen extends StatefulWidget {
-  const ProfileFormScreen({super.key});
+  const ProfileFormScreen({super.key, this.token, this.purpose = 'register', required this.target});
 
   static String routeName = './profile_form';
+
+  final String? purpose;
+  final String target;
+  final AuthTokens? token;
 
   @override
   State<ProfileFormScreen> createState() => _ProfileFormScreenState();
 }
 
 class _ProfileFormScreenState extends State<ProfileFormScreen> {
-  final ImagePicker _picker = ImagePicker();
+  late ProfileCompleteModels profileCompleteModels;
+  late ProfileServices profileServices;
+
+  final TextEditingController _birthDateController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _firstNameController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
-  late final TextEditingController _birthDateController;
+  final TextEditingController _lastNameController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _phoneNumberController = TextEditingController();
+  final ImagePicker _picker = ImagePicker();
+
+  bool _isLoading = false;
+  bool _showErrors = false;
 
   File? _imageFile;
-
-  @override
-  void initState() {
-    super.initState();
-    _birthDateController = TextEditingController();
-  }
+  String? _selectedGenderFa;
+  String? _serverErrorMessage;
 
   @override
   void dispose() {
     _birthDateController.dispose();
+    _firstNameController.dispose();
+    _lastNameController.dispose();
+    _passwordController.dispose();
+    _emailController.dispose();
+    _phoneNumberController.dispose();
     super.dispose();
   }
 
-  // void _submit() {
-  //   final ok = _formKey.currentState?.validate() ?? false;
-  //   if (!ok) return;
-  // }
+  @override
+  void initState() {
+    super.initState();
+    profileServices = ProfileServices();
+    profileCompleteModels = ProfileCompleteModels(
+      gender: '',
+      firstName: '',
+      lastName: '',
+      dateOfBirthJalali: '',
+      password: '',
+    );
+  }
+
+  String _mapGenderFaToEn(String? g) {
+    if (g == 'زن') return 'Female';
+    if (g == 'مرد') return 'Male';
+    return '';
+  }
 
   Future<void> _pickImage() async {
     var status = await Permission.photos.request();
 
     if (status.isDenied || status.isPermanentlyDenied) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text(
-            "اجازه دسترسی به تصاویر داده نشد",
-            style: TextStyle(color: AppColors.white, fontFamily: 'Peyda'),
-          ),
-          backgroundColor: AppColors.transparentRed,
-        ),
-      );
-      return;
+      return _showServerError("اجازه دسترسی به تصاویر داده نشد");
     }
 
     try {
@@ -72,16 +99,59 @@ class _ProfileFormScreenState extends State<ProfileFormScreen> {
         });
       }
     } catch (e) {
-      debugPrint("❌ خطا در انتخاب تصویر: $e");
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            "خطا در انتخاب تصویر: $e",
-            style: TextStyle(color: AppColors.white, fontFamily: 'Peyda'),
-          ),
-          backgroundColor: AppColors.transparentRed,
+      _showServerError("خطا در انتخاب تصویر: $e");
+    }
+  }
+
+  void _showServerError(String message) {
+    setState(() {
+      _serverErrorMessage = message;
+    });
+
+    Future.delayed(const Duration(seconds: 5), () {
+      if (mounted) {
+        setState(() {
+          _serverErrorMessage = null;
+        });
+      }
+    });
+  }
+
+  void _submit() async {
+    setState(() {
+      _showErrors = true;
+      _serverErrorMessage = null;
+    });
+
+    if (_formKey.currentState!.validate()) {
+      setState(() => _isLoading = true);
+      await Future.delayed(const Duration(seconds: 1));
+      final svc = ProfileServices();
+      final result = await svc.completeProfile(
+        ProfileCompleteModels(
+          firstName: _firstNameController.text.trim(),
+          lastName: _lastNameController.text.trim(),
+          dateOfBirthJalali: _birthDateController.text.trim(),
+          password: _passwordController.text,
+          email: _emailController.text.isEmpty ? null : _emailController.text.trim(),
+          phoneNumber: _phoneNumberController.text.isEmpty
+              ? null
+              : _phoneNumberController.text.trim(),
+          gender: _mapGenderFaToEn(_selectedGenderFa),
         ),
+        accessToken: widget.token!.access,
+        avatarFile: _imageFile,
+        avatarFieldName: 'profile_pic',
       );
+
+      if (!mounted) return;
+      setState(() => _isLoading = false);
+
+      if (result.ok) {
+        await customSuccessShowDialog(context);
+      } else {
+        _showServerError(result.error ?? 'خطا');
+      }
     }
   }
 
@@ -119,6 +189,7 @@ class _ProfileFormScreenState extends State<ProfileFormScreen> {
               ),
             ),
           ),
+
           Positioned(
             top: 105,
             left: 105,
@@ -140,9 +211,43 @@ class _ProfileFormScreenState extends State<ProfileFormScreen> {
         key: _formKey,
         child: Column(
           children: [
-            CustomTextField(isPassword: false, isLightMode: isLightMode, hintText: 'نام کامل'),
+            if (_serverErrorMessage != null) ...[
+              AdaptiveGap(SizeConfig.getProportionateScreenHeight(15)),
+              Padding(
+                padding: const EdgeInsets.only(bottom: 16),
+                child: CustomAlert(text: _serverErrorMessage!, isError: true),
+              ),
+            ],
             AdaptiveGap(SizeConfig.getProportionateScreenHeight(15)),
-            CustomTextField(isPassword: false, isLightMode: isLightMode, hintText: 'نام مستعار'),
+            CustomTextField(
+              isPassword: false,
+              isLightMode: isLightMode,
+              showErrors: _showErrors,
+              onChanged: (value) {
+                setState(() {
+                  profileCompleteModels.firstName;
+                });
+              },
+              validator: Validators.requiredBlankValidator,
+              hintText: 'نام',
+              suffixIcon: 'assets/images/icons/Profile.svg',
+              controller: _firstNameController,
+            ),
+            AdaptiveGap(SizeConfig.getProportionateScreenHeight(15)),
+            CustomTextField(
+              isPassword: false,
+              isLightMode: isLightMode,
+              hintText: 'نام خانوادگی',
+              suffixIcon: 'assets/images/icons/Profile.svg',
+              controller: _lastNameController,
+              showErrors: _showErrors,
+              onChanged: (value) {
+                setState(() {
+                  profileCompleteModels.lastName;
+                });
+              },
+              validator: Validators.requiredBlankValidator,
+            ),
             AdaptiveGap(SizeConfig.getProportionateScreenHeight(15)),
             CustomTextField(
               isPassword: false,
@@ -154,34 +259,79 @@ class _ProfileFormScreenState extends State<ProfileFormScreen> {
               validator: (value) {
                 return null;
               },
+              showErrors: _showErrors,
+              onChanged: (value) {
+                setState(() {
+                  profileCompleteModels.dateOfBirthJalali;
+                });
+              },
             ),
+            AdaptiveGap(SizeConfig.getProportionateScreenHeight(15)),
+            !widget.target.contains("@")
+                ? CustomTextField(
+                    isPassword: false,
+                    isLightMode: isLightMode,
+                    hintText: 'ایمیل',
+                    controller: _emailController,
+                    suffixIcon: 'assets/images/icons/Message_curve.svg',
+                    onChanged: (value) {
+                      setState(() {
+                        profileCompleteModels.email;
+                      });
+                    },
+                    validator: Validators.requiredEmailValidator,
+                    showErrors: _showErrors,
+                    textDirection: TextDirection.ltr,
+                  )
+                : CustomTextField(
+                    isPassword: false,
+                    isLightMode: isLightMode,
+                    hintText: 'شماره موبایل',
+                    controller: _phoneNumberController,
+                    suffixIcon: 'assets/images/icons/Call_curve.svg',
+                    onChanged: (value) {
+                      setState(() {
+                        profileCompleteModels.phoneNumber;
+                      });
+                    },
+                    validator: Validators.requiredMobileValidator,
+                    showErrors: _showErrors,
+                  ),
             AdaptiveGap(SizeConfig.getProportionateScreenHeight(15)),
             CustomTextField(
-              isPassword: false,
+              isPassword: true,
+              suffixIcon: 'assets/images/icons/Hide_bold.svg',
               isLightMode: isLightMode,
-              hintText: 'ایمیل',
-              suffixIcon: 'assets/images/icons/Message_curve.svg',
+              hintText: 'رمزعبور',
+              controller: _passwordController,
+              validator: Validators.requiredPasswordValidator,
+              showErrors: _showErrors,
+              textDirection: TextDirection.ltr,
             ),
             AdaptiveGap(SizeConfig.getProportionateScreenHeight(15)),
-            CustomTextField(
-              isPassword: false,
-              isLightMode: isLightMode,
-              hintText: 'شماره موبایل',
-              suffixIcon: 'assets/images/icons/Call_curve.svg',
+            FancyDropdownFormField(
+              hint: 'جنسیت',
+              items: const ['زن', 'مرد'],
+              showErrors: _showErrors,
+              validator: (v) {
+                if ((v ?? '').trim().isEmpty) return 'لطفاً جنسیت را انتخاب کنید';
+                return null;
+              },
+              onChanged: (v) {
+                setState(() => _selectedGenderFa = v);
+              },
             ),
-            AdaptiveGap(SizeConfig.getProportionateScreenHeight(15)),
-            FancyDropdownFormField(hint: 'جنسیت', items: const ['زن', 'مرد'], onChanged: (v) {}),
           ],
         ),
       ),
-      footer: CustomButton(
-        onTap: () {
-          customSuccessShowDialog(context);
-        },
-        text: 'ادامه',
-        color: AppColors.disabledButton,
-        width: SizeConfig.getProportionateScreenWidth(98),
-      ),
+      footer: _isLoading
+          ? CusstomProgressBar()
+          : CustomButton(
+              onTap: _submit,
+              text: 'ادامه',
+              color: AppColors.disabledButton,
+              width: SizeConfig.getProportionateScreenWidth(98),
+            ),
     );
   }
 }
@@ -194,7 +344,7 @@ Future<dynamic> customSuccessShowDialog(BuildContext context) {
     builder: (BuildContext context) {
       Future.delayed(const Duration(seconds: 5), () {
         Navigator.pop(context);
-        Navigator.pushReplacementNamed(context, RootScreen.routeName);
+        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => RootScreen()));
       });
       return CustomSuccessDialog(
         text: 'حساب کاربری شما فعال شد.\nتا لحظاتی دیگر به صفحه خانه هدایت می شوید',

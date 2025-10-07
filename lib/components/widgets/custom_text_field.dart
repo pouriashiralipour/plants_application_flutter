@@ -6,6 +6,7 @@ import 'package:persian_datetime_picker/persian_datetime_picker.dart';
 
 import '../../theme/colors.dart';
 import '../../utils/size.dart';
+import '../adaptive_gap.dart';
 import 'custom_alert.dart';
 
 class CustomTextField extends StatefulWidget {
@@ -113,7 +114,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
     return null;
   }
 
-  Future<void> _handleDateTap() async {
+  Future<String?> _handleDateTap() async {
     final picked = await showPersianDatePicker(
       context: context,
       initialDate: Jalali.now(),
@@ -133,11 +134,12 @@ class _CustomTextFieldState extends State<CustomTextField> {
       final value = '${f.yyyy}/${f.mm}/${f.dd}'.farsiNumber;
       widget.controller?.text = value;
       widget.onChanged?.call(value);
-
       _focusNode.unfocus();
       FocusScope.of(context).unfocus();
       setState(() {});
+      return value;
     }
+    return null;
   }
 
   @override
@@ -225,7 +227,12 @@ class _CustomTextFieldState extends State<CustomTextField> {
                     : (widget.keyboardType ?? TextInputType.text),
                 inputFormatters: isDate ? const [] : (widget.inputFormatters ?? const []),
                 onTap: () async {
-                  if (isDate) await _handleDateTap();
+                  if (isDate) {
+                    final v = await _handleDateTap();
+                    if (v != null) {
+                      field.didChange(v);
+                    }
+                  }
                 },
                 onChanged: (v) {
                   field.didChange(v);
@@ -295,7 +302,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
                 ),
               ),
             ),
-            SizedBox(height: SizeConfig.getProportionateScreenHeight(10)),
+            AdaptiveGap(SizeConfig.getProportionateScreenHeight(10)),
             if (hasErrorNow) CustomAlert(text: field.errorText!, isError: true),
           ],
         );

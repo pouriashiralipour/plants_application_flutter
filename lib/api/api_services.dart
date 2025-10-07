@@ -9,11 +9,22 @@ import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 import 'package:full_plants_ecommerce_app/models/otp_models.dart';
 import 'package:full_plants_ecommerce_app/utils/constant.dart';
 
+import '../models/profile_models.dart';
+
 class OtpResult {
-  const OtpResult(this.ok, {this.error});
+  const OtpResult(this.ok, {this.error, this.tokens, this.userId});
 
   final String? error;
   final bool ok;
+  final AuthTokens? tokens;
+  final int? userId;
+}
+
+class ProfileResult {
+  const ProfileResult(this.ok, {this.error});
+
+  final bool ok;
+  final String? error;
 }
 
 class OtpServices {
@@ -81,13 +92,19 @@ class OtpServices {
   Future<OtpResult> verifyOtp(OtpVerifyModels model) async {
     try {
       final response = await _dio.post(
-        UrlInfo.baseUrl + UrlInfo.otpVerify,
+        UrlInfo.baseUrl + UrlInfo.otpVerifyUrl,
         data: model.toJson(),
         options: Options(contentType: Headers.jsonContentType),
       );
 
       if (response.statusCode == 200 || response.statusCode == 201) {
-        return const OtpResult(true);
+        final data = response.data is Map ? response.data as Map : {};
+        final tokens = (data['tokens'] is Map) ? AuthTokens.fromJson(data['tokens'] as Map) : null;
+        final userId = data['user_id'] is int ? data['user_id'] as int : null;
+        if (tokens == null || tokens.access.isEmpty || tokens.refresh.isEmpty) {
+          return const OtpResult(false, error: 'پاسخ سرور فاقد توکن معتبر است');
+        }
+        return OtpResult(true, tokens: tokens, userId: userId);
       }
       final msg = _extractErrorMessage(response.data) ?? 'درخواست نامعتبر بود';
       if (kDebugMode) debugPrint('OTP 4xx => ${response.statusCode} | $msg');
@@ -105,6 +122,90 @@ class OtpServices {
     } catch (e) {
       if (kDebugMode) debugPrint('Unexpected: $e');
       return const OtpResult(false, error: 'خطای ناشناخته رخ داد');
+    }
+  }
+}
+
+class ProfileServices {
+  ProfileServices() {
+    final adapter = _dio.httpClientAdapter as IOHttpClientAdapter;
+    adapter.onHttpClientCreate = (HttpClient client) {
+      client.badCertificateCallback = (X509Certificate cert, String host, int port) => true;
+      return client;
+    };
+
+    _dio.interceptors.add(
+      InterceptorsWrapper(
+        onRequest: (options, handler) => handler.next(options),
+        onResponse: (response, handler) => handler.next(response),
+        onError: (e, handler) => handler.next(e),
+      ),
+    );
+  }
+
+  final Dio _dio = Dio(
+    BaseOptions(
+      baseUrl: UrlInfo.baseUrl,
+      headers: {'Content-Type': 'application/json'},
+      validateStatus: (code) => code != null && code < 500,
+    ),
+  )..httpClientAdapter = IOHttpClientAdapter();
+
+  Future<ProfileResult> completeProfile(
+    ProfileCompleteModels model, {
+    required String accessToken,
+    File? avatarFile,
+    String avatarFieldName = 'profile_pic',
+  }) async {
+    try {
+      final String url = UrlInfo.baseUrl + UrlInfo.profileCompleteUrl;
+
+      final headers = <String, String>{'Authorization': 'JWT $accessToken'};
+
+      Response response;
+
+      if (avatarFile != null) {
+        final fileName = avatarFile.path.split(Platform.pathSeparator).last;
+        final form = FormData.fromMap({
+          ...model.toJson(),
+          avatarFieldName: await MultipartFile.fromFile(avatarFile.path, filename: fileName),
+        });
+
+        response = await _dio.patch(
+          url,
+          data: form,
+          options: Options(headers: headers, contentType: 'multipart/form-data'),
+        );
+      } else {
+        response = await _dio.patch(
+          url,
+          data: model.toJson(),
+          options: Options(headers: {...headers, 'Content-Type': Headers.jsonContentType}),
+        );
+      }
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        return const ProfileResult(true);
+      }
+
+      final msg = _extractErrorMessage(response.data) ?? 'درخواست نامعتبر بود';
+      if (kDebugMode) {
+        debugPrint('PROFILE 4xx => ${response.statusCode} | $msg');
+      }
+      return ProfileResult(false, error: msg);
+    } on DioException catch (e) {
+      final msg =
+          _extractErrorMessage(e.response?.data) ?? e.message ?? 'خطا در برقراری ارتباط با سرور';
+      if (kDebugMode) {
+        debugPrint('Profile Error: $e');
+        debugPrint('Type: ${e.type}');
+        debugPrint('Status: ${e.response?.statusCode}');
+        debugPrint('Body: ${e.response?.data}');
+      }
+      return ProfileResult(false, error: msg);
+    } catch (e) {
+      if (kDebugMode) debugPrint('Profile Unexpected: $e');
+      return const ProfileResult(false, error: 'خطای ناشناخته رخ داد');
     }
   }
 }

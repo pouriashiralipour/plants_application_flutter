@@ -16,8 +16,6 @@ import 'sign_up_screen.dart';
 class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
 
-  static String routeName = './login';
-
   @override
   Widget build(BuildContext context) {
     final bool isLightMode = Theme.of(context).brightness == Brightness.light;
@@ -74,7 +72,7 @@ class LoginScreen extends StatelessWidget {
             text: 'هنوز عضو خانواده ما نشدی ؟',
             buttonText: 'ثبت نام',
             onTap: () {
-              Navigator.pushNamed(context, SignUpScreen.routeName);
+              Navigator.push(context, MaterialPageRoute(builder: (context) => SignUpScreen()));
             },
           ),
         ],

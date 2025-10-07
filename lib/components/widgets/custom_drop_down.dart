@@ -5,6 +5,8 @@ import 'package:flutter_svg/flutter_svg.dart';
 
 import '../../theme/colors.dart';
 import '../../utils/size.dart';
+import '../adaptive_gap.dart';
+import 'custom_alert.dart';
 
 class FancyDropdownFormField extends StatefulWidget {
   const FancyDropdownFormField({
@@ -15,6 +17,8 @@ class FancyDropdownFormField extends StatefulWidget {
     this.controller,
     this.onChanged,
     this.dropdownMaxHeight,
+    this.validator,
+    this.showErrors = false,
   });
 
   final TextEditingController? controller;
@@ -23,6 +27,8 @@ class FancyDropdownFormField extends StatefulWidget {
   final List<String> items;
   final String? label;
   final ValueChanged<String>? onChanged;
+  final FormFieldValidator<String>? validator;
+  final bool showErrors;
 
   @override
   State<FancyDropdownFormField> createState() => _FancyDropdownFormFieldState();
@@ -80,22 +86,29 @@ class _FancyDropdownFormFieldState extends State<FancyDropdownFormField>
     super.dispose();
   }
 
-  Color _resolveFillColor(bool isLightMode) {
+  Color _resolveFillColor(bool isLightMode, {required bool hasError}) {
+    if (hasError) return AppColors.error.withValues(alpha: 0.08);
     final focusColor = AppColors.primary.withValues(alpha: 0.08);
     if (_isActive) return focusColor;
     return isLightMode ? AppColors.grey50 : AppColors.dark2;
   }
 
-  Color _iconColor({required bool isActive, required bool hasText, required bool isLightMode}) {
+  Color _iconColor({
+    required bool isActive,
+    required bool hasText,
+    required bool isLightMode,
+    required bool hasError,
+  }) {
+    if (hasError) return AppColors.error;
     if (isActive) return isLightMode ? AppColors.primary : AppColors.white;
     return hasText
         ? (isLightMode ? AppColors.grey900 : AppColors.white)
         : (isLightMode ? AppColors.grey500 : AppColors.grey600);
   }
 
-  void _toggle() => _open ? _removeOverlay() : _showOverlay();
+  void _toggle(FormFieldState<String> field) => _open ? _removeOverlay() : _showOverlay(field);
 
-  void _showOverlay() {
+  void _showOverlay(field) {
     if (_entry != null) return;
 
     final box = _fieldKey.currentContext!.findRenderObject() as RenderBox;
@@ -204,6 +217,7 @@ class _FancyDropdownFormFieldState extends State<FancyDropdownFormField>
                                   _controller.text = text;
                                   setState(() => _hasText = text.isNotEmpty);
                                   widget.onChanged?.call(text);
+                                  field.didChange(text);
                                   _removeOverlay();
                                 },
                                 child: Padding(
@@ -262,77 +276,92 @@ class _FancyDropdownFormFieldState extends State<FancyDropdownFormField>
   Widget build(BuildContext context) {
     final bool isLightMode = Theme.of(context).brightness == Brightness.light;
 
-    return CompositedTransformTarget(
-      link: _layerLink,
-      child: SizedBox(
-        key: _fieldKey,
-        child: TextFormField(
-          controller: _controller,
-          readOnly: true,
-          focusNode: _focusNode,
-          onTap: () {
-            if (!_isFocused) _focusNode.requestFocus();
-            _toggle();
-          },
-          onChanged: (value) => setState(() => _hasText = value.isNotEmpty),
-          textDirection: TextDirection.rtl,
-          textAlign: TextAlign.right,
-          style: TextStyle(
-            color: isLightMode ? AppColors.grey900 : AppColors.white,
-            fontWeight: FontWeight.w600,
-            fontSize: SizeConfig.getProportionateFontSize(14),
-          ),
-          decoration: InputDecoration(
-            contentPadding: EdgeInsets.symmetric(
-              horizontal: SizeConfig.getProportionateScreenWidth(16),
-              vertical: SizeConfig.getProportionateScreenHeight(18),
-            ),
-            labelText: widget.label,
-            hintText: widget.hint,
-            labelStyle: TextStyle(
-              color: isLightMode ? AppColors.grey500 : AppColors.grey600,
-              fontSize: SizeConfig.getProportionateFontSize(14),
-            ),
-            hintStyle: TextStyle(
-              color: isLightMode ? AppColors.grey500 : AppColors.grey600,
-              fontSize: SizeConfig.getProportionateFontSize(14),
-            ),
-            suffixIcon: InkWell(
-              onTap: () {
-                if (!_isFocused) _focusNode.requestFocus();
-                _toggle();
-              },
-              child: Padding(
-                padding: const EdgeInsetsDirectional.only(end: 20),
-                child: AnimatedRotation(
-                  turns: _open ? 0.5 : 0.0,
-                  duration: const Duration(milliseconds: 200),
-                  child: SvgPicture.asset(
-                    'assets/images/icons/Arrow-Down2_bold.svg',
-                    width: SizeConfig.getProportionateScreenWidth(20),
-                    height: SizeConfig.getProportionateScreenWidth(20),
-                    color: _iconColor(
-                      isActive: _isActive,
-                      hasText: _hasText,
-                      isLightMode: isLightMode,
+    return FormField<String>(
+      initialValue: _controller.text,
+      autovalidateMode: widget.showErrors ? AutovalidateMode.always : AutovalidateMode.disabled,
+      validator: (_) => widget.validator?.call(_controller.text.trim()),
+      builder: (field) {
+        final hasErrorNow = widget.showErrors && field.errorText != null;
+        return CompositedTransformTarget(
+          link: _layerLink,
+          child: SizedBox(
+            key: _fieldKey,
+            child: Column(
+              children: [
+                TextFormField(
+                  controller: _controller,
+                  readOnly: true,
+                  focusNode: _focusNode,
+                  onTap: () {
+                    if (!_isFocused) _focusNode.requestFocus();
+                    _toggle(field);
+                  },
+                  onChanged: (value) => setState(() => _hasText = value.isNotEmpty),
+                  textDirection: TextDirection.rtl,
+                  textAlign: TextAlign.right,
+                  style: TextStyle(
+                    color: isLightMode ? AppColors.grey900 : AppColors.white,
+                    fontWeight: FontWeight.w600,
+                    fontSize: SizeConfig.getProportionateFontSize(14),
+                  ),
+                  decoration: InputDecoration(
+                    contentPadding: EdgeInsets.symmetric(
+                      horizontal: SizeConfig.getProportionateScreenWidth(16),
+                      vertical: SizeConfig.getProportionateScreenHeight(18),
+                    ),
+                    labelText: widget.label,
+                    hintText: widget.hint,
+                    labelStyle: TextStyle(
+                      color: isLightMode ? AppColors.grey500 : AppColors.grey600,
+                      fontSize: SizeConfig.getProportionateFontSize(14),
+                    ),
+                    hintStyle: TextStyle(
+                      color: isLightMode ? AppColors.grey500 : AppColors.grey600,
+                      fontSize: SizeConfig.getProportionateFontSize(14),
+                    ),
+                    suffixIcon: InkWell(
+                      onTap: () {
+                        if (!_isFocused) _focusNode.requestFocus();
+                        _toggle(field);
+                      },
+                      child: Padding(
+                        padding: const EdgeInsetsDirectional.only(end: 20),
+                        child: AnimatedRotation(
+                          turns: _open ? 0.5 : 0.0,
+                          duration: const Duration(milliseconds: 200),
+                          child: SvgPicture.asset(
+                            'assets/images/icons/Arrow-Down2_bold.svg',
+                            width: SizeConfig.getProportionateScreenWidth(20),
+                            height: SizeConfig.getProportionateScreenWidth(20),
+                            color: _iconColor(
+                              isActive: _isActive,
+                              hasText: _hasText,
+                              isLightMode: isLightMode,
+                              hasError: hasErrorNow,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      borderSide: BorderSide.none,
+                    ),
+                    filled: true,
+                    fillColor: _resolveFillColor(isLightMode, hasError: hasErrorNow),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      borderSide: BorderSide(color: AppColors.primary, width: 1.5),
                     ),
                   ),
                 ),
-              ),
-            ),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(16),
-              borderSide: BorderSide.none,
-            ),
-            filled: true,
-            fillColor: _resolveFillColor(isLightMode),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(16),
-              borderSide: BorderSide(color: AppColors.primary, width: 1.5),
+                AdaptiveGap(SizeConfig.getProportionateScreenHeight(10)),
+                if (hasErrorNow) CustomAlert(text: field.errorText!, isError: true),
+              ],
             ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 }

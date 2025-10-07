@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:full_plants_ecommerce_app/api/auth/otp_services.dart';
+import 'package:full_plants_ecommerce_app/api/api_services.dart';
 import 'package:full_plants_ecommerce_app/components/custom_progress_bar.dart';
 import 'package:full_plants_ecommerce_app/components/widgets/custom_logo_widget.dart';
 import 'package:full_plants_ecommerce_app/models/otp_models.dart';
 import 'package:full_plants_ecommerce_app/screens/authentication/components/auth_scaffold.dart';
-import 'package:full_plants_ecommerce_app/screens/authentication/otp_scree.dart';
 
 import '../../components/adaptive_gap.dart';
 import '../../components/widgets/custom_alert.dart';
@@ -13,15 +12,15 @@ import '../../components/widgets/cutsom_button.dart';
 import '../../theme/colors.dart';
 import '../../utils/iran_contact.dart';
 import '../../utils/size.dart';
+import '../../utils/validators.dart';
 import 'components/auth_svg_asset_widget.dart';
 import 'components/bottom_auth_text.dart';
 import 'components/custom_title_auth.dart';
 import 'login_screen.dart';
+import 'otp_screen.dart';
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
-
-  static String routeName = './signUp';
 
   @override
   State<SignUpScreen> createState() => _SignUpScreenState();
@@ -50,23 +49,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
   void reassemble() {
     super.reassemble();
     _showErrors = false;
-  }
-
-  String? _requiredValidator(String? v) {
-    final value = (v ?? '').trim();
-    if (v == null || v.trim().isEmpty) {
-      return 'شماره موبایل یا ایمیل خود را وارد کنید';
-    }
-    if (value.contains('@')) {
-      if (!isValidEmail(value)) {
-        return 'ایمیل را به‌درستی وارد کنید';
-      }
-    } else {
-      if (!isValidIranPhone(value)) {
-        return 'شماره موبایل را به‌درستی وارد کنید ';
-      }
-    }
-    return null;
   }
 
   void _showServerError(String message) {
@@ -157,7 +139,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
             });
           },
           controller: _emailOrPhoneCtrl,
-          validator: _requiredValidator,
+          validator: Validators.requiredTargetValidator,
           textDirection: TextDirection.ltr,
         ),
       ),
@@ -176,7 +158,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
             text: 'قبلا عضو خانوده ما بودی ؟',
             buttonText: 'ورود',
             onTap: () {
-              Navigator.pushNamed(context, LoginScreen.routeName);
+              Navigator.push(context, MaterialPageRoute(builder: (context) => LoginScreen()));
             },
           ),
         ],
