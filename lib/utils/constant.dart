@@ -9,4 +9,5 @@ class UrlInfo {
   static String profileCompleteUrl = 'auth/profile_complete/';
   static String loginUrl = 'auth/login/';
   static String refreshToken = 'api/token/refresh/';
+  static String userProfile = 'auth/me/';
 }
