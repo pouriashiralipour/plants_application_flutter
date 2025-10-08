@@ -1,5 +1,7 @@
 import 'package:flutter/foundation.dart';
+import '../api/user_api.dart';
 import '../models/auth/auth_models.dart';
+import '../models/auth/profile_models.dart';
 import 'auth_storage.dart';
 import '../api/auth_api.dart';
 
@@ -12,6 +14,9 @@ class AuthRepository extends ChangeNotifier {
 
   bool get isAuthed => _tokens != null;
   AuthTokens? get tokens => _tokens;
+
+  UserProfile? _me;
+  UserProfile? get me => _me;
 
   Future<void> init() async {
     final (a, r) = await AuthStorage.I.readTokens();
@@ -50,6 +55,16 @@ class AuthRepository extends ChangeNotifier {
   Future<void> setTokens(AuthTokens tokens) async {
     _tokens = tokens;
     await AuthStorage.I.saveTokens(access: tokens.access, refresh: tokens.refresh);
+    await loadMe();
     notifyListeners();
+  }
+
+  Future<void> loadMe() async {
+    if (!isAuthed) return;
+    final response = await UserApi().me();
+    if (response.success && response.data != null) {
+      _me = response.data;
+      notifyListeners();
+    }
   }
 }

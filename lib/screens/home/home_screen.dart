@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:full_plants_ecommerce_app/components/custom_category_bar.dart';
 import 'package:full_plants_ecommerce_app/models/auth/auth_models.dart';
+import 'package:provider/provider.dart';
+import '../../auth/auth_repository.dart';
 import '../../components/widgets/custom_app_bar.dart';
 import '../../components/custom_search_bar.dart';
 import '../../components/custom_title_bar.dart';
@@ -44,6 +46,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     final bool isLightMode = Theme.of(context).brightness == Brightness.light;
+
     return Scaffold(
       body: SafeArea(
         child: GestureDetector(

@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:provider/provider.dart';
 
+import '../../auth/auth_repository.dart';
 import '../../theme/colors.dart';
+import '../../utils/constant.dart';
 import '../../utils/size.dart';
 
 class CustomAppBar extends StatelessWidget {
@@ -11,6 +14,12 @@ class CustomAppBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final auth = context.watch<AuthRepository>();
+    final me = auth.me;
+    String? avatar = me!.profilePic;
+    if (avatar != null && !avatar.startsWith('http')) {
+      avatar = '${UrlInfo.baseUrl}$avatar';
+    }
     return Container(
       width: SizeConfig.screenWidth,
       height: SizeConfig.getProportionateScreenHeight(52),
@@ -21,12 +30,21 @@ class CustomAppBar extends StatelessWidget {
           Row(
             children: [
               ClipOval(
-                child: Image.asset(
-                  'assets/images/Ellipse.png',
-                  width: SizeConfig.getProportionateScreenWidth(48) * 2,
-                  height: SizeConfig.getProportionateScreenWidth(48) * 2,
-                  fit: BoxFit.contain,
-                ),
+                child: avatar != null
+                    ? Image.network(
+                        avatar,
+                        width: SizeConfig.getProportionateScreenWidth(48) * 2,
+                        height: SizeConfig.getProportionateScreenWidth(48) * 2,
+                        fit: BoxFit.contain,
+                      )
+                    : Image.asset(
+                        isLightMode
+                            ? 'assets/images/Profile.png'
+                            : 'assets/images/Profile_dark.png',
+                        width: SizeConfig.getProportionateScreenWidth(48) * 2,
+                        height: SizeConfig.getProportionateScreenWidth(48) * 2,
+                        fit: BoxFit.contain,
+                      ),
               ),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -39,14 +57,16 @@ class CustomAppBar extends StatelessWidget {
                       fontWeight: FontWeight.w500,
                     ),
                   ),
-                  Text(
-                    'پوریا شیرالی پور',
-                    style: TextStyle(
-                      color: isLightMode ? AppColors.grey800 : AppColors.white,
-                      fontSize: SizeConfig.getProportionateFontSize(18),
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
+                  auth.isAuthed
+                      ? Text(
+                          me.full_name,
+                          style: TextStyle(
+                            color: isLightMode ? AppColors.grey800 : AppColors.white,
+                            fontSize: SizeConfig.getProportionateFontSize(18),
+                            fontWeight: FontWeight.w700,
+                          ),
+                        )
+                      : Text(''),
                 ],
               ),
             ],

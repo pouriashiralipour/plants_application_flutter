@@ -1,32 +1,29 @@
-class ProfileCompleteModels {
-  ProfileCompleteModels({
-    required this.firstName,
-    required this.lastName,
-    required this.dateOfBirthJalali,
-    required this.password,
+class UserProfile {
+  UserProfile({
+    this.birthDate,
+    required this.email,
     required this.gender,
-    this.email,
-    this.phoneNumber,
+    required this.full_name,
+    required this.phone_number,
+    this.profilePic,
+    required this.userId,
   });
 
-  final String dateOfBirthJalali;
-  final String? email;
-  final String firstName;
-  final String lastName;
-  final String password;
-  final String? phoneNumber;
-  final String gender;
+  factory UserProfile.fromJson(Map json) => UserProfile(
+    email: json['email'] as String? ?? '',
+    gender: json['gender'] as String,
+    full_name: json['full_name'] as String? ?? '',
+    phone_number: json['phone_number'] as String? ?? '',
+    userId: json['id'] as String,
+    birthDate: json['jalali_date_of_birth'] as String?,
+    profilePic: json['profile_pic'] as String?,
+  );
 
-  Map<String, dynamic> toJson() {
-    final map = <String, dynamic>{
-      'first_name': firstName,
-      'last_name': lastName,
-      'date_of_birth': dateOfBirthJalali,
-      'password': password,
-      'gender': gender,
-    };
-    if (email != null && email!.trim().isNotEmpty) map['email'] = email;
-    if (phoneNumber != null && phoneNumber!.trim().isNotEmpty) map['phone_number'] = phoneNumber;
-    return map;
-  }
+  final String? birthDate;
+  final String email;
+  final String full_name;
+  final String gender;
+  final String phone_number;
+  final String? profilePic;
+  final String userId;
 }
