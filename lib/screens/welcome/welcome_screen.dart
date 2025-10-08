@@ -25,7 +25,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
   Future<void> _goToOnboarding() async {
     await Future.delayed(const Duration(seconds: 3));
     if (!mounted) return;
-    Navigator.pushReplacementNamed(context, OnBoarding.routeName);
+    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => OnBoarding()));
   }
 
   @override

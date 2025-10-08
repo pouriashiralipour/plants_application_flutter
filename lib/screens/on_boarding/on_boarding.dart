@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:full_plants_ecommerce_app/components/custom_progress_bar.dart';
 
 import '../../models/on_boarding_models.dart';
 import '../../services/intro_prefs.dart';
@@ -8,26 +9,36 @@ import '../../utils/size.dart';
 import '../root/root_screen.dart';
 
 class OnBoarding extends StatefulWidget {
-  static String routeName = './onBoarding';
   const OnBoarding({super.key});
+
+  static String routeName = './onBoarding';
 
   @override
   State<OnBoarding> createState() => _OnBoardingState();
 }
 
 class _OnBoardingState extends State<OnBoarding> {
+  int currentIndex = 0;
+  PageController pageController = PageController(initialPage: 0);
+
+  bool _isLoading = false;
+
   @override
   void initState() {
     super.initState();
     _guardIfAlreadyDone();
   }
 
-  int currentIndex = 0;
-  PageController pageController = PageController(initialPage: 0);
-
   void _finishOnboarding() async {
     await IntroPrefs.setIntroDone();
     if (!mounted) return;
+    setState(() {
+      _isLoading = true;
+    });
+    await Future.delayed(const Duration(seconds: 2));
+    setState(() {
+      _isLoading = false;
+    });
     Navigator.pushAndRemoveUntil(
       context,
       MaterialPageRoute(builder: (context) => RootScreen()),
@@ -130,55 +141,57 @@ class _OnBoardingState extends State<OnBoarding> {
               padding: EdgeInsets.only(bottom: SizeConfig.getProportionateScreenHeight(48)),
               child: Align(
                 alignment: Alignment.bottomCenter,
-                child: InkWell(
-                  onTap: () {
-                    if (currentIndex == 2) {
-                      _finishOnboarding();
-                    } else {
-                      pageController.nextPage(
-                        duration: const Duration(milliseconds: 400),
-                        curve: Curves.linear,
-                      );
-                    }
-                  },
-                  borderRadius: BorderRadius.circular(100),
-                  child: Container(
-                    width: currentIndex == 2
-                        ? SizeConfig.getProportionateScreenWidth(120)
-                        : SizeConfig.getProportionateScreenWidth(67),
-                    height: SizeConfig.getProportionateScreenHeight(58),
-                    alignment: Alignment.center,
-                    decoration: BoxDecoration(
-                      color: AppColors.primary,
-                      borderRadius: BorderRadius.circular(100),
-                      boxShadow: [
-                        if (Theme.of(context).brightness == Brightness.light)
-                          BoxShadow(
-                            offset: Offset(4, 8),
-                            blurRadius: 24,
-                            spreadRadius: 0,
-                            color: AppColors.primary.withValues(alpha: 0.25),
+                child: _isLoading
+                    ? CusstomProgressBar()
+                    : InkWell(
+                        onTap: () {
+                          if (currentIndex == 2) {
+                            _finishOnboarding();
+                          } else {
+                            pageController.nextPage(
+                              duration: const Duration(milliseconds: 400),
+                              curve: Curves.linear,
+                            );
+                          }
+                        },
+                        borderRadius: BorderRadius.circular(100),
+                        child: Container(
+                          width: currentIndex == 2
+                              ? SizeConfig.getProportionateScreenWidth(120)
+                              : SizeConfig.getProportionateScreenWidth(67),
+                          height: SizeConfig.getProportionateScreenHeight(58),
+                          alignment: Alignment.center,
+                          decoration: BoxDecoration(
+                            color: AppColors.primary,
+                            borderRadius: BorderRadius.circular(100),
+                            boxShadow: [
+                              if (Theme.of(context).brightness == Brightness.light)
+                                BoxShadow(
+                                  offset: Offset(4, 8),
+                                  blurRadius: 24,
+                                  spreadRadius: 0,
+                                  color: AppColors.primary.withValues(alpha: 0.25),
+                                ),
+                              if (Theme.of(context).brightness == Brightness.dark)
+                                BoxShadow(
+                                  offset: Offset(4, 8),
+                                  blurRadius: 12,
+                                  spreadRadius: 0,
+                                  color: AppColors.primary.withValues(alpha: 0.25),
+                                ),
+                            ],
                           ),
-                        if (Theme.of(context).brightness == Brightness.dark)
-                          BoxShadow(
-                            offset: Offset(4, 8),
-                            blurRadius: 12,
-                            spreadRadius: 0,
-                            color: AppColors.primary.withValues(alpha: 0.25),
+                          child: Text(
+                            currentIndex == 2 ? 'بزن بریم' : 'بعدی',
+                            style: TextStyle(
+                              color: AppColors.white,
+                              fontSize: SizeConfig.getProportionateScreenWidth(18),
+                              fontFamily: 'Peyda',
+                              fontWeight: FontWeight.w700,
+                            ),
                           ),
-                      ],
-                    ),
-                    child: Text(
-                      currentIndex == 2 ? 'بزن بریم' : 'بعدی',
-                      style: TextStyle(
-                        color: AppColors.white,
-                        fontSize: SizeConfig.getProportionateScreenWidth(18),
-                        fontFamily: 'Peyda',
-                        fontWeight: FontWeight.w700,
+                        ),
                       ),
-                    ),
-                  ),
-                ),
               ),
             ),
           ],
