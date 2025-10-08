@@ -28,14 +28,18 @@ class _OnBoardingState extends State<OnBoarding> {
   void _finishOnboarding() async {
     await IntroPrefs.setIntroDone();
     if (!mounted) return;
-    Navigator.pushNamedAndRemoveUntil(context, RootScreen.routeName, (route) => false);
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(builder: (context) => RootScreen()),
+      (route) => false,
+    );
   }
 
   Future<void> _guardIfAlreadyDone() async {
     final done = await IntroPrefs.isIntroDone();
     if (!mounted) return;
     if (done) {
-      Navigator.pushReplacementNamed(context, RootScreen.routeName);
+      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => RootScreen()));
     }
   }
 

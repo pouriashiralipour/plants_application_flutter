@@ -3,9 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:persian_datetime_picker/persian_datetime_picker.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
+import 'screens/splash/splash_screen.dart';
 import 'utils/size.dart';
 import 'theme/theme.dart';
-import 'screens/authentication/sign_up_screen.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -36,7 +36,7 @@ class MyApp extends StatelessWidget {
           theme: AppTheme.lightTheme,
           darkTheme: AppTheme.darkTheme,
           themeMode: ThemeMode.system,
-          home: SignUpScreen(),
+          home: SplashScreen(),
         );
       },
     );
