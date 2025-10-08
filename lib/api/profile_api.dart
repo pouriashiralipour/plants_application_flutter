@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:dio/dio.dart';
 
-import '../models/auth/profile_models.dart';
+import '../models/auth/profile_form_models.dart';
 import '../utils/constant.dart';
 import 'api_client.dart';
 import 'api_result.dart';

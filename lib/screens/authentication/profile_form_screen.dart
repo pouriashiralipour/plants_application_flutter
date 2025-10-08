@@ -16,7 +16,7 @@ import '../../components/widgets/custom_drop_down.dart';
 import '../../components/widgets/custom_text_field.dart';
 import '../../components/widgets/cutsom_button.dart';
 import '../../models/auth/auth_models.dart';
-import '../../models/auth/profile_models.dart';
+import '../../models/auth/profile_form_models.dart';
 import '../../theme/colors.dart';
 import '../../utils/size.dart';
 import '../../utils/validators.dart';
