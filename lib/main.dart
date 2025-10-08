@@ -2,14 +2,17 @@ import 'package:flutter/material.dart';
 
 import 'package:persian_datetime_picker/persian_datetime_picker.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:provider/provider.dart';
 
+import 'auth/auth_repository.dart';
 import 'screens/splash/splash_screen.dart';
 import 'utils/size.dart';
 import 'theme/theme.dart';
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  runApp(const MyApp());
+  await AuthRepository.I.init();
+  runApp(ChangeNotifierProvider.value(value: AuthRepository.I, child: const MyApp()));
 }
 
 class MyApp extends StatelessWidget {

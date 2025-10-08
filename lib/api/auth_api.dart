@@ -1,9 +1,9 @@
 import 'package:dio/dio.dart';
-import 'package:full_plants_ecommerce_app/api/api_result.dart';
 
 import '../models/auth/auth_models.dart';
 import '../utils/constant.dart';
 import 'api_client.dart';
+import 'api_result.dart';
 
 class AuthApi {
   final _dio = ApiClient.I.dio;
@@ -40,6 +40,41 @@ class AuthApi {
         error: extractErrorMessage(status: st, data: body, fallback: e.message),
         status: st,
         raw: body,
+      );
+    }
+  }
+
+  Future<ApiResult<AuthPayload>> refresh(String refreshToken) async {
+    try {
+      final response = await _dio.post(UrlInfo.refreshToken, data: {'refresh': refreshToken});
+      if (response.statusCode == 200) {
+        final access = response.data['access'] as String?;
+        final refresh = response.data['refresh'] as String? ?? '';
+        final payload = AuthPayload(
+          tokens: AuthTokens(access: access!, refresh: refresh),
+        );
+        return ApiResult(true, data: payload, status: 200, raw: response.data);
+      }
+      return ApiResult(
+        false,
+        error: extractErrorMessage(
+          status: response.statusCode,
+          data: response.data,
+          fallback: 'نوسازی توکن ناموفق بود',
+        ),
+        status: response.statusCode,
+        raw: response.data,
+      );
+    } on DioException catch (e) {
+      return ApiResult(
+        false,
+        error: extractErrorMessage(
+          status: e.response?.statusCode,
+          data: e.response?.data,
+          fallback: e.message,
+        ),
+        status: e.response?.statusCode,
+        raw: e.response?.data,
       );
     }
   }

@@ -3,9 +3,11 @@ import 'package:flutter_svg/svg.dart';
 
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:provider/provider.dart';
 import 'dart:io';
 
 import '../../api/profile_api.dart';
+import '../../auth/auth_repository.dart';
 import '../../components/adaptive_gap.dart';
 import '../../components/custom_progress_bar.dart';
 import '../../components/widgets/custom_alert.dart';
@@ -147,9 +149,11 @@ class _ProfileFormScreenState extends State<ProfileFormScreen> {
       email: email,
       phoneNumber: phone.isEmpty ? null : phone,
     );
+
+    final token = context.read<AuthRepository>().tokens!;
     final response = await ProfileApi().complete(
       model,
-      accessToken: widget.token.access,
+      accessToken: token.access,
       avatarFile: _imageFile,
       avatarFieldName: 'profile_pic',
     );

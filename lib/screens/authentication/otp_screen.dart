@@ -4,8 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:full_plants_ecommerce_app/utils/persian_number.dart';
+import 'package:provider/provider.dart';
 
 import '../../api/auth_api.dart';
+import '../../auth/auth_repository.dart';
 import '../../components/adaptive_gap.dart';
 import '../../components/custom_progress_bar.dart';
 import '../../components/widgets/custom_alert.dart';
@@ -237,6 +239,7 @@ class _OTPScreenState extends State<OTPScreen> {
     if (!mounted) return;
 
     if (response.success && response.data != null) {
+      await context.read<AuthRepository>().setTokens(response.data!.tokens);
       setState(() => _isLoading = true);
       await Future.delayed(const Duration(seconds: 2));
       setState(() => _isLoading = false);

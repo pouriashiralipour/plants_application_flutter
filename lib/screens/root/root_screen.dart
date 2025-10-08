@@ -1,9 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:full_plants_ecommerce_app/auth/auth_repository.dart';
+import 'package:full_plants_ecommerce_app/screens/authentication/login_screen.dart';
+import 'package:provider/provider.dart';
 
-import '../../models/custom_bottom_navigation_bar_items.dart';
+
 import '../../theme/colors.dart';
 import '../../utils/size.dart';
+import '../cart/cart_screen.dart';
+import '../home/home_screen.dart';
+import '../orders/orders_screen.dart';
+import '../profile/profile_screen.dart';
+import '../wallet/wallet_screen.dart';
 
 class RootScreen extends StatefulWidget {
   const RootScreen({super.key});
@@ -13,15 +21,41 @@ class RootScreen extends StatefulWidget {
 }
 
 class _RootScreenState extends State<RootScreen> {
+  List<Widget> _screens = [
+    HomeScreen(),
+    CartScreen(),
+    OrdersScreen(),
+    WalletScreen(),
+    ProfileScreen(),
+  ];
+  List _items = [
+    {
+      'icon': 'assets/images/icons/Home.svg',
+      'fill_icon': 'assets/images/icons/Home_fill.svg',
+      'lable': 'خانه',
+    },
+    {
+      'icon': 'assets/images/icons/Bag.svg',
+      'fill_icon': 'assets/images/icons/Bag_fill.svg',
+      'lable': 'سبد خرید',
+    },
+    {
+      'icon': 'assets/images/icons/Buy.svg',
+      'fill_icon': 'assets/images/icons/buy_fill.svg',
+      'lable': 'سفارش ها',
+    },
+    {
+      'icon': 'assets/images/icons/Wallet.svg',
+      'fill_icon': 'assets/images/icons/Wallet_fill.svg',
+      'lable': 'کیف پول',
+    },
+    {
+      'icon': 'assets/images/icons/Profile.svg',
+      'fill_icon': 'assets/images/icons/Profile_fill.svg',
+      'lable': 'پروفایل',
+    },
+  ];
   int bottonIndex = 0;
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      bottomNavigationBar: customNavBar(),
-      body: IndexedStack(index: bottonIndex, children: CustomBottomNavigationBarItems.screens()),
-    );
-  }
 
   Container customNavBar() {
     return Container(
@@ -30,15 +64,31 @@ class _RootScreenState extends State<RootScreen> {
       width: SizeConfig.screenWidth,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: List.generate(CustomBottomNavigationBarItems.screens().length, (index) {
-          final item = CustomBottomNavigationBarItems.items[index];
+        children: List.generate(_screens.length, (index) {
+          final item = _items[index];
           return Column(
             children: [
               GestureDetector(
-                onTap: () {
-                  setState(() {
-                    bottonIndex = index;
-                  });
+                onTap: () async {
+                  if (index == 4) {
+                    final isAuthed = context.read<AuthRepository>().isAuthed;
+                    if (!isAuthed) {
+                      await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          fullscreenDialog: true,
+                          builder: (context) {
+                            return LoginScreen();
+                          },
+                        ),
+                      );
+                      if (context.mounted && context.read<AuthRepository>().isAuthed) {
+                        setState(() => bottonIndex = 4);
+                      }
+                      return;
+                    }
+                  }
+                  setState(() => bottonIndex = index);
                 },
                 child: SvgPicture.asset(
                   bottonIndex == index ? item['fill_icon'] : item['icon'],
@@ -67,6 +117,22 @@ class _RootScreenState extends State<RootScreen> {
           );
         }),
       ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final authed = context.watch<AuthRepository>().isAuthed;
+    final screens = [
+      const HomeScreen(),
+      const CartScreen(),
+      const OrdersScreen(),
+      const WalletScreen(),
+      authed ? const ProfileScreen() : const LoginScreen(),
+    ];
+    return Scaffold(
+      bottomNavigationBar: customNavBar(),
+      body: IndexedStack(index: bottonIndex, children: screens),
     );
   }
 }
