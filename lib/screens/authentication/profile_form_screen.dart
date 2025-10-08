@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:full_plants_ecommerce_app/models/otp_models.dart';
+
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'dart:io';
 
-import '../../api/api_services.dart';
+import '../../api/profile_api.dart';
 import '../../components/adaptive_gap.dart';
 import '../../components/custom_progress_bar.dart';
 import '../../components/widgets/custom_alert.dart';
@@ -13,7 +13,8 @@ import '../../components/widgets/custom_dialog.dart';
 import '../../components/widgets/custom_drop_down.dart';
 import '../../components/widgets/custom_text_field.dart';
 import '../../components/widgets/cutsom_button.dart';
-import '../../models/profile_models.dart';
+import '../../models/auth/auth_models.dart';
+import '../../models/auth/profile_models.dart';
 import '../../theme/colors.dart';
 import '../../utils/size.dart';
 import '../../utils/validators.dart';
@@ -21,29 +22,29 @@ import '../root/root_screen.dart';
 import 'components/auth_scaffold.dart';
 
 class ProfileFormScreen extends StatefulWidget {
-  const ProfileFormScreen({super.key, this.token, this.purpose = 'register', required this.target});
+  const ProfileFormScreen({
+    super.key,
+    required this.token,
+    required this.purpose,
+    required this.target,
+  });
 
-  static String routeName = './profile_form';
-
-  final String? purpose;
+  final String purpose;
   final String target;
-  final AuthTokens? token;
+  final AuthTokens token;
 
   @override
   State<ProfileFormScreen> createState() => _ProfileFormScreenState();
 }
 
 class _ProfileFormScreenState extends State<ProfileFormScreen> {
-  late ProfileCompleteModels profileCompleteModels;
-  late ProfileServices profileServices;
-
-  final TextEditingController _birthDateController = TextEditingController();
-  final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _firstNameController = TextEditingController();
+  final _dobCtrl = TextEditingController();
+  final _emailCtrl = TextEditingController();
+  final _firstNameCtrl = TextEditingController();
   final _formKey = GlobalKey<FormState>();
-  final TextEditingController _lastNameController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _phoneNumberController = TextEditingController();
+  final _lastNameCtrl = TextEditingController();
+  final _passwordCtrl = TextEditingController();
+  final _phoneCtrl = TextEditingController();
   final ImagePicker _picker = ImagePicker();
 
   bool _isLoading = false;
@@ -55,26 +56,31 @@ class _ProfileFormScreenState extends State<ProfileFormScreen> {
 
   @override
   void dispose() {
-    _birthDateController.dispose();
-    _firstNameController.dispose();
-    _lastNameController.dispose();
-    _passwordController.dispose();
-    _emailController.dispose();
-    _phoneNumberController.dispose();
+    _firstNameCtrl.dispose();
+    _lastNameCtrl.dispose();
+    _dobCtrl.dispose();
+    _passwordCtrl.dispose();
+    _emailCtrl.dispose();
+    _phoneCtrl.dispose();
     super.dispose();
   }
 
   @override
   void initState() {
     super.initState();
-    profileServices = ProfileServices();
-    profileCompleteModels = ProfileCompleteModels(
-      gender: '',
-      firstName: '',
-      lastName: '',
-      dateOfBirthJalali: '',
-      password: '',
-    );
+    if (widget.target.contains('@')) {
+      _emailCtrl.text = widget.target;
+    } else {
+      _phoneCtrl.text = widget.target;
+    }
+  }
+
+  String? _dobValidator(String? v) {
+    final s = _toEnglishDigits((v ?? '').trim());
+    if (s.isEmpty) return 'تاریخ تولد را وارد کنید';
+    final re = RegExp(r'^\d{4}/\d{2}/\d{2}$');
+    if (!re.hasMatch(s)) return 'قالب تاریخ: YYYY/MM/DD';
+    return null;
   }
 
   String _mapGenderFaToEn(String? g) {
@@ -123,36 +129,50 @@ class _ProfileFormScreenState extends State<ProfileFormScreen> {
       _serverErrorMessage = null;
     });
 
-    if (_formKey.currentState!.validate()) {
+    if (!_formKey.currentState!.validate()) return;
+
+    final firstName = _firstNameCtrl.text.trim();
+    final lastName = _lastNameCtrl.text.trim();
+    final dob = _toEnglishDigits(_dobCtrl.text.trim());
+    final password = _passwordCtrl.text;
+    final email = _emailCtrl.text.trim().isEmpty ? null : _emailCtrl.text.trim();
+    final phone = _toEnglishDigits(_phoneCtrl.text.trim().isEmpty ? '' : _phoneCtrl.text.trim());
+
+    final model = ProfileCompleteModels(
+      firstName: firstName,
+      lastName: lastName,
+      dateOfBirthJalali: dob,
+      password: password,
+      gender: _mapGenderFaToEn(_selectedGenderFa),
+      email: email,
+      phoneNumber: phone.isEmpty ? null : phone,
+    );
+    final response = await ProfileApi().complete(
+      model,
+      accessToken: widget.token.access,
+      avatarFile: _imageFile,
+      avatarFieldName: 'profile_pic',
+    );
+
+    if (!mounted) return;
+
+    if (response.success) {
       setState(() => _isLoading = true);
       await Future.delayed(const Duration(seconds: 1));
-      final svc = ProfileServices();
-      final result = await svc.completeProfile(
-        ProfileCompleteModels(
-          firstName: _firstNameController.text.trim(),
-          lastName: _lastNameController.text.trim(),
-          dateOfBirthJalali: _birthDateController.text.trim(),
-          password: _passwordController.text,
-          email: _emailController.text.isEmpty ? null : _emailController.text.trim(),
-          phoneNumber: _phoneNumberController.text.isEmpty
-              ? null
-              : _phoneNumberController.text.trim(),
-          gender: _mapGenderFaToEn(_selectedGenderFa),
-        ),
-        accessToken: widget.token!.access,
-        avatarFile: _imageFile,
-        avatarFieldName: 'profile_pic',
-      );
-
-      if (!mounted) return;
       setState(() => _isLoading = false);
-
-      if (result.ok) {
-        await customSuccessShowDialog(context);
-      } else {
-        _showServerError(result.error ?? 'خطا');
-      }
+      await customSuccessShowDialog(context);
+    } else {
+      _showServerError(response.error ?? 'خطا');
     }
+  }
+
+  String _toEnglishDigits(String s) {
+    const fa = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹'];
+    const ar = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
+    for (var i = 0; i < 10; i++) {
+      s = s.replaceAll(fa[i], i.toString()).replaceAll(ar[i], i.toString());
+    }
+    return s;
   }
 
   @override
@@ -189,7 +209,6 @@ class _ProfileFormScreenState extends State<ProfileFormScreen> {
               ),
             ),
           ),
-
           Positioned(
             top: 105,
             left: 105,
@@ -223,15 +242,10 @@ class _ProfileFormScreenState extends State<ProfileFormScreen> {
               isPassword: false,
               isLightMode: isLightMode,
               showErrors: _showErrors,
-              onChanged: (value) {
-                setState(() {
-                  profileCompleteModels.firstName;
-                });
-              },
               validator: Validators.requiredBlankValidator,
               hintText: 'نام',
               suffixIcon: 'assets/images/icons/Profile.svg',
-              controller: _firstNameController,
+              controller: _firstNameCtrl,
             ),
             AdaptiveGap(SizeConfig.getProportionateScreenHeight(15)),
             CustomTextField(
@@ -239,13 +253,8 @@ class _ProfileFormScreenState extends State<ProfileFormScreen> {
               isLightMode: isLightMode,
               hintText: 'نام خانوادگی',
               suffixIcon: 'assets/images/icons/Profile.svg',
-              controller: _lastNameController,
+              controller: _lastNameCtrl,
               showErrors: _showErrors,
-              onChanged: (value) {
-                setState(() {
-                  profileCompleteModels.lastName;
-                });
-              },
               validator: Validators.requiredBlankValidator,
             ),
             AdaptiveGap(SizeConfig.getProportionateScreenHeight(15)),
@@ -255,16 +264,9 @@ class _ProfileFormScreenState extends State<ProfileFormScreen> {
               hintText: 'تاریخ تولد',
               suffixIcon: 'assets/images/icons/Calendar_curve.svg',
               isDateField: true,
-              controller: _birthDateController,
-              validator: (value) {
-                return null;
-              },
+              controller: _dobCtrl,
+              validator: _dobValidator,
               showErrors: _showErrors,
-              onChanged: (value) {
-                setState(() {
-                  profileCompleteModels.dateOfBirthJalali;
-                });
-              },
             ),
             AdaptiveGap(SizeConfig.getProportionateScreenHeight(15)),
             !widget.target.contains("@")
@@ -272,13 +274,8 @@ class _ProfileFormScreenState extends State<ProfileFormScreen> {
                     isPassword: false,
                     isLightMode: isLightMode,
                     hintText: 'ایمیل',
-                    controller: _emailController,
+                    controller: _emailCtrl,
                     suffixIcon: 'assets/images/icons/Message_curve.svg',
-                    onChanged: (value) {
-                      setState(() {
-                        profileCompleteModels.email;
-                      });
-                    },
                     validator: Validators.requiredEmailValidator,
                     showErrors: _showErrors,
                     textDirection: TextDirection.ltr,
@@ -287,13 +284,8 @@ class _ProfileFormScreenState extends State<ProfileFormScreen> {
                     isPassword: false,
                     isLightMode: isLightMode,
                     hintText: 'شماره موبایل',
-                    controller: _phoneNumberController,
+                    controller: _phoneCtrl,
                     suffixIcon: 'assets/images/icons/Call_curve.svg',
-                    onChanged: (value) {
-                      setState(() {
-                        profileCompleteModels.phoneNumber;
-                      });
-                    },
                     validator: Validators.requiredMobileValidator,
                     showErrors: _showErrors,
                   ),
@@ -303,7 +295,7 @@ class _ProfileFormScreenState extends State<ProfileFormScreen> {
               suffixIcon: 'assets/images/icons/Hide_bold.svg',
               isLightMode: isLightMode,
               hintText: 'رمزعبور',
-              controller: _passwordController,
+              controller: _passwordCtrl,
               validator: Validators.requiredPasswordValidator,
               showErrors: _showErrors,
               textDirection: TextDirection.ltr,

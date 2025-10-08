@@ -3,19 +3,17 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:full_plants_ecommerce_app/screens/authentication/components/auth_scaffold.dart';
-import 'package:full_plants_ecommerce_app/screens/authentication/profile_form_screen.dart';
-
 import 'package:full_plants_ecommerce_app/utils/persian_number.dart';
 
-import '../../api/api_services.dart';
+import '../../api/auth_api.dart';
 import '../../components/adaptive_gap.dart';
 import '../../components/custom_progress_bar.dart';
 import '../../components/widgets/custom_alert.dart';
 import '../../components/widgets/cutsom_button.dart';
-import '../../models/otp_models.dart';
 import '../../theme/colors.dart';
 import '../../utils/size.dart';
+import 'components/auth_scaffold.dart';
+import 'profile_form_screen.dart';
 
 class OTPScreen extends StatefulWidget {
   const OTPScreen({
@@ -34,9 +32,6 @@ class OTPScreen extends StatefulWidget {
 }
 
 class _OTPScreenState extends State<OTPScreen> {
-  late OtpServices otpServices;
-  late OtpVerifyModels otpVerifyModels;
-
   final List<TextEditingController> _controllers = List.generate(6, (_) => TextEditingController());
   final List<FocusNode> _focusNodes = List.generate(6, (_) => FocusNode());
 
@@ -60,8 +55,6 @@ class _OTPScreenState extends State<OTPScreen> {
 
   @override
   void initState() {
-    otpServices = OtpServices();
-    otpVerifyModels = OtpVerifyModels(code: '');
     super.initState();
     _startTimer();
 
@@ -173,26 +166,26 @@ class _OTPScreenState extends State<OTPScreen> {
     return p;
   }
 
-  Future<void> _resendOtp() async {
+  void _resendOtp() async {
     if (_isLoading) return;
     if (_secondsRemaining > 0) return;
 
     setState(() {
-      _isLoading = true;
       _serverErrorMessage = null;
     });
 
-    final res = await otpServices.requestOtp(
-      OtpRequestModels(target: widget.target, purpose: widget.purpose),
-    );
+    final response = await AuthApi().requestOtp(target: widget.target, purpose: widget.purpose);
 
-    setState(() => _isLoading = false);
+    if (!mounted) return;
 
-    if (res.ok) {
+    if (response.success) {
+      setState(() => _isLoading = true);
+      await Future.delayed(const Duration(seconds: 2));
+      setState(() => _isLoading = false);
       _secondsRemaining = 120;
       _startTimer();
     } else {
-      _showServerError(res.error ?? 'ارسال مجدد ناموفق بود');
+      _showServerError(response.error ?? 'ارسال مجدد ناموفق بود');
     }
   }
 
@@ -224,7 +217,11 @@ class _OTPScreenState extends State<OTPScreen> {
     });
   }
 
-  Future<void> _verify() async {
+  void _verify() async {
+    setState(() {
+      _serverErrorMessage = null;
+    });
+
     final raw = _controllers.map((c) => c.text).join();
     final cleaned = normalizeDigits(raw).replaceAll(RegExp(r'\s+'), '');
     debugPrint(cleaned);
@@ -235,27 +232,26 @@ class _OTPScreenState extends State<OTPScreen> {
       return;
     }
 
-    setState(() => _isLoading = true);
-    await Future.delayed(const Duration(seconds: 2));
-
-    final result = await otpServices.verifyOtp(OtpVerifyModels(code: cleaned));
+    final response = await AuthApi().veriftOtp(cleaned);
 
     if (!mounted) return;
-    setState(() => _isLoading = false);
 
-    if (result.ok && result.tokens != null) {
+    if (response.success && response.data != null) {
+      setState(() => _isLoading = true);
+      await Future.delayed(const Duration(seconds: 2));
+      setState(() => _isLoading = false);
       Navigator.push(
         context,
         MaterialPageRoute(
           builder: (context) => ProfileFormScreen(
             target: widget.target,
-            token: result.tokens!,
+            token: response.data!.tokens,
             purpose: widget.purpose,
           ),
         ),
       );
     } else {
-      _showServerError(result.error ?? 'تایید کد با خطا مواجه شد');
+      _showServerError(response.error ?? 'تایید کد با خطا مواجه شد');
     }
   }
 
@@ -277,12 +273,6 @@ class _OTPScreenState extends State<OTPScreen> {
       ),
       header: Column(
         children: [
-          if (_serverErrorMessage != null) ...[
-            Padding(
-              padding: const EdgeInsets.only(bottom: 16),
-              child: CustomAlert(text: _serverErrorMessage!, isError: true),
-            ),
-          ],
           AdaptiveGap(SizeConfig.getProportionateScreenHeight(20)),
           SvgPicture.asset(
             isLightMode
@@ -295,6 +285,13 @@ class _OTPScreenState extends State<OTPScreen> {
       ),
       form: Column(
         children: [
+          if (_serverErrorMessage != null) ...[
+            Padding(
+              padding: const EdgeInsets.only(bottom: 16),
+              child: CustomAlert(text: _serverErrorMessage!, isError: true),
+            ),
+          ],
+          AdaptiveGap(SizeConfig.getProportionateScreenHeight(20)),
           Text.rich(
             TextSpan(
               children: [

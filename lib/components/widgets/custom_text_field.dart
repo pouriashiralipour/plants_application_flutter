@@ -27,6 +27,7 @@ class CustomTextField extends StatefulWidget {
     this.onChanged,
     this.initialValue,
     this.showErrors = false,
+    this.textInputAction,
   });
 
   final TextEditingController? controller;
@@ -44,6 +45,7 @@ class CustomTextField extends StatefulWidget {
   final String? suffixIcon;
   final TextDirection? textDirection;
   final FormFieldValidator<String>? validator;
+  final TextInputAction? textInputAction;
 
   @override
   State<CustomTextField> createState() => _CustomTextFieldState();
@@ -215,6 +217,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
                     : null,
               ),
               child: TextFormField(
+                textInputAction: widget.textInputAction,
                 controller: controller,
                 initialValue: controller == null ? initText : null,
                 focusNode: _focusNode,

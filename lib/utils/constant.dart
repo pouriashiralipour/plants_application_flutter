@@ -7,4 +7,5 @@ class UrlInfo {
   static String otpRequestUrl = 'auth/otp_request/';
   static String otpVerifyUrl = 'auth/otp_verify/';
   static String profileCompleteUrl = 'auth/profile_complete/';
+  static String loginUrl = 'auth/login/';
 }

@@ -1,0 +1,109 @@
+import 'package:dio/dio.dart';
+import 'package:full_plants_ecommerce_app/api/api_result.dart';
+
+import '../models/auth/auth_models.dart';
+import '../utils/constant.dart';
+import 'api_client.dart';
+
+class AuthApi {
+  final _dio = ApiClient.I.dio;
+
+  Future<ApiResult<AuthPayload>> login({required String login, required String password}) async {
+    try {
+      final response = await _dio.post(
+        UrlInfo.loginUrl,
+        data: {'login': login, 'password': password},
+      );
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        return ApiResult(
+          true,
+          data: AuthPayload.fromJson(response.data as Map),
+          status: response.statusCode,
+          raw: response.data,
+        );
+      }
+      return ApiResult(
+        false,
+        error: extractErrorMessage(
+          status: response.statusCode,
+          data: response.data,
+          fallback: 'نام کاربری یا رمز عبور نادرست است',
+        ),
+        status: response.statusCode,
+        raw: response.data,
+      );
+    } on DioException catch (e) {
+      final st = e.response?.statusCode;
+      final body = e.response?.data;
+      return ApiResult(
+        false,
+        error: extractErrorMessage(status: st, data: body, fallback: e.message),
+        status: st,
+        raw: body,
+      );
+    }
+  }
+
+  Future<ApiResult<void>> requestOtp({required String target, required String purpose}) async {
+    try {
+      final response = await _dio.post(
+        UrlInfo.otpRequestUrl,
+        data: {'target': target, 'purpose': purpose},
+      );
+      if (response.statusCode == 200 || response.statusCode == 201) return const ApiResult(true);
+      return ApiResult(
+        false,
+        error: extractErrorMessage(
+          status: response.statusCode,
+          data: response.data,
+          fallback: 'درخواست نامعتبر بود',
+        ),
+        status: response.statusCode,
+        raw: response.data,
+      );
+    } on DioException catch (e) {
+      final st = e.response?.statusCode;
+      final body = e.response?.data;
+      return ApiResult(
+        false,
+        error: extractErrorMessage(status: st, data: body, fallback: e.message),
+        status: st,
+        raw: body,
+      );
+    }
+  }
+
+  Future<ApiResult<AuthPayload>> veriftOtp(String code) async {
+    try {
+      final response = await _dio.post(UrlInfo.otpVerifyUrl, data: {'code': code});
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        return ApiResult(
+          true,
+          data: AuthPayload.fromJson(response.data as Map),
+          status: response.statusCode,
+          raw: response.data,
+        );
+      }
+      ;
+      return ApiResult(
+        false,
+        error: extractErrorMessage(
+          status: response.statusCode,
+          data: response.data,
+          fallback: 'کد نامعتبر است',
+        ),
+        status: response.statusCode,
+        raw: response.data,
+      );
+    } on DioException catch (e) {
+      final st = e.response?.statusCode;
+      final body = e.response?.data;
+      return ApiResult(
+        false,
+        error: extractErrorMessage(status: st, data: body, fallback: e.message),
+        status: st,
+        raw: body,
+      );
+    }
+  }
+}

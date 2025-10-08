@@ -14,7 +14,15 @@ class ApiClient {
         validateStatus: (c) => c != null && c < 500,
       ),
     )..httpClientAdapter = IOHttpClientAdapter();
-
+    _dio.interceptors.add(
+      LogInterceptor(
+        request: true,
+        requestBody: true,
+        responseHeader: false,
+        responseBody: true,
+        error: true,
+      ),
+    );
     final adapter = _dio.httpClientAdapter as IOHttpClientAdapter;
     adapter.onHttpClientCreate = (HttpClient client) {
       client.badCertificateCallback = (X509Certificate cert, String host, int port) => true;
@@ -25,18 +33,11 @@ class ApiClient {
   }
 
   static final ApiClient I = ApiClient._internal();
-  late final Dio _dio;
+
   final CookieJar _cookieJar = CookieJar();
+  late final Dio _dio;
 
   Dio get dio => _dio;
-
-  Future<Response> postJson(String path, {Object? data, String? bearer}) {
-    return _dio.post(path, data: data, options: _authOptions(bearer));
-  }
-
-  Future<Response> patchJson(String path, {Object? data, String? bearer}) {
-    return _dio.patch(path, data: data, options: _authOptions(bearer));
-  }
 
   Future<Response> multipartPatch(String path, {required FormData form, String? bearer}) {
     return _dio.patch(
@@ -44,6 +45,14 @@ class ApiClient {
       data: form,
       options: _authOptions(bearer, contentType: 'multipart/form-data'),
     );
+  }
+
+  Future<Response> patchJson(String path, {Object? data, String? bearer}) {
+    return _dio.patch(path, data: data, options: _authOptions(bearer));
+  }
+
+  Future<Response> postJson(String path, {Object? data, String? bearer}) {
+    return _dio.post(path, data: data, options: _authOptions(bearer));
   }
 
   Options _authOptions(String? jwt, {String? contentType}) {

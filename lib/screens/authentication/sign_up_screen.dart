@@ -1,18 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:full_plants_ecommerce_app/api/api_services.dart';
-import 'package:full_plants_ecommerce_app/components/custom_progress_bar.dart';
-import 'package:full_plants_ecommerce_app/components/widgets/custom_logo_widget.dart';
-import 'package:full_plants_ecommerce_app/models/otp_models.dart';
-import 'package:full_plants_ecommerce_app/screens/authentication/components/auth_scaffold.dart';
 
+import '../../api/auth_api.dart';
 import '../../components/adaptive_gap.dart';
+import '../../components/custom_progress_bar.dart';
 import '../../components/widgets/custom_alert.dart';
+import '../../components/widgets/custom_logo_widget.dart';
 import '../../components/widgets/custom_text_field.dart';
 import '../../components/widgets/cutsom_button.dart';
 import '../../theme/colors.dart';
 import '../../utils/iran_contact.dart';
 import '../../utils/size.dart';
 import '../../utils/validators.dart';
+import 'components/auth_scaffold.dart';
 import 'components/auth_svg_asset_widget.dart';
 import 'components/bottom_auth_text.dart';
 import 'components/custom_title_auth.dart';
@@ -27,22 +26,23 @@ class SignUpScreen extends StatefulWidget {
 }
 
 class _SignUpScreenState extends State<SignUpScreen> {
-  late OtpRequestModels otpRequestModels;
-  late OtpServices otpServices;
+  final _formKey = GlobalKey<FormState>();
+  final _targetCtrl = TextEditingController();
 
-  final _emailOrPhoneCtrl = TextEditingController();
-
-  GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   bool _isLoading = false;
   bool _showErrors = false;
 
   String? _serverErrorMessage;
 
   @override
+  void dispose() {
+    _targetCtrl.dispose();
+    super.dispose();
+  }
+
+  @override
   void initState() {
     super.initState();
-    otpServices = OtpServices();
-    otpRequestModels = OtpRequestModels();
   }
 
   @override
@@ -71,33 +71,32 @@ class _SignUpScreenState extends State<SignUpScreen> {
       _serverErrorMessage = null;
     });
 
-    if (_formKey.currentState!.validate()) {
-      final raw = _emailOrPhoneCtrl.text.trim();
+    if (!_formKey.currentState!.validate()) return;
 
-      final prepared = raw.contains('@') ? raw : toEnglishDigits(raw);
-      final normalized = prepared.contains('@') ? prepared : normalizeIranPhone(prepared);
+    final raw = _targetCtrl.text.trim();
 
-      final model = OtpRequestModels(target: normalized, purpose: 'register');
+    final prepared = raw.contains('@') ? raw : toEnglishDigits(raw);
+    final normalized = prepared.contains('@') ? prepared : normalizeIranPhone(prepared);
+    debugPrint(normalized);
 
-      final result = await OtpServices().requestOtp(model);
-      if (!mounted) return;
+    final response = await AuthApi().requestOtp(target: normalized, purpose: 'register');
 
-      if (result.ok) {
-        setState(() {
-          _isLoading = true;
-        });
-        await Future.delayed(const Duration(seconds: 2));
-        setState(() {
-          _isLoading = false;
-        });
-        Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (_) => OTPScreen(target: normalized, purpose: 'register', fromSignup: true),
-          ),
-        );
-      } else {
-        _showServerError(result.error ?? 'ارسال کد با خطا مواجه شد');
-      }
+    if (!mounted) return;
+
+    if (response.success) {
+      setState(() => _isLoading = true);
+      await Future.delayed(const Duration(seconds: 2));
+      setState(() {
+        _isLoading = false;
+      });
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (_) => OTPScreen(target: normalized, purpose: 'register', fromSignup: true),
+        ),
+      );
+    } else {
+      setState(() => _serverErrorMessage = response.error ?? 'ارسال کد ناموفق بود');
+      _showServerError(_serverErrorMessage!);
     }
   }
 
@@ -107,12 +106,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
     return AuthScaffold(
       header: Column(
         children: [
-          if (_serverErrorMessage != null) ...[
-            Padding(
-              padding: const EdgeInsets.only(bottom: 16),
-              child: CustomAlert(text: _serverErrorMessage!, isError: true),
-            ),
-          ],
           AdaptiveGap(SizeConfig.getProportionateScreenHeight(20)),
           CustomLogoWidget(),
           AdaptiveGap(SizeConfig.getProportionateScreenHeight(60)),
@@ -127,20 +120,26 @@ class _SignUpScreenState extends State<SignUpScreen> {
       ),
       form: Form(
         key: _formKey,
-        child: CustomTextField(
-          isLightMode: isLightMode,
-          preffixIcon: 'assets/images/icons/Message_bold.svg',
-          hintText: 'ایمیل یا شماره تلفن',
-          initialValue: otpRequestModels.target,
-          showErrors: _showErrors,
-          onChanged: (value) {
-            setState(() {
-              otpRequestModels.target = value;
-            });
-          },
-          controller: _emailOrPhoneCtrl,
-          validator: Validators.requiredTargetValidator,
-          textDirection: TextDirection.ltr,
+        child: Column(
+          children: [
+            if (_serverErrorMessage != null) ...[
+              Padding(
+                padding: const EdgeInsets.only(bottom: 16),
+                child: CustomAlert(text: _serverErrorMessage!, isError: true),
+              ),
+            ],
+            AdaptiveGap(SizeConfig.getProportionateScreenHeight(20)),
+            CustomTextField(
+              isLightMode: isLightMode,
+              preffixIcon: 'assets/images/icons/Message_bold.svg',
+              hintText: 'ایمیل یا شماره تلفن',
+              textInputAction: TextInputAction.done,
+              showErrors: _showErrors,
+              controller: _targetCtrl,
+              validator: Validators.requiredTargetValidator,
+              textDirection: TextDirection.ltr,
+            ),
+          ],
         ),
       ),
       footer: Column(
@@ -157,9 +156,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
           BottomAuthText(
             text: 'قبلا عضو خانوده ما بودی ؟',
             buttonText: 'ورود',
-            onTap: () {
-              Navigator.push(context, MaterialPageRoute(builder: (context) => LoginScreen()));
-            },
+            onTap: () =>
+                Navigator.push(context, MaterialPageRoute(builder: (context) => LoginScreen())),
           ),
         ],
       ),

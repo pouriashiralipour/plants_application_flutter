@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:full_plants_ecommerce_app/components/custom_category_bar.dart';
+import 'package:full_plants_ecommerce_app/models/auth/auth_models.dart';
 import '../../components/widgets/custom_app_bar.dart';
 import '../../components/custom_search_bar.dart';
 import '../../components/custom_title_bar.dart';
@@ -8,9 +9,11 @@ import '../../components/special_offer_card.dart';
 import '../../utils/size.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+  const HomeScreen({super.key, this.tokens});
 
   static String routeName = './home';
+
+  final AuthTokens? tokens;
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
