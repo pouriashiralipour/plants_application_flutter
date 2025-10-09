@@ -16,7 +16,7 @@ class CustomAppBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final auth = context.watch<AuthRepository>();
     final me = auth.me;
-    String? avatar = me!.profilePic;
+    String? avatar = me?.profilePic;
     if (avatar != null && !avatar.startsWith('http')) {
       avatar = '${UrlInfo.baseUrl}$avatar';
     }
@@ -30,17 +30,19 @@ class CustomAppBar extends StatelessWidget {
           Row(
             children: [
               ClipOval(
-                child: avatar != null
-                    ? Image.network(
-                        avatar,
-                        width: SizeConfig.getProportionateScreenWidth(48) * 2,
-                        height: SizeConfig.getProportionateScreenWidth(48) * 2,
-                        fit: BoxFit.contain,
-                      )
+                child: auth.isAuthed
+                    ? avatar != null
+                          ? Image.network(
+                              avatar,
+                              width: SizeConfig.getProportionateScreenWidth(48) * 2,
+                              height: SizeConfig.getProportionateScreenWidth(48) * 2,
+                              fit: BoxFit.contain,
+                            )
+                          : null
                     : Image.asset(
                         isLightMode
-                            ? 'assets/images/Profile.png'
-                            : 'assets/images/Profile_dark.png',
+                            ? 'assets/images/profile.png'
+                            : 'assets/images/profile_dark.png',
                         width: SizeConfig.getProportionateScreenWidth(48) * 2,
                         height: SizeConfig.getProportionateScreenWidth(48) * 2,
                         fit: BoxFit.contain,
@@ -59,7 +61,7 @@ class CustomAppBar extends StatelessWidget {
                   ),
                   auth.isAuthed
                       ? Text(
-                          me.full_name,
+                          me!.full_name,
                           style: TextStyle(
                             color: isLightMode ? AppColors.grey800 : AppColors.white,
                             fontSize: SizeConfig.getProportionateFontSize(18),
