@@ -44,6 +44,32 @@ class AuthApi {
     }
   }
 
+  Future<ApiResult<void>> passwordRequestOtp({required String target}) async {
+    try {
+      final response = await _dio.post(UrlInfo.passwordResetRequestUrl, data: {'target': target});
+      if (response.statusCode == 200 || response.statusCode == 201) return const ApiResult(true);
+      return ApiResult(
+        false,
+        error: extractErrorMessage(
+          status: response.statusCode,
+          data: response.data,
+          fallback: 'درخواست نامعتبر بود',
+        ),
+        status: response.statusCode,
+        raw: response.data,
+      );
+    } on DioException catch (e) {
+      final st = e.response?.statusCode;
+      final body = e.response?.data;
+      return ApiResult(
+        false,
+        error: extractErrorMessage(status: st, data: body, fallback: e.message),
+        status: st,
+        raw: body,
+      );
+    }
+  }
+
   Future<ApiResult<AuthPayload>> refresh(String refreshToken) async {
     try {
       final response = await _dio.post(UrlInfo.refreshToken, data: {'refresh': refreshToken});
