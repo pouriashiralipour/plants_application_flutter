@@ -1,64 +1,55 @@
+// lib/api/profile_api.dart
 import 'dart:io';
-
 import 'package:dio/dio.dart';
+import '../api/api_client.dart';
+import '../api/api_result.dart';
 
 import '../models/auth/profile_form_models.dart';
+import '../models/auth/profile_models.dart';
 import '../utils/constant.dart';
-import 'api_client.dart';
-import 'api_result.dart';
 
 class ProfileApi {
-  final _dio = ApiClient.I.dio;
+  final Dio _dio = ApiClient.I.dio;
 
-  Future<ApiResult<void>> complete(
-    ProfileCompleteModels model, {
-    required String accessToken,
+  Future<ApiResult<UserProfile>> complete(
+    ProfileCompleteModels m, {
     File? avatarFile,
     String avatarFieldName = 'profile_pic',
   }) async {
     try {
-      Response response;
+      final map = m.toJson();
+      final formMap = <String, dynamic>{...map};
+
       if (avatarFile != null) {
-        final form = FormData.fromMap({
-          ...model.toJson(),
-          avatarFieldName: await MultipartFile.fromFile(
-            avatarFile.path,
-            filename: avatarFile.path.split('/').last,
-          ),
-        });
-        response = await _dio.patch(
-          UrlInfo.profileCompleteUrl,
-          data: form,
-          options: Options(
-            headers: {'Authorization': 'JWT $accessToken', 'Content-Type': 'multipart/form-data'},
-          ),
-        );
-      } else {
-        response = await _dio.patch(
-          UrlInfo.profileCompleteUrl,
-          data: model.toJson(),
-          options: Options(headers: {'Authorization': 'JWT $accessToken'}),
+        formMap[avatarFieldName] = await MultipartFile.fromFile(
+          avatarFile.path,
+          filename: avatarFile.path.split('/').last,
         );
       }
-      if (response.statusCode == 200 || response.statusCode == 201) return const ApiResult(true);
+      final data = avatarFile == null ? map : FormData.fromMap(formMap);
+
+      final r = await _dio.patch(
+        UrlInfo.profileCompleteUrl,
+        data: data,
+        options: Options(
+          headers: {
+            if (avatarFile != null) 'Content-Type': 'multipart/form-data',
+            'Accept': 'application/json',
+          },
+        ),
+      );
+
+      if (r.statusCode == 200 || r.statusCode == 201) {
+        return ApiResult(true, data: UserProfile.fromJson(r.data as Map<String, dynamic>));
+      }
       return ApiResult(
         false,
-        error: extractErrorMessage(
-          status: response.statusCode,
-          data: response.data,
-          fallback: 'خطا در تکمیل پروفایل',
-        ),
-        status: response.statusCode,
-        raw: response.data,
+        error: extractErrorMessage(data: r.data, fallback: 'خطا در تکمیل پروفایل'),
       );
     } on DioException catch (e) {
-      final st = e.response?.statusCode;
-      final body = e.response?.data;
       return ApiResult(
         false,
-        error: extractErrorMessage(status: st, data: body, fallback: e.message),
-        status: st,
-        raw: body,
+        error: extractErrorMessage(data: e.response?.data, fallback: e.message),
       );
     }
   }

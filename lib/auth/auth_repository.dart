@@ -10,13 +10,12 @@ class AuthRepository extends ChangeNotifier {
 
   static final I = AuthRepository._();
 
+  UserProfile? _me;
   AuthTokens? _tokens;
 
   bool get isAuthed => _tokens != null;
-  AuthTokens? get tokens => _tokens;
-
-  UserProfile? _me;
   UserProfile? get me => _me;
+  AuthTokens? get tokens => _tokens;
 
   Future<void> init() async {
     final (a, r) = await AuthStorage.I.readTokens();
@@ -27,8 +26,20 @@ class AuthRepository extends ChangeNotifier {
     await logout(silent: true);
   }
 
+  Future<void> loadMe() async {
+    if (!isAuthed) return;
+    final response = await UserApi().me();
+    if (response.success && response.data != null) {
+      _me = response.data;
+    } else {
+      _me = null;
+    }
+    notifyListeners();
+  }
+
   Future<void> logout({bool silent = false}) async {
     _tokens = null;
+    _me = null;
     await AuthStorage.I.clear();
     if (!silent) notifyListeners();
   }
@@ -52,19 +63,15 @@ class AuthRepository extends ChangeNotifier {
     return false;
   }
 
+  Future<void> setMe(UserProfile u) async {
+    _me = u;
+    notifyListeners();
+  }
+
   Future<void> setTokens(AuthTokens tokens) async {
     _tokens = tokens;
     await AuthStorage.I.saveTokens(access: tokens.access, refresh: tokens.refresh);
     await loadMe();
     notifyListeners();
-  }
-
-  Future<void> loadMe() async {
-    if (!isAuthed) return;
-    final response = await UserApi().me();
-    if (response.success && response.data != null) {
-      _me = response.data;
-      notifyListeners();
-    }
   }
 }

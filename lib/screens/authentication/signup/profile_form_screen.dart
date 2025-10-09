@@ -125,7 +125,7 @@ class _ProfileFormScreenState extends State<ProfileFormScreen> {
     });
   }
 
-  void _submit() async {
+  Future<void> _submit() async {
     setState(() {
       _showErrors = true;
       _serverErrorMessage = null;
@@ -150,17 +150,17 @@ class _ProfileFormScreenState extends State<ProfileFormScreen> {
       phoneNumber: phone.isEmpty ? null : phone,
     );
 
-    final token = context.read<AuthRepository>().tokens!;
     final response = await ProfileApi().complete(
       model,
-      accessToken: token.access,
       avatarFile: _imageFile,
       avatarFieldName: 'profile_pic',
     );
 
     if (!mounted) return;
 
-    if (response.success) {
+    if (response.success && response.data != null) {
+      await context.read<AuthRepository>().loadMe();
+
       setState(() => _isLoading = true);
       await Future.delayed(const Duration(seconds: 1));
       setState(() => _isLoading = false);
