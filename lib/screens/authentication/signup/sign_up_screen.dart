@@ -1,21 +1,21 @@
 import 'package:flutter/material.dart';
 
-import '../../api/auth_api.dart';
-import '../../components/adaptive_gap.dart';
-import '../../components/custom_progress_bar.dart';
-import '../../components/widgets/custom_alert.dart';
-import '../../components/widgets/custom_logo_widget.dart';
-import '../../components/widgets/custom_text_field.dart';
-import '../../components/widgets/cutsom_button.dart';
-import '../../theme/colors.dart';
-import '../../utils/iran_contact.dart';
-import '../../utils/size.dart';
-import '../../utils/validators.dart';
-import 'components/auth_scaffold.dart';
-import 'components/auth_svg_asset_widget.dart';
-import 'components/bottom_auth_text.dart';
-import 'components/custom_title_auth.dart';
-import 'login_screen.dart';
+import '../../../api/auth_api.dart';
+import '../../../components/adaptive_gap.dart';
+import '../../../components/custom_progress_bar.dart';
+import '../../../components/widgets/custom_alert.dart';
+import '../../../components/widgets/custom_logo_widget.dart';
+import '../../../components/widgets/custom_text_field.dart';
+import '../../../components/widgets/cutsom_button.dart';
+import '../../../theme/colors.dart';
+import '../../../utils/iran_contact.dart';
+import '../../../utils/size.dart';
+import '../../../utils/validators.dart';
+import '../components/auth_scaffold.dart';
+import '../components/auth_svg_asset_widget.dart';
+import '../components/bottom_auth_text.dart';
+import '../components/custom_title_auth.dart';
+import '../login/login_screen.dart';
 import 'otp_screen.dart';
 
 class SignUpScreen extends StatefulWidget {
@@ -91,7 +91,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
       });
       Navigator.of(context).push(
         MaterialPageRoute(
-          builder: (_) => OTPScreen(target: normalized, purpose: 'register', fromSignup: true),
+          builder: (_) => OTPScreen(target: normalized, purpose: 'register'),
         ),
       );
     } else {

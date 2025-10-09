@@ -1,27 +1,26 @@
 import 'package:flutter/material.dart';
 
-import 'package:full_plants_ecommerce_app/components/custom_progress_bar.dart';
-import 'package:full_plants_ecommerce_app/screens/authentication/components/auth_scaffold.dart';
-import 'package:full_plants_ecommerce_app/screens/root/root_screen.dart';
 import 'package:provider/provider.dart';
 
-import '../../api/auth_api.dart';
-import '../../auth/auth_repository.dart';
-import '../../components/adaptive_gap.dart';
-import '../../components/widgets/custom_alert.dart';
-import '../../components/widgets/custom_logo_widget.dart';
-import '../../components/widgets/custom_text_field.dart';
-import '../../components/widgets/cutsom_button.dart';
-import '../../models/auth/auth_models.dart';
-import '../../theme/colors.dart';
-import '../../utils/iran_contact.dart';
-import '../../utils/size.dart';
-import '../../utils/validators.dart';
-import 'components/bottom_auth_text.dart';
-import 'components/custom_title_auth.dart';
-import 'components/remember_me.dart';
-import 'forgot_password_screen.dart';
-import 'sign_up_screen.dart';
+import '../../../api/auth_api.dart';
+import '../../../auth/auth_repository.dart';
+import '../../../components/adaptive_gap.dart';
+import '../../../components/custom_progress_bar.dart';
+import '../../../components/widgets/custom_alert.dart';
+import '../../../components/widgets/custom_logo_widget.dart';
+import '../../../components/widgets/custom_text_field.dart';
+import '../../../components/widgets/cutsom_button.dart';
+import '../../../theme/colors.dart';
+import '../../../utils/iran_contact.dart';
+import '../../../utils/size.dart';
+import '../../../utils/validators.dart';
+import '../../root/root_screen.dart';
+import '../components/auth_scaffold.dart';
+import '../components/bottom_auth_text.dart';
+import '../components/custom_title_auth.dart';
+import '../components/remember_me.dart';
+import '../password/forgot_password_screen.dart';
+import '../signup/sign_up_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -157,7 +156,10 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
           AdaptiveGap(SizeConfig.getProportionateScreenHeight(40)),
           GestureDetector(
-            onTap: () => Navigator.pushNamed(context, ForgotPasswordScreen.routeName),
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => ForgotPasswordScreen()),
+            ),
             child: Text(
               'فراموشی رمز  عبور',
               style: TextStyle(

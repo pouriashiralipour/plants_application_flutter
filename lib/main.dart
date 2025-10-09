@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 
+
 import 'package:persian_datetime_picker/persian_datetime_picker.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 
 import 'auth/auth_repository.dart';
+import 'auth/password_reset_repository.dart';
 import 'screens/splash/splash_screen.dart';
 import 'theme/theme_repository.dart';
 import 'utils/size.dart';
@@ -26,6 +28,7 @@ class MyApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider<ThemeRepository>.value(value: ThemeRepository.I),
         ChangeNotifierProvider<AuthRepository>.value(value: AuthRepository.I),
+        ChangeNotifierProvider<PasswordResetRepository>(create: (_) => PasswordResetRepository()),
       ],
       child: Consumer<ThemeRepository>(
         builder: (_, theme, __) {

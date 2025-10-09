@@ -21,3 +21,14 @@ class AuthTokens {
   final String access;
   final String refresh;
 }
+
+class ResetTokenPayload {
+  final String resetToken;
+  final String? detail;
+  ResetTokenPayload({required this.resetToken, this.detail});
+
+  factory ResetTokenPayload.fromJson(Map json) => ResetTokenPayload(
+    resetToken: json['reset_token'] as String,
+    detail: json['detail'] as String?,
+  );
+}

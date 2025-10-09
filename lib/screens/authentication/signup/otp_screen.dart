@@ -6,26 +6,20 @@ import 'package:flutter_svg/svg.dart';
 import 'package:full_plants_ecommerce_app/utils/persian_number.dart';
 import 'package:provider/provider.dart';
 
-import '../../api/auth_api.dart';
-import '../../auth/auth_repository.dart';
-import '../../components/adaptive_gap.dart';
-import '../../components/custom_progress_bar.dart';
-import '../../components/widgets/custom_alert.dart';
-import '../../components/widgets/cutsom_button.dart';
-import '../../theme/colors.dart';
-import '../../utils/size.dart';
-import 'components/auth_scaffold.dart';
+import '../../../api/auth_api.dart';
+import '../../../auth/auth_repository.dart';
+import '../../../components/adaptive_gap.dart';
+import '../../../components/custom_progress_bar.dart';
+import '../../../components/widgets/custom_alert.dart';
+import '../../../components/widgets/cutsom_button.dart';
+import '../../../theme/colors.dart';
+import '../../../utils/size.dart';
+import '../components/auth_scaffold.dart';
 import 'profile_form_screen.dart';
 
 class OTPScreen extends StatefulWidget {
-  const OTPScreen({
-    super.key,
-    this.fromSignup = false,
-    required this.target,
-    this.purpose = 'register',
-  });
+  const OTPScreen({super.key, required this.target, this.purpose = 'register'});
 
-  final bool fromSignup;
   final String purpose;
   final String target;
 
@@ -266,7 +260,7 @@ class _OTPScreenState extends State<OTPScreen> {
     return AuthScaffold(
       appBar: AppBar(
         title: Text(
-          widget.fromSignup ? 'ثبت‌نام' : 'فراموشی رمز عبور',
+          'ثبت‌نام',
           style: TextStyle(
             color: isLightMode ? AppColors.grey900 : AppColors.white,
             fontWeight: FontWeight.w600,

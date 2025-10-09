@@ -6,22 +6,22 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'dart:io';
 
-import '../../api/profile_api.dart';
-import '../../auth/auth_repository.dart';
-import '../../components/adaptive_gap.dart';
-import '../../components/custom_progress_bar.dart';
-import '../../components/widgets/custom_alert.dart';
-import '../../components/widgets/custom_dialog.dart';
-import '../../components/widgets/custom_drop_down.dart';
-import '../../components/widgets/custom_text_field.dart';
-import '../../components/widgets/cutsom_button.dart';
-import '../../models/auth/auth_models.dart';
-import '../../models/auth/profile_form_models.dart';
-import '../../theme/colors.dart';
-import '../../utils/size.dart';
-import '../../utils/validators.dart';
-import '../root/root_screen.dart';
-import 'components/auth_scaffold.dart';
+import '../../../api/profile_api.dart';
+import '../../../auth/auth_repository.dart';
+import '../../../components/adaptive_gap.dart';
+import '../../../components/custom_progress_bar.dart';
+import '../../../components/widgets/custom_alert.dart';
+import '../../../components/widgets/custom_dialog.dart';
+import '../../../components/widgets/custom_drop_down.dart';
+import '../../../components/widgets/custom_text_field.dart';
+import '../../../components/widgets/cutsom_button.dart';
+import '../../../models/auth/auth_models.dart';
+import '../../../models/auth/profile_form_models.dart';
+import '../../../theme/colors.dart';
+import '../../../utils/size.dart';
+import '../../../utils/validators.dart';
+import '../../root/root_screen.dart';
+import '../components/auth_scaffold.dart';
 
 class ProfileFormScreen extends StatefulWidget {
   const ProfileFormScreen({

@@ -44,32 +44,6 @@ class AuthApi {
     }
   }
 
-  Future<ApiResult<void>> passwordRequestOtp({required String target}) async {
-    try {
-      final response = await _dio.post(UrlInfo.passwordResetRequestUrl, data: {'target': target});
-      if (response.statusCode == 200 || response.statusCode == 201) return const ApiResult(true);
-      return ApiResult(
-        false,
-        error: extractErrorMessage(
-          status: response.statusCode,
-          data: response.data,
-          fallback: 'درخواست نامعتبر بود',
-        ),
-        status: response.statusCode,
-        raw: response.data,
-      );
-    } on DioException catch (e) {
-      final st = e.response?.statusCode;
-      final body = e.response?.data;
-      return ApiResult(
-        false,
-        error: extractErrorMessage(status: st, data: body, fallback: e.message),
-        status: st,
-        raw: body,
-      );
-    }
-  }
-
   Future<ApiResult<AuthPayload>> refresh(String refreshToken) async {
     try {
       final response = await _dio.post(UrlInfo.refreshToken, data: {'refresh': refreshToken});
@@ -134,6 +108,59 @@ class AuthApi {
     }
   }
 
+  Future<ApiResult<void>> requestPasswordOtp({required String target}) async {
+    try {
+      final response = await _dio.post(UrlInfo.passwordResetRequestUrl, data: {'target': target});
+      if (response.statusCode == 200 || response.statusCode == 201) return const ApiResult(true);
+      return ApiResult(
+        false,
+        error: extractErrorMessage(
+          status: response.statusCode,
+          data: response.data,
+          fallback: 'درخواست نامعتبر بود',
+        ),
+        status: response.statusCode,
+        raw: response.data,
+      );
+    } on DioException catch (e) {
+      final st = e.response?.statusCode;
+      final body = e.response?.data;
+      return ApiResult(
+        false,
+        error: extractErrorMessage(status: st, data: body, fallback: e.message),
+        status: st,
+        raw: body,
+      );
+    }
+  }
+
+  Future<ApiResult<void>> setNewPassword({
+    required String resetToken,
+    required String newPassword,
+    String? confirmNewPassword,
+  }) async {
+    try {
+      final response = await _dio.post(
+        UrlInfo.setPasswordUrl,
+        data: {
+          'reset_token': resetToken,
+          'password': newPassword,
+          if (confirmNewPassword != null) 'password_confirm': confirmNewPassword,
+        },
+      );
+      if (response.statusCode == 200 || response.statusCode == 204) return const ApiResult(true);
+      return ApiResult(
+        false,
+        error: extractErrorMessage(data: response.data, fallback: 'تغییر پسورد ناموفق بود'),
+      );
+    } on DioException catch (e) {
+      return ApiResult(
+        false,
+        error: extractErrorMessage(data: e.response?.data, fallback: e.message),
+      );
+    }
+  }
+
   Future<ApiResult<AuthPayload>> veriftOtp(String code) async {
     try {
       final response = await _dio.post(UrlInfo.otpVerifyUrl, data: {'code': code});
@@ -164,6 +191,27 @@ class AuthApi {
         error: extractErrorMessage(status: st, data: body, fallback: e.message),
         status: st,
         raw: body,
+      );
+    }
+  }
+
+  Future<ApiResult<ResetTokenPayload>> verifyPasswordOtp({required String code}) async {
+    try {
+      final response = await _dio.post(UrlInfo.passwordResetVerifyUrl, data: {'code': code});
+      if (response.statusCode == 200) {
+        return ApiResult(
+          true,
+          data: ResetTokenPayload.fromJson(response.data as Map<String, dynamic>),
+        );
+      }
+      return ApiResult(
+        false,
+        error: extractErrorMessage(data: response.data, fallback: 'کد نامعتبر است'),
+      );
+    } on DioException catch (e) {
+      return ApiResult(
+        false,
+        error: extractErrorMessage(data: e.response?.data, fallback: e.message),
       );
     }
   }

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:full_plants_ecommerce_app/auth/auth_repository.dart';
-import 'package:full_plants_ecommerce_app/screens/authentication/login_screen.dart';
+import 'package:full_plants_ecommerce_app/screens/authentication/login/login_screen.dart';
 import 'package:provider/provider.dart';
 
 
