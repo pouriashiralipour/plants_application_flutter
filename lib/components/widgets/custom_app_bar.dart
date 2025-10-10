@@ -76,7 +76,7 @@ class _CustomAppBarState extends State<CustomAppBar> {
     }
 
     String? avatar = me.profilePic;
-    if (avatar != null && !avatar.startsWith('http')) {
+    if (!avatar.startsWith('http')) {
       avatar = '${UrlInfo.baseUrl}$avatar';
     }
     return Container(

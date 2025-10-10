@@ -177,7 +177,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
 
     String? avatar = me.profilePic;
-    if (avatar != null && !avatar.startsWith('http')) {
+    if (!avatar.startsWith('http')) {
       avatar = '${UrlInfo.baseUrl}$avatar';
     }
 
