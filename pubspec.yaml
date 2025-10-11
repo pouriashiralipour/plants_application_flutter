@@ -29,6 +29,7 @@ environment:
 # versions available, run `flutter pub outdated`.
 dependencies:
   animated_bottom_navigation_bar: ^1.4.0
+  cached_network_image: ^3.4.1
   cookie_jar: ^4.0.8
   cupertino_icons: ^1.0.8
   dio: ^5.9.0
@@ -44,6 +45,7 @@ dependencies:
   flutter_svg: ^2.2.1
   image_cropper: ^11.0.0
   image_picker: ^1.2.0
+  palette_generator: ^0.3.3+7
   path_provider: ^2.1.5
   permission_handler: ^12.0.1
   persian_datetime_picker: ^3.2.0

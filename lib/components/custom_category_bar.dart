@@ -41,7 +41,7 @@ class _CustomCategoryBarState extends State<CustomCategoryBar> {
         duration: const Duration(milliseconds: 900),
         height: SizeConfig.getProportionateScreenHeight(38),
         margin: EdgeInsets.only(
-          right: index == 0
+          right: index == -1
               ? SizeConfig.getProportionateScreenWidth(24)
               : SizeConfig.getProportionateScreenWidth(12),
         ),

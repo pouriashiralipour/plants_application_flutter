@@ -18,128 +18,150 @@ class SpecialOfferCard extends StatelessWidget {
   Widget _buildProductCard(ProductModel product, BuildContext context) {
     final mainImage =
         product.mainImage ?? (product.images.isNotEmpty ? product.images.first.image : '');
-
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Container(
-          margin: EdgeInsets.only(right: SizeConfig.getProportionateScreenWidth(16)),
-          width: SizeConfig.getProportionateScreenWidth(200),
-          height: SizeConfig.getProportionateScreenHeight(200),
-          decoration: BoxDecoration(
-            color: isLightMode ? AppColors.bgSilver1 : AppColors.dark3,
-            borderRadius: BorderRadius.circular(36),
-          ),
-          child: Stack(
-            children: [
-              if (mainImage.isNotEmpty)
-                Align(
-                  alignment: Alignment.center,
-                  child: AspectRatio(
-                    aspectRatio: 1,
-                    child: Image.network(
-                      mainImage,
-                      fit: BoxFit.cover,
+    return Padding(
+      padding: EdgeInsets.only(right: SizeConfig.getProportionateScreenWidth(24)),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: SizeConfig.getProportionateScreenWidth(200),
+            height: SizeConfig.getProportionateScreenHeight(200),
+            //   decoration: BoxDecoration(
+            //     color: isLightMode ? AppColors.bgSilver1 : AppColors.dark3,
+            //     borderRadius: BorderRadius.circular(36),
+            //   ),
+            child: Stack(
+              children: [
+                if (mainImage.isNotEmpty)
+                  Align(
+                    alignment: Alignment.center,
+                    child: AspectRatio(
+                      aspectRatio: 1,
+                      child: ClipRRect(
+                        borderRadius: BorderRadiusGeometry.circular(36),
+                        child: Image.network(mainImage, fit: BoxFit.fill),
+                      ),
+                    ),
+                  ),
+                Positioned(
+                  top: SizeConfig.getProportionateScreenHeight(10),
+                  right: SizeConfig.getProportionateScreenWidth(10),
+                  child: Container(
+                    padding: EdgeInsets.all(SizeConfig.getProportionateScreenWidth(5)),
+                    decoration: BoxDecoration(
+                      color: isLightMode ? AppColors.bgSilver1 : AppColors.dark3,
+                      shape: BoxShape.circle,
+                    ),
+                    child: InkWell(
+                      borderRadius: BorderRadius.circular(20),
+                      onTap: () {},
+                      child: SvgPicture.asset(
+                        'assets/images/icons/Heart_outline.svg',
+                        color: AppColors.primary,
+                        width: SizeConfig.getProportionateScreenWidth(24),
+                        height: SizeConfig.getProportionateScreenWidth(24),
+                      ),
                     ),
                   ),
                 ),
-              Positioned(
-                top: SizeConfig.getProportionateScreenHeight(16),
-                right: SizeConfig.getProportionateScreenWidth(16),
-                child: InkWell(
-                  borderRadius: BorderRadius.circular(20),
-                  onTap: () {},
-                  child: SvgPicture.asset(
-                    'assets/images/icons/Heart_outline.svg',
-                    color: AppColors.primary,
-                    width: SizeConfig.getProportionateScreenWidth(24),
-                    height: SizeConfig.getProportionateScreenWidth(24),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-        Padding(
-          padding: EdgeInsets.only(right: SizeConfig.getProportionateScreenWidth(16)),
-          child: Text(
-            product.name,
-            style: TextStyle(
-              color: isLightMode ? AppColors.grey900 : AppColors.white,
-              fontSize: SizeConfig.getProportionateFontSize(22),
-              fontWeight: FontWeight.w700,
-              fontFamily: 'Peyda',
+              ],
             ),
           ),
-        ),
-        Padding(
-          padding: EdgeInsets.only(right: SizeConfig.getProportionateScreenWidth(16)),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              SvgPicture.asset(
-                'assets/images/icons/Star.svg',
-                color: AppColors.primary,
-                width: SizeConfig.getProportionateScreenWidth(20),
-                height: SizeConfig.getProportionateScreenWidth(20),
-              ),
-              SizedBox(width: SizeConfig.getProportionateScreenWidth(10)),
-              Text(
-                product.averageRating.toString().farsiNumber,
+          Padding(
+            padding: EdgeInsets.only(
+              right: SizeConfig.getProportionateScreenWidth(10),
+              left: SizeConfig.getProportionateScreenWidth(10),
+            ),
+            child: SizedBox(
+              width: SizeConfig.getProportionateScreenWidth(200),
+              child: Text(
+                product.name,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
                 style: TextStyle(
-                  color: isLightMode ? AppColors.grey700 : AppColors.grey300,
-                  fontSize: SizeConfig.getProportionateFontSize(14),
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-              SizedBox(width: SizeConfig.getProportionateScreenWidth(10)),
-              Text(
-                '|',
-                style: TextStyle(
-                  color: isLightMode ? AppColors.grey700 : AppColors.grey300,
+                  color: isLightMode ? AppColors.grey900 : AppColors.white,
+                  fontSize: SizeConfig.getProportionateFontSize(16),
                   fontWeight: FontWeight.w700,
-                  fontSize: SizeConfig.getProportionateFontSize(14),
+                  fontFamily: 'Peyda',
                 ),
               ),
-              SizedBox(width: SizeConfig.getProportionateScreenWidth(10)),
-              Container(
-                width: SizeConfig.getProportionateScreenWidth(69),
-                height: SizeConfig.getProportionateScreenHeight(24),
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(6),
-                  border: BoxBorder.all(
-                    color: AppColors.primary,
-                    width: 1,
-                    style: BorderStyle.solid,
-                  ),
-                ),
-                child: Text(
-                  '${product.salesCount.toString().priceFormatter} فروش'.farsiNumber,
-                  style: TextStyle(
-                    color: AppColors.primary,
-                    fontSize: SizeConfig.getProportionateFontSize(10),
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-        Padding(
-          padding: EdgeInsets.only(right: SizeConfig.getProportionateScreenWidth(16)),
-          child: Text(
-            '${product.price.toString().priceFormatter} تومان'.farsiNumber,
-            style: TextStyle(
-              color: AppColors.primary,
-              fontSize: SizeConfig.getProportionateFontSize(16),
-              fontWeight: FontWeight.w700,
             ),
           ),
-        ),
-      ],
+          Padding(
+            padding: EdgeInsets.only(
+              right: SizeConfig.getProportionateScreenWidth(10),
+              left: SizeConfig.getProportionateScreenWidth(10),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SvgPicture.asset(
+                  'assets/images/icons/Star.svg',
+                  color: AppColors.primary,
+                  width: SizeConfig.getProportionateScreenWidth(20),
+                  height: SizeConfig.getProportionateScreenWidth(20),
+                ),
+                SizedBox(width: SizeConfig.getProportionateScreenWidth(10)),
+                Text(
+                  product.averageRating.toString().farsiNumber,
+                  style: TextStyle(
+                    color: isLightMode ? AppColors.grey700 : AppColors.grey300,
+                    fontSize: SizeConfig.getProportionateFontSize(14),
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                SizedBox(width: SizeConfig.getProportionateScreenWidth(10)),
+                Text(
+                  '|',
+                  style: TextStyle(
+                    color: isLightMode ? AppColors.grey700 : AppColors.grey300,
+                    fontWeight: FontWeight.w700,
+                    fontSize: SizeConfig.getProportionateFontSize(14),
+                  ),
+                ),
+                SizedBox(width: SizeConfig.getProportionateScreenWidth(10)),
+                Container(
+                  width: SizeConfig.getProportionateScreenWidth(69),
+                  height: SizeConfig.getProportionateScreenHeight(24),
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(6),
+                    border: BoxBorder.all(
+                      color: AppColors.primary,
+                      width: 1,
+                      style: BorderStyle.solid,
+                    ),
+                  ),
+                  child: Text(
+                    '${product.salesCount.toString().priceFormatter} فروش'.farsiNumber,
+                    style: TextStyle(
+                      color: AppColors.primary,
+                      fontSize: SizeConfig.getProportionateFontSize(10),
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Padding(
+            padding: EdgeInsets.only(
+              right: SizeConfig.getProportionateScreenWidth(10),
+              left: SizeConfig.getProportionateScreenWidth(10),
+            ),
+            child: Text(
+              '${product.price.toString().priceFormatter} ریال'.farsiNumber,
+              style: TextStyle(
+                color: AppColors.primary,
+                fontSize: SizeConfig.getProportionateFontSize(16),
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -161,17 +183,17 @@ class SpecialOfferCard extends StatelessWidget {
     }
     return SizedBox(
       width: double.infinity,
-      height: SizeConfig.getProportionateScreenHeight(300),
-      child: Container(
-        width: SizeConfig.getProportionateScreenWidth(220),
-        height: SizeConfig.getProportionateScreenHeight(300),
-        child: SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: Row(
-            children: products.take(10).map((product) {
-              return _buildProductCard(product, context);
-            }).toList(),
-          ),
+      height: SizeConfig.getProportionateScreenHeight(320),
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Row(
+          children: products.take(10).map((product) {
+            return Container(
+              width: SizeConfig.getProportionateScreenWidth(220),
+              margin: EdgeInsets.only(left: SizeConfig.getProportionateScreenWidth(8)),
+              child: _buildProductCard(product, context),
+            );
+          }).toList(),
         ),
       ),
     );
