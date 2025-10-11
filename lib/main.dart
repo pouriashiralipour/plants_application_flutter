@@ -4,18 +4,20 @@ import 'package:persian_datetime_picker/persian_datetime_picker.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 
+import 'screens/splash/splash_screen.dart';
 import 'auth/auth_repository.dart';
 import 'auth/password_reset_repository.dart';
-import 'screens/splash/splash_screen.dart';
+import 'auth/shop_repository.dart';
 import 'theme/theme_repository.dart';
-import 'utils/size.dart';
 import 'theme/theme.dart';
+import 'utils/size.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await ThemeRepository.I.init();
   await AuthRepository.I.init();
-  runApp(ChangeNotifierProvider.value(value: AuthRepository.I, child: const MyApp()));
+
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -27,6 +29,7 @@ class MyApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider<ThemeRepository>.value(value: ThemeRepository.I),
         ChangeNotifierProvider<AuthRepository>.value(value: AuthRepository.I),
+        ChangeNotifierProvider<ShopRepository>.value(value: ShopRepository.I),
         ChangeNotifierProvider<PasswordResetRepository>(create: (_) => PasswordResetRepository()),
       ],
       child: Consumer<ThemeRepository>(

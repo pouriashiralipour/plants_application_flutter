@@ -14,10 +14,15 @@ class ShopApi {
       final response = await _dio.get(UrlInfo.categoryUrl);
 
       if (response.statusCode == 200) {
-        final List<CategoryModel> categories = (response.data as List)
-            .map((e) => CategoryModel.fromJson(e))
-            .toList();
-        return ApiResult(true, data: categories);
+        if (response.data is List) {
+          final List<CategoryModel> categories = (response.data as List).map((e) {
+            return CategoryModel.fromJson(e);
+          }).toList();
+
+          return ApiResult(true, data: categories);
+        } else {
+          return ApiResult(false, error: 'Invalid response format: expected List');
+        }
       }
 
       return ApiResult(
@@ -37,6 +42,8 @@ class ShopApi {
           fallback: e.message,
         ),
       );
+    } catch (e) {
+      return ApiResult(false, error: 'خطای غیرمنتظره در دریافت دسته‌بندی‌ها');
     }
   }
 
