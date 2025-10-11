@@ -20,4 +20,8 @@ class UrlInfo {
   static String passwordResetRequestUrl = 'auth/password_reset_request/';
   static String passwordResetVerifyUrl = 'auth/password_reset_verify/';
   static String setPasswordUrl = 'auth/password_reset_set/';
+
+  // Shop
+  static String productsUrl = 'products/';
+  static String categoryUrl = 'categories/';
 }
