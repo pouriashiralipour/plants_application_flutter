@@ -181,7 +181,22 @@ class SpecialOfferCard extends StatelessWidget {
         ),
       );
     }
-    return SizedBox(
+    return Container(
+      padding: EdgeInsets.only(
+        top: SizeConfig.getProportionateScreenHeight(5),
+        bottom: SizeConfig.getProportionateScreenHeight(5),
+      ),
+      decoration: BoxDecoration(
+        color: isLightMode ? AppColors.white : AppColors.dark1,
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.primary.withValues(alpha: 0.3),
+            spreadRadius: 4,
+            blurRadius: 7,
+            offset: Offset(0, 1),
+          ),
+        ],
+      ),
       width: double.infinity,
       height: SizeConfig.getProportionateScreenHeight(320),
       child: SingleChildScrollView(
