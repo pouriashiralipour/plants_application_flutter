@@ -6,7 +6,6 @@ import '../../auth/auth_repository.dart';
 import '../../theme/colors.dart';
 import '../../utils/constant.dart';
 import '../../utils/size.dart';
-import '../custom_progress_bar.dart';
 
 class CustomAppBar extends StatefulWidget {
   const CustomAppBar({super.key, required this.isLightMode});
