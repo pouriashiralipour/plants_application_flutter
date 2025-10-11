@@ -1,9 +1,9 @@
+import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:full_plants_ecommerce_app/auth/auth_repository.dart';
 import 'package:full_plants_ecommerce_app/screens/authentication/login/login_screen.dart';
 import 'package:provider/provider.dart';
-
 
 import '../../theme/colors.dart';
 import '../../utils/size.dart';
@@ -59,8 +59,8 @@ class _RootScreenState extends State<RootScreen> {
 
   Container customNavBar() {
     return Container(
-      margin: EdgeInsets.only(bottom: SizeConfig.getProportionateScreenHeight(25)),
-      height: SizeConfig.getProportionateScreenHeight(48),
+      margin: EdgeInsets.only(bottom: SizeConfig.getProportionateScreenHeight(18)),
+      height: SizeConfig.getProportionateScreenHeight(60),
       width: SizeConfig.screenWidth,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -90,15 +90,26 @@ class _RootScreenState extends State<RootScreen> {
                   }
                   setState(() => bottonIndex = index);
                 },
-                child: SvgPicture.asset(
-                  bottonIndex == index ? item['fill_icon'] : item['icon'],
-                  color: bottonIndex == index ? AppColors.primary : AppColors.grey500,
-                  height: bottonIndex == index
-                      ? SizeConfig.getProportionateScreenWidth(26)
-                      : SizeConfig.getProportionateScreenWidth(24),
-                  width: bottonIndex == index
-                      ? SizeConfig.getProportionateScreenWidth(26)
-                      : SizeConfig.getProportionateScreenWidth(24),
+                child: AnimatedContainer(
+                  duration: Duration(milliseconds: 400),
+                  curve: Curves.elasticOut,
+                  padding: EdgeInsets.all(SizeConfig.getProportionateScreenWidth(6)),
+                  decoration: BoxDecoration(
+                    color: bottonIndex == index
+                        ? AppColors.primary.withValues(alpha: 0.1)
+                        : Colors.transparent,
+                    borderRadius: BorderRadius.circular(12),
+                    border: bottonIndex == index
+                        ? Border.all(color: AppColors.primary.withValues(alpha: 0.3), width: 1)
+                        : Border.all(color: Colors.transparent, width: 0),
+                  ),
+                  transform: Matrix4.identity()..scale(bottonIndex == index ? 1.1 : 1.0),
+                  child: SvgPicture.asset(
+                    bottonIndex == index ? item['fill_icon'] : item['icon'],
+                    color: bottonIndex == index ? AppColors.primary : AppColors.grey500,
+                    height: SizeConfig.getProportionateScreenWidth(24),
+                    width: SizeConfig.getProportionateScreenWidth(24),
+                  ),
                 ),
               ),
               SizedBox(height: SizeConfig.getProportionateScreenHeight(5)),
