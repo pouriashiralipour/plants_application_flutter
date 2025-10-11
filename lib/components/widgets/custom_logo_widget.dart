@@ -5,7 +5,10 @@ import '../../theme/colors.dart';
 import '../../utils/size.dart';
 
 class CustomLogoWidget extends StatelessWidget {
-  const CustomLogoWidget({super.key});
+  const CustomLogoWidget({super.key, this.iconSize = 60, this.textSize = 48});
+
+  final double iconSize;
+  final double textSize;
 
   @override
   Widget build(BuildContext context) {
@@ -15,8 +18,8 @@ class CustomLogoWidget extends StatelessWidget {
       children: [
         SvgPicture.asset(
           'assets/images/Logo.svg',
-          height: SizeConfig.getProportionateScreenWidth(60),
-          width: SizeConfig.getProportionateScreenWidth(60),
+          height: SizeConfig.getProportionateScreenWidth(iconSize),
+          width: SizeConfig.getProportionateScreenWidth(iconSize),
         ),
         SizedBox(width: SizeConfig.getProportionateScreenWidth(10)),
         Text(
@@ -25,7 +28,7 @@ class CustomLogoWidget extends StatelessWidget {
             fontFamily: 'Peyda',
             color: isLightMode ? AppColors.grey900 : AppColors.white,
             fontWeight: FontWeight.w900,
-            fontSize: SizeConfig.getProportionateFontSize(48),
+            fontSize: SizeConfig.getProportionateFontSize(textSize),
           ),
         ),
       ],

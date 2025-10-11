@@ -6,6 +6,7 @@ import '../../auth/auth_repository.dart';
 import '../../theme/colors.dart';
 import '../../utils/constant.dart';
 import '../../utils/size.dart';
+import 'custom_logo_widget.dart';
 
 class CustomAppBar extends StatefulWidget {
   const CustomAppBar({super.key, required this.isLightMode});
@@ -30,28 +31,7 @@ class _CustomAppBarState extends State<CustomAppBar> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                CircleAvatar(
-                  radius: SizeConfig.getProportionateScreenWidth(30),
-                  backgroundImage: AssetImage(
-                    widget.isLightMode
-                        ? 'assets/images/profile.png'
-                        : 'assets/images/profile_dark.png',
-                  ),
-                ),
-                SizedBox(width: SizeConfig.getProportionateScreenWidth(10)),
-                Text(
-                  'وقت بخیر 👋',
-                  style: TextStyle(
-                    color: widget.isLightMode ? AppColors.grey600 : AppColors.grey300,
-                    fontSize: SizeConfig.getProportionateFontSize(16),
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ],
-            ),
+            CustomLogoWidget(iconSize: 40, textSize: 32),
             Row(
               children: [
                 SvgPicture.asset(
@@ -97,7 +77,7 @@ class _CustomAppBarState extends State<CustomAppBar> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'صبح بخیر 👋',
+                    ' وقت بخیر 👋',
                     style: TextStyle(
                       color: widget.isLightMode ? AppColors.grey600 : AppColors.grey300,
                       fontSize: SizeConfig.getProportionateFontSize(16),
