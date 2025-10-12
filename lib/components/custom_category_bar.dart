@@ -20,22 +20,27 @@ class _CustomCategoryBarState extends State<CustomCategoryBar> {
   @override
   void initState() {
     super.initState();
-    _currentIndex = widget.indexCategory;
+    _currentIndex = -1;
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final shopRepository = context.read<ShopRepository>();
       if (!shopRepository.categoriesLoaded) {
         shopRepository.loadCategories();
       }
+      shopRepository.filterProductsByCategory(null);
     });
   }
 
-  Widget _buildCategoryItem(int index, String name) {
+  Widget _buildCategoryItem(int index, String name, String? categoryName) {
+    final shopRepository = context.read<ShopRepository>();
+    final isSelected = _currentIndex == index;
+
     return GestureDetector(
       onTap: () {
         setState(() {
           _currentIndex = index;
         });
+        shopRepository.filterProductsByCategory(categoryName);
       },
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 900),
@@ -53,12 +58,12 @@ class _CustomCategoryBarState extends State<CustomCategoryBar> {
         decoration: BoxDecoration(
           border: BoxBorder.all(width: 2, color: AppColors.primary),
           borderRadius: BorderRadius.circular(100),
-          color: _currentIndex == index ? AppColors.primary : null,
+          color: isSelected ? AppColors.primary : null,
         ),
         child: Text(
           name,
           style: TextStyle(
-            color: _currentIndex == index ? AppColors.white : AppColors.primary,
+            color: isSelected ? AppColors.white : AppColors.primary,
             fontSize: SizeConfig.getProportionateFontSize(14),
             fontWeight: FontWeight.w600,
           ),
@@ -72,6 +77,24 @@ class _CustomCategoryBarState extends State<CustomCategoryBar> {
     final shopRepository = context.watch<ShopRepository>();
     final categories = shopRepository.categories;
 
+
+
+
+    if (categories.isEmpty) {
+      return SizedBox(
+        height: SizeConfig.getProportionateScreenHeight(38),
+        child: Center(
+          child: Text(
+            'در حال دریافت دسته‌بندی‌ها...',
+            style: TextStyle(
+              color: AppColors.grey700,
+              fontSize: SizeConfig.getProportionateFontSize(14),
+            ),
+          ),
+        ),
+      );
+    }
+
     return Container(
       width: SizeConfig.screenWidth,
       height: SizeConfig.getProportionateScreenHeight(38),
@@ -79,11 +102,11 @@ class _CustomCategoryBarState extends State<CustomCategoryBar> {
         scrollDirection: Axis.horizontal,
         child: Row(
           children: [
-            _buildCategoryItem(-1, 'همه'),
+            _buildCategoryItem(-1, 'همه', null),
             ...categories.asMap().entries.map((entry) {
               final index = entry.key;
               final category = entry.value;
-              return _buildCategoryItem(index, category.name);
+              return _buildCategoryItem(index, category.name, category.name);
             }).toList(),
           ],
         ),

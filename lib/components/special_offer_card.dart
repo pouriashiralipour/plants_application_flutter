@@ -20,9 +20,10 @@ class _SpecialOfferCardState extends State<SpecialOfferCard> {
   @override
   Widget build(BuildContext context) {
     final shopRepository = context.watch<ShopRepository>();
-    final products = shopRepository.products;
 
-    if (products.isEmpty) {
+    final displayProducts = shopRepository.allProducts;
+
+    if (displayProducts.isEmpty) {
       return SizedBox(
         height: SizeConfig.getProportionateScreenHeight(300),
         child: Center(
@@ -33,6 +34,7 @@ class _SpecialOfferCardState extends State<SpecialOfferCard> {
         ),
       );
     }
+
     return Container(
       padding: EdgeInsets.only(
         top: SizeConfig.getProportionateScreenHeight(5),
@@ -54,7 +56,7 @@ class _SpecialOfferCardState extends State<SpecialOfferCard> {
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
         child: Row(
-          children: products.take(10).map((product) {
+          children: displayProducts.take(10).map((product) {
             return Container(
               width: SizeConfig.getProportionateScreenWidth(220),
               margin: EdgeInsets.only(left: SizeConfig.getProportionateScreenWidth(8)),

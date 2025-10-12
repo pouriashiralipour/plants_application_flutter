@@ -24,7 +24,6 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   final FocusNode _focusNode = FocusNode();
 
-  int _indexCategory = 0;
   bool _isFocused = false;
 
   @override
@@ -37,7 +36,9 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<ShopRepository>().loadProducts();
+      context.read<ShopRepository>().loadAllProducts().then((_) {
+        context.read<ShopRepository>().loadProducts();
+      });
       context.read<ShopRepository>().loadCategories();
     });
     _focusNode.addListener(() {
@@ -87,7 +88,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 SizedBox(height: SizeConfig.getProportionateScreenHeight(24)),
                 CustomTitleBarOfProducts(title: 'محبوب ترین'),
                 SizedBox(height: SizeConfig.getProportionateScreenHeight(24)),
-                CustomCategoryBar(indexCategory: _indexCategory),
+                CustomCategoryBar(indexCategory: -1),
                 SizedBox(height: SizeConfig.getProportionateScreenHeight(24)),
                 if (shopRepository.products.isNotEmpty)
                   Padding(

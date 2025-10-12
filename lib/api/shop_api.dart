@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/material.dart';
 
 import '../models/store/category_model.dart';
 import '../models/store/product_model.dart';
@@ -86,6 +87,7 @@ class ShopApi {
       final Map<String, dynamic> queryParams = {};
       if (search != null) queryParams['search'] = search;
       if (category != null) queryParams['category'] = category;
+
       if (ordering != null) queryParams['ordering'] = ordering;
       if (page != null) queryParams['page'] = page;
 
@@ -98,8 +100,10 @@ class ShopApi {
         final List<ProductModel> products = (response.data as List)
             .map((e) => ProductModel.fromJson(e))
             .toList();
+
         return ApiResult(true, data: products);
       }
+
       return ApiResult(
         false,
         error: extractErrorMessage(

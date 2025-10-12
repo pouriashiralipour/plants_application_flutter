@@ -1,4 +1,4 @@
-import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 
 import '../api/shop_api.dart';
 import '../models/store/category_model.dart';
@@ -13,22 +13,36 @@ class ShopRepository extends ChangeNotifier {
   final ShopApi _api = ShopApi();
   final ShopStorage _storage = ShopStorage.I;
 
+  List<ProductModel> _allProducts = [];
   List<CategoryModel> _categories = [];
   bool _categoriesLoaded = false;
   bool _isLoading = false;
   List<ProductModel> _products = [];
 
   String? _error;
+  String? _selectedCategoryName;
 
+  List<ProductModel> get allProducts => _allProducts;
   List<CategoryModel> get categories => _categories;
   bool get categoriesLoaded => _categoriesLoaded;
   String? get error => _error;
   bool get isLoading => _isLoading;
   List<ProductModel> get products => _products;
+  String? get selectedCategoryName => _selectedCategoryName;
 
   void clearError() {
     _error = null;
     notifyListeners();
+  }
+
+  Future<void> filterProductsByCategory(String? categoryName) async {
+    _selectedCategoryName = categoryName;
+
+    if (categoryName == null) {
+      await loadProducts();
+    } else {
+      await loadProducts(category: categoryName);
+    }
   }
 
   Future<ProductModel?> getProduct(String id) async {
@@ -38,6 +52,18 @@ class ShopRepository extends ChangeNotifier {
     } catch (e) {
       return null;
     }
+  }
+
+  Future<void> loadAllProducts() async {
+    if (_allProducts.isNotEmpty) return;
+
+    try {
+      final result = await _api.getProducts();
+      if (result.success && result.data != null) {
+        _allProducts = result.data!;
+        notifyListeners();
+      }
+    } catch (e) {}
   }
 
   Future<void> loadCategories({bool forceRefresh = false}) async {
@@ -88,7 +114,7 @@ class ShopRepository extends ChangeNotifier {
     notifyListeners();
 
     try {
-      if (!forceRefresh) {
+      if (!forceRefresh && category == null && search == null) {
         final cachedProducts = await _storage.getCachedProducts();
         if (cachedProducts != null) {
           _products = cachedProducts;
@@ -102,7 +128,11 @@ class ShopRepository extends ChangeNotifier {
 
       if (result.success && result.data != null) {
         _products = result.data!;
-        await _storage.cacheProducts(_products);
+
+        if (category == null && search == null) {
+          _allProducts = List.from(_products);
+          await _storage.cacheProducts(_products);
+        }
       } else {
         _error = result.error;
       }
