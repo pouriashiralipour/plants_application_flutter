@@ -6,6 +6,7 @@ import '../auth/shop_repository.dart';
 import '../theme/colors.dart';
 import '../utils/size.dart';
 import 'product_card.dart';
+import 'widgets/shimmer/special_offer_shimmer.dart';
 
 class SpecialOfferCard extends StatefulWidget {
   const SpecialOfferCard({super.key, required this.isLightMode});
@@ -24,15 +25,7 @@ class _SpecialOfferCardState extends State<SpecialOfferCard> {
     final displayProducts = shopRepository.allProducts;
 
     if (displayProducts.isEmpty) {
-      return SizedBox(
-        height: SizeConfig.getProportionateScreenHeight(300),
-        child: Center(
-          child: Text(
-            'محصولی موجود نیست',
-            style: TextStyle(color: widget.isLightMode ? AppColors.grey700 : AppColors.grey300),
-          ),
-        ),
-      );
+      return SpecialOfferShimmer(isLightMode: widget.isLightMode);
     }
 
     return Container(

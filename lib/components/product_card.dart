@@ -38,10 +38,6 @@ class ProductCard extends StatelessWidget {
           Container(
             width: SizeConfig.getProportionateScreenWidth(boxSize),
             height: SizeConfig.getProportionateScreenHeight(boxSize),
-            //   decoration: BoxDecoration(
-            //     color: isLightMode ? AppColors.bgSilver1 : AppColors.dark3,
-            //     borderRadius: BorderRadius.circular(36),
-            //   ),
             child: Stack(
               children: [
                 if (mainImage.isNotEmpty)

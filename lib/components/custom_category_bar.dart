@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:full_plants_ecommerce_app/components/widgets/shimmer/custom_category_bar_shimmer.dart';
 import 'package:provider/provider.dart';
 
 import '../auth/shop_repository.dart';
@@ -6,9 +7,10 @@ import '../theme/colors.dart';
 import '../utils/size.dart';
 
 class CustomCategoryBar extends StatefulWidget {
-  const CustomCategoryBar({super.key, required this.indexCategory});
+  const CustomCategoryBar({super.key, required this.indexCategory, this.onCategoryChanged});
 
   final int indexCategory;
+  final VoidCallback? onCategoryChanged;
 
   @override
   State<CustomCategoryBar> createState() => _CustomCategoryBarState();
@@ -41,6 +43,10 @@ class _CustomCategoryBarState extends State<CustomCategoryBar> {
           _currentIndex = index;
         });
         shopRepository.filterProductsByCategory(categoryName);
+
+        if (widget.onCategoryChanged != null) {
+          widget.onCategoryChanged!();
+        }
       },
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 900),
@@ -72,25 +78,37 @@ class _CustomCategoryBarState extends State<CustomCategoryBar> {
     );
   }
 
+  bool _categoryHasProducts(String categoryName, ShopRepository shopRepository) {
+    if (categoryName.isEmpty) return false;
+
+    if (shopRepository.allProducts.isEmpty) return true;
+
+    return shopRepository.allProducts.any((product) {
+      return product.category.name == categoryName;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final shopRepository = context.watch<ShopRepository>();
     final categories = shopRepository.categories;
-
-
-
+    final bool isLightMode = Theme.of(context).brightness == Brightness.light;
 
     if (categories.isEmpty) {
-      return SizedBox(
+      return CustomCategoryBarShimmer(isLightMode: isLightMode);
+    }
+
+    final filteredCategories = categories.where((category) {
+      return _categoryHasProducts(category.name, shopRepository);
+    }).toList();
+
+    if (filteredCategories.isEmpty) {
+      return Container(
+        width: SizeConfig.screenWidth,
         height: SizeConfig.getProportionateScreenHeight(38),
-        child: Center(
-          child: Text(
-            'در حال دریافت دسته‌بندی‌ها...',
-            style: TextStyle(
-              color: AppColors.grey700,
-              fontSize: SizeConfig.getProportionateFontSize(14),
-            ),
-          ),
+        child: SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(children: [_buildCategoryItem(-1, 'همه', null)]),
         ),
       );
     }
@@ -103,7 +121,7 @@ class _CustomCategoryBarState extends State<CustomCategoryBar> {
         child: Row(
           children: [
             _buildCategoryItem(-1, 'همه', null),
-            ...categories.asMap().entries.map((entry) {
+            ...filteredCategories.asMap().entries.map((entry) {
               final index = entry.key;
               final category = entry.value;
               return _buildCategoryItem(index, category.name, category.name);
