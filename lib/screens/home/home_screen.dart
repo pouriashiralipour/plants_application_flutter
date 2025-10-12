@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 
 import '../../auth/shop_repository.dart';
 import '../../components/custom_category_bar.dart';
+import '../../components/product_card.dart';
 import '../../components/widgets/custom_app_bar.dart';
 import '../../components/custom_search_bar.dart';
 import '../../components/custom_title_bar.dart';
@@ -87,6 +88,35 @@ class _HomeScreenState extends State<HomeScreen> {
                 CustomTitleBarOfProducts(title: 'محبوب ترین'),
                 SizedBox(height: SizeConfig.getProportionateScreenHeight(24)),
                 CustomCategoryBar(indexCategory: _indexCategory),
+                SizedBox(height: SizeConfig.getProportionateScreenHeight(24)),
+                if (shopRepository.products.isNotEmpty)
+                  Padding(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: SizeConfig.getProportionateScreenWidth(16),
+                    ),
+                    child: GridView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 2,
+                        crossAxisSpacing: 16,
+                        mainAxisSpacing: 24,
+                        childAspectRatio: 0.6,
+                      ),
+                      itemCount: shopRepository.products.length,
+                      itemBuilder: (context, index) {
+                        final product = shopRepository.products[index];
+                        return ProductCard(
+                          product: product,
+                          isLightMode: isLightMode,
+                          isGrid: true,
+                          boxSize: 182,
+                          textSize: 14,
+                        );
+                      },
+                    ),
+                  ),
+
                 SizedBox(height: SizeConfig.getProportionateScreenHeight(24)),
               ],
             ),
