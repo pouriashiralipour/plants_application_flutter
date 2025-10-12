@@ -8,6 +8,7 @@ import 'screens/splash/splash_screen.dart';
 import 'auth/auth_repository.dart';
 import 'auth/password_reset_repository.dart';
 import 'auth/shop_repository.dart';
+import 'services/connectivity_service.dart';
 import 'theme/theme_repository.dart';
 import 'theme/theme.dart';
 import 'utils/size.dart';
@@ -31,6 +32,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider<AuthRepository>.value(value: AuthRepository.I),
         ChangeNotifierProvider<ShopRepository>.value(value: ShopRepository.I),
         ChangeNotifierProvider<PasswordResetRepository>(create: (_) => PasswordResetRepository()),
+        Provider(create: (_) => ConnectivityService()),
       ],
       child: Consumer<ThemeRepository>(
         builder: (_, theme, __) {
