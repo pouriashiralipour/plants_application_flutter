@@ -1,15 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:full_plants_ecommerce_app/components/widgets/cutsom_button.dart';
+import 'package:full_plants_ecommerce_app/components/widgets/shimmer/product/product_card_shimmer.dart';
 import 'package:full_plants_ecommerce_app/utils/persian_number.dart';
 import 'package:full_plants_ecommerce_app/utils/price_comma_seperator.dart';
 import 'package:provider/provider.dart';
 
 import '../../auth/shop_repository.dart';
 import '../../components/adaptive_gap.dart';
+import '../../components/widgets/cutsom_button.dart';
+import '../../components/widgets/shimmer/product/product_screen_shimmer.dart';
 import '../../models/store/product_model.dart';
+import '../../services/connectivity_service.dart';
 import '../../theme/colors.dart';
 import '../../utils/size.dart';
+import '../offline/offline_screen.dart';
 
 class ProductScreen extends StatefulWidget {
   const ProductScreen({super.key, required this.productId});
@@ -23,14 +27,18 @@ class ProductScreen extends StatefulWidget {
 class _ProductScreenState extends State<ProductScreen> {
   PageController pageController = PageController(initialPage: 0);
 
+  bool _isCheckingInternet = true;
+  bool _isOnline = true;
   int _quantity = 1;
   int _selectedImage = 0;
+  bool _showShimmer = true;
 
   late Future<ProductModel?> _productFuture;
 
   @override
   void initState() {
     super.initState();
+    _initializeApp();
     _productFuture = _loadProduct();
   }
 
@@ -353,6 +361,37 @@ class _ProductScreenState extends State<ProductScreen> {
     );
   }
 
+  Future<void> _checkInternetConnection() async {
+    if (mounted) {
+      setState(() {
+        _isCheckingInternet = true;
+      });
+    }
+
+    try {
+      final connectivityService = context.read<ConnectivityService>();
+      final isConnected = await connectivityService.checkInternetConnection();
+
+      if (mounted) {
+        setState(() {
+          _isOnline = isConnected;
+          _isCheckingInternet = false;
+        });
+      }
+
+      if (isConnected) {
+        _loadProduct();
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isOnline = false;
+          _isCheckingInternet = false;
+        });
+      }
+    }
+  }
+
   void _decrementQuantity() {
     if (_quantity > 1) {
       setState(() {
@@ -377,6 +416,16 @@ class _ProductScreenState extends State<ProductScreen> {
     setState(() {
       _quantity++;
     });
+  }
+
+  Future<void> _initializeApp() async {
+    await Future.delayed(Duration(seconds: 1));
+    if (mounted) {
+      setState(() {
+        _showShimmer = false;
+      });
+      await _checkInternetConnection();
+    }
   }
 
   Future<ProductModel?> _loadProduct() async {
@@ -455,6 +504,16 @@ class _ProductScreenState extends State<ProductScreen> {
   @override
   Widget build(BuildContext context) {
     final bool isLightMode = Theme.of(context).brightness == Brightness.light;
+    if (!_isOnline) {
+      return OfflineScreen(
+        onRetry: () {
+          _checkInternetConnection();
+        },
+      );
+    }
+    if (_isCheckingInternet) {
+      return ProductScreenShimmer();
+    }
 
     return Scaffold(
       appBar: AppBar(
@@ -470,7 +529,7 @@ class _ProductScreenState extends State<ProductScreen> {
           future: _productFuture,
           builder: (context, asyncSnapshot) {
             if (asyncSnapshot.connectionState == ConnectionState.waiting) {
-              return Center(child: CircularProgressIndicator(color: AppColors.primary));
+              return ProductScreenShimmer();
             }
 
             if (asyncSnapshot.hasError || asyncSnapshot.data == null) {
@@ -508,6 +567,8 @@ class _ProductScreenState extends State<ProductScreen> {
             return SingleChildScrollView(
               child: Column(
                 children: [
+                  if (product.images.isEmpty) ProductCardShimmer(isLightMode: isLightMode),
+
                   _buildImageGallery(product, isLightMode),
 
                   _buildProductInfo(product, shortDescription, hasLongDescription, isLightMode),

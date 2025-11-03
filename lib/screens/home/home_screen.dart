@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:full_plants_ecommerce_app/components/custom_progress_bar.dart';
 import 'package:provider/provider.dart';
 
 import '../../auth/shop_repository.dart';
 import '../../components/custom_category_bar.dart';
-import '../../components/product_card.dart';
 import '../../components/product_grid.dart';
 import '../../components/widgets/custom_app_bar.dart';
 import '../../components/custom_search_bar.dart';
@@ -54,7 +52,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _initializeApp() async {
-    await Future.delayed(Duration(seconds: 4));
+    await Future.delayed(Duration(seconds: 2));
 
     if (mounted) {
       setState(() {
