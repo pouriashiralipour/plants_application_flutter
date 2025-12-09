@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/widgets/shimmer/product_grid_shimmer.dart';
 import '../../data/repositories/product_repository.dart';
-import '../../../../core/utils/size.dart';
+import '../../../../core/utils/size_config.dart';
 import 'product_card.dart';
 
 class ProductGrid extends StatelessWidget {

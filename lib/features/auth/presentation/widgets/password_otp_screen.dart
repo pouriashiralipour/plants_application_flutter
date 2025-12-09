@@ -13,8 +13,7 @@ import '../../../../core/widgets/app_alert_dialog.dart';
 import '../../../../core/widgets/app_progress_indicator.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../data/datasources/auth_remote_data_source.dart';
-
-import '../../../../core/utils/size.dart';
+import '../../../../core/utils/size_config.dart';
 
 import '../screens/change_password_screen.dart';
 import 'auth_scaffold.dart';

@@ -4,8 +4,7 @@ import 'package:provider/provider.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/shimmer/custom_category_bar_shimmer.dart';
 import '../../../product/data/repositories/product_repository.dart';
-
-import '../../../../core/utils/size.dart';
+import '../../../../core/utils/size_config.dart';
 
 class CustomCategoryBar extends StatefulWidget {
   const CustomCategoryBar({super.key, required this.indexCategory, this.onCategoryChanged});

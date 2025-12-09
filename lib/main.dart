@@ -4,6 +4,7 @@ import 'package:persian_datetime_picker/persian_datetime_picker.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 
+import 'core/utils/size_config.dart';
 import 'features/splash/presentation/screens/splash_screen.dart';
 import 'features/auth/data/repositories/auth_repository.dart';
 import 'features/auth/data/repositories/password_reset_repository.dart';
@@ -11,7 +12,6 @@ import 'features/product/data/repositories/product_repository.dart';
 import 'core/services/connectivity_service.dart';
 import 'core/theme/theme_repository.dart';
 import 'core/theme/app_theme.dart';
-import 'core/utils/size.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

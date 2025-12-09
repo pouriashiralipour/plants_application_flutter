@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/utils/size_config.dart';
 import '../../../../core/widgets/app_progress_indicator.dart';
 import '../../data/models/on_boarding_models.dart';
 import '../../../../core/services/intro_prefs.dart';
 
-import '../../../../core/utils/size.dart';
 import '../../../../core/config/root_screen.dart';
 
 class OnBoarding extends StatefulWidget {

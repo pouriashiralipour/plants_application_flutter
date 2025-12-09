@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import '../../../../core/network/api_client.dart';
 import '../../../../core/network/api_result.dart';
+import 'package:path/path.dart' as p;
 
 import '../../../profile/data/models/profile_form_models.dart';
 import '../../../profile/data/models/profile_models.dart';
@@ -10,46 +11,27 @@ import '../../../../core/config/app_constants.dart';
 class ProfileApi {
   final Dio _dio = ApiClient.I.dio;
 
-  Future<ApiResult<UserProfile>> complete(
-    ProfileCompleteModels m, {
-    File? avatarFile,
-    String avatarFieldName = 'profile_pic',
-  }) async {
+  Future<ApiResult<UserProfile>> complete(ProfileCompleteModels model, {File? avatarFile}) async {
     try {
-      final map = m.toJson();
-      final formMap = <String, dynamic>{...map};
+      final Map<String, dynamic> body = model.toJson();
 
       if (avatarFile != null) {
-        formMap[avatarFieldName] = await MultipartFile.fromFile(
+        body['profile_pic'] = await MultipartFile.fromFile(
           avatarFile.path,
-          filename: avatarFile.path.split('/').last,
+          filename: p.basename(avatarFile.path),
         );
       }
-      final data = avatarFile == null ? map : FormData.fromMap(formMap);
 
-      final r = await _dio.patch(
-        UrlInfo.profileCompleteUrl,
-        data: data,
-        options: Options(
-          headers: {
-            if (avatarFile != null) 'Content-Type': 'multipart/form-data',
-            'Accept': 'application/json',
-          },
-        ),
-      );
+      final formData = FormData.fromMap(body);
 
-      if (r.statusCode == 200 || r.statusCode == 201) {
-        return ApiResult(true, data: UserProfile.fromJson(r.data as Map<String, dynamic>));
-      }
+      final response = await _dio.patch(UrlInfo.profileCompleteUrl, data: formData);
+
       return ApiResult(
-        false,
-        error: extractErrorMessage(data: r.data, fallback: 'خطا در تکمیل پروفایل'),
+        true,
+        data: UserProfile.fromJson(Map<String, dynamic>.from(response.data as Map)),
       );
-    } on DioException catch (e) {
-      return ApiResult(
-        false,
-        error: extractErrorMessage(data: e.response?.data, fallback: e.message),
-      );
+    } catch (e) {
+      return ApiResult(false, error: e.toString());
     }
   }
 }

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../../../core/utils/size.dart';
+import '../../../utils/size_config.dart';
 import 'product_card_shimmer.dart';
 import 'product_detail_shimmer.dart';
 

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 import '../theme/app_colors.dart';
-import '../utils/size.dart';
+import '../utils/size_config.dart';
 
 class AppBackButton extends StatelessWidget {
   const AppBackButton({super.key});

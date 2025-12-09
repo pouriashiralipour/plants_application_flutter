@@ -7,7 +7,6 @@ class SizeConfig {
   static late Orientation orientation;
   static late double textScale;
 
-  // دیوایس مرجع (iPhone X)
   static const double designWidth = 375.0;
   static const double designHeight = 812.0;
 

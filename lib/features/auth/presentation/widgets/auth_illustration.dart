@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
-import '../../../../core/utils/size.dart';
-
+import '../../../../core/utils/size_config.dart';
 class AuthSvgAssetWidget extends StatelessWidget {
   const AuthSvgAssetWidget({super.key, required this.svg});
 

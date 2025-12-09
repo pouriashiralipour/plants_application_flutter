@@ -3,9 +3,10 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/utils/size_config.dart';
 import '../../../auth/data/repositories/auth_repository.dart';
 import '../../../../core/config/app_constants.dart';
-import '../../../../core/utils/size.dart';
+
 import '../../../../core/widgets/app_logo.dart';
 
 class CustomAppBar extends StatefulWidget {
@@ -22,6 +23,8 @@ class _CustomAppBarState extends State<CustomAppBar> {
   Widget build(BuildContext context) {
     final auth = context.watch<AuthRepository>();
     final me = auth.me;
+    final avatarUrl = buildAvatarUrl(me?.profilePic);
+    ;
 
     if (!auth.isAuthed || me == null) {
       return Container(
@@ -54,10 +57,6 @@ class _CustomAppBarState extends State<CustomAppBar> {
       );
     }
 
-    String? avatar = me.profilePic;
-    if (!avatar.startsWith('http')) {
-      avatar = '${UrlInfo.baseUrl}$avatar';
-    }
     return Container(
       key: ValueKey(auth.isAuthed),
       width: SizeConfig.screenWidth,
@@ -70,7 +69,14 @@ class _CustomAppBarState extends State<CustomAppBar> {
             children: [
               CircleAvatar(
                 radius: SizeConfig.getProportionateScreenWidth(30),
-                backgroundImage: NetworkImage(avatar),
+                backgroundImage: avatarUrl != null ? NetworkImage(avatarUrl) : null,
+                backgroundColor: widget.isLightMode ? AppColors.grey200 : AppColors.dark3,
+                child: avatarUrl == null
+                    ? Icon(
+                        Icons.person,
+                        color: widget.isLightMode ? AppColors.grey600 : AppColors.grey100,
+                      )
+                    : null,
               ),
               SizedBox(width: SizeConfig.getProportionateScreenWidth(10)),
               Column(
@@ -86,7 +92,7 @@ class _CustomAppBarState extends State<CustomAppBar> {
                   ),
                   auth.isAuthed
                       ? Text(
-                          me.full_name,
+                          '${me.firstName} جان',
                           style: TextStyle(
                             color: widget.isLightMode ? AppColors.grey800 : AppColors.white,
                             fontSize: SizeConfig.getProportionateFontSize(18),
@@ -119,4 +125,21 @@ class _CustomAppBarState extends State<CustomAppBar> {
       ),
     );
   }
+}
+
+String? buildAvatarUrl(String? raw) {
+  if (raw == null) return null;
+
+  final avatar = raw.trim();
+  if (avatar.isEmpty) return null;
+
+  if (avatar.startsWith('http')) {
+    return avatar;
+  }
+
+  if (avatar.startsWith('/')) {
+    return '${UrlInfo.baseUrl}${avatar.substring(1)}';
+  }
+
+  return '${UrlInfo.baseUrl}$avatar';
 }

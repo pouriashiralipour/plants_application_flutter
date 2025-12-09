@@ -5,13 +5,13 @@ import 'package:provider/provider.dart';
 import '../../features/auth/data/repositories/auth_repository.dart';
 
 import '../theme/app_colors.dart';
-import '../utils/size.dart';
 import '../../features/auth/presentation/screens/login_screen.dart';
 import '../../features/cart/presentation/screens/cart_screen.dart';
 import '../../features/home/presentation/screens/home_screen.dart';
 import '../../features/orders/presentation/screens/orders_screen.dart';
 import '../../features/profile/presentation/screens/profile_screen.dart';
 import '../../features/wallet/presentation/screens/wallet_screen.dart';
+import '../utils/size_config.dart';
 
 class RootScreen extends StatefulWidget {
   const RootScreen({super.key});

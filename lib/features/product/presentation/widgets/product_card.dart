@@ -6,8 +6,7 @@ import 'package:full_plants_ecommerce_app/core/utils/price_formatter.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../data/models/product_model.dart';
 import '../../../product/presentation/screens/product_details_screen.dart';
-
-import '../../../../core/utils/size.dart';
+import '../../../../core/utils/size_config.dart';
 
 class ProductCard extends StatelessWidget {
   const ProductCard({

@@ -8,7 +8,7 @@ import 'dart:io';
 
 import '../../../../core/config/root_screen.dart';
 import '../../../../core/theme/app_colors.dart';
-import '../../../../core/utils/size.dart';
+import '../../../../core/utils/size_config.dart';
 import '../../../../core/utils/validators.dart';
 import '../../../../core/widgets/gap.dart';
 import '../../../../core/widgets/app_alert_dialog.dart';
@@ -150,11 +150,7 @@ class _ProfileFormScreenState extends State<ProfileFormScreen> {
       phoneNumber: phone.isEmpty ? null : phone,
     );
 
-    final response = await ProfileApi().complete(
-      model,
-      avatarFile: _imageFile,
-      avatarFieldName: 'profile_pic',
-    );
+    final response = await ProfileApi().complete(model, avatarFile: _imageFile);
 
     if (!mounted) return;
 

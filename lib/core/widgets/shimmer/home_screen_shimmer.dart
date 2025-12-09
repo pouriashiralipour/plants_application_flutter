@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../../core/utils/size.dart';
+import '../../utils/size_config.dart';
 import 'custom_app_bar_shimmer.dart';
 import 'custom_search_bar_shimmer.dart';
 import 'custom_title_bar_shimmer.dart';

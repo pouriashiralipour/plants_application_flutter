@@ -5,6 +5,7 @@ import 'package:full_plants_ecommerce_app/core/utils/price_formatter.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/utils/size_config.dart';
 import '../../../../core/widgets/gap.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/shimmer/product/product_card_shimmer.dart';
@@ -13,7 +14,6 @@ import '../../data/repositories/product_repository.dart';
 
 import '../../data/models/product_model.dart';
 import '../../../../core/services/connectivity_service.dart';
-import '../../../../core/utils/size.dart';
 import '../../../offline/presentation/screens/offline_screen.dart';
 
 class ProductScreen extends StatefulWidget {

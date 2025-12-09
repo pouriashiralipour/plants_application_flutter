@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/utils/size_config.dart';
 import '../../../../core/widgets/gap.dart';
 import '../../../../core/widgets/app_alert_dialog.dart';
 import '../../../../core/widgets/app_progress_indicator.dart';
@@ -10,7 +11,6 @@ import '../../data/datasources/auth_remote_data_source.dart';
 import '../../../../core/widgets/app_text_field.dart';
 
 import '../../../../core/utils/iran_contact_validator.dart';
-import '../../../../core/utils/size.dart';
 import '../../../../core/utils/validators.dart';
 
 import '../widgets/auth_illustration.dart';

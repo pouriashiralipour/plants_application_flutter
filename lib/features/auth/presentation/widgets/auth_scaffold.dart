@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../../../core/utils/size.dart';
+import '../../../../core/utils/size_config.dart';
 
 
 

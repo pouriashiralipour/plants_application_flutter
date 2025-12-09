@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
-
 import '../../../../core/theme/app_colors.dart';
-import '../../../../core/utils/size.dart';
+import '../../../../core/utils/size_config.dart';
 
 class RememberMeWidget extends StatefulWidget {
   const RememberMeWidget({super.key});

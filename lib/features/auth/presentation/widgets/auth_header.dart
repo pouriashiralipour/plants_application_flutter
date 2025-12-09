@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 
 
 import '../../../../core/theme/app_colors.dart';
-import '../../../../core/utils/size.dart';
-
+import '../../../../core/utils/size_config.dart';
 class CustomTitleAuth extends StatelessWidget {
   const CustomTitleAuth({super.key, required this.title});
 

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../theme/app_colors.dart';
-import '../utils/size.dart';
+import '../utils/size_config.dart';
 
 class AppTitleBar extends StatelessWidget {
   const AppTitleBar({super.key, required this.title});

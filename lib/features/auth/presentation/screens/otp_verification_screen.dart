@@ -8,7 +8,7 @@ import 'package:provider/provider.dart';
 
 import ' complete_profile_screen.dart';
 import '../../../../core/theme/app_colors.dart';
-import '../../../../core/utils/size.dart';
+import '../../../../core/utils/size_config.dart';
 import '../../../../core/widgets/gap.dart';
 import '../../../../core/widgets/app_alert_dialog.dart';
 import '../../../../core/widgets/app_progress_indicator.dart';

@@ -5,7 +5,7 @@ import 'package:full_plants_ecommerce_app/core/utils/persian_number.dart';
 import 'package:persian_datetime_picker/persian_datetime_picker.dart';
 
 import '../theme/app_colors.dart';
-import '../utils/size.dart';
+import '../utils/size_config.dart';
 import 'gap.dart';
 import 'app_alert_dialog.dart';
 

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shimmer/shimmer.dart';
 
-import '../../../core/utils/size.dart';
+import '../../utils/size_config.dart';
 
 class CustomTitleBarShimmer extends StatelessWidget {
   const CustomTitleBarShimmer({super.key, required this.isLightMode});

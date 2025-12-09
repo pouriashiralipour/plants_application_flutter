@@ -3,10 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/utils/size_config.dart';
 import '../../../../core/widgets/shimmer/special_offer_shimmer.dart';
 import '../../data/repositories/product_repository.dart';
 
-import '../../../../core/utils/size.dart';
 import 'product_card.dart';
 
 class SpecialOfferCard extends StatefulWidget {

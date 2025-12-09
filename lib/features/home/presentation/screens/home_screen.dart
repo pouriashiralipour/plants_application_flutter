@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../../../core/utils/size_config.dart';
 import '../../../../core/widgets/shimmer/home_screen_shimmer.dart';
 import '../../../../core/widgets/shimmer/product_grid_shimmer.dart';
 import '../../../product/data/repositories/product_repository.dart';
@@ -12,7 +13,6 @@ import '../../../../core/widgets/app_title_bar.dart';
 import '../../../product/presentation/widgets/special_offer_card.dart';
 import '../../../auth/data/models/auth_tokens_model.dart';
 import '../../../../core/services/connectivity_service.dart';
-import '../../../../core/utils/size.dart';
 import '../../../offline/presentation/screens/offline_screen.dart';
 
 class HomeScreen extends StatefulWidget {

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shimmer/shimmer.dart';
 
-import '../../../core/utils/size.dart';
+import '../../utils/size_config.dart';
 
 class CustomCategoryBarShimmer extends StatelessWidget {
   const CustomCategoryBarShimmer({super.key, required this.isLightMode});

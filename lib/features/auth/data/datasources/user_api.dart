@@ -12,7 +12,10 @@ class UserApi {
     try {
       final response = await _dio.get(UrlInfo.userProfile);
       if (response.statusCode == 200 && response.data is Map) {
-        return ApiResult(true, data: UserProfile.fromJson(response.data as Map));
+        return ApiResult(
+          true,
+          data: UserProfile.fromJson(Map<String, dynamic>.from(response.data as Map)),
+        );
       }
       return ApiResult(
         false,

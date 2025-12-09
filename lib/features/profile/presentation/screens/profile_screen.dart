@@ -5,13 +5,13 @@ import 'package:provider/provider.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/theme_repository.dart';
+import '../../../../core/utils/size_config.dart';
 import '../../../../core/widgets/gap.dart';
 import '../../../../core/widgets/app_progress_indicator.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../auth/data/repositories/auth_repository.dart';
 
 import '../../../../core/config/app_constants.dart';
-import '../../../../core/utils/size.dart';
 import '../../../../core/config/root_screen.dart';
 
 class AppToggle extends StatelessWidget {
@@ -171,15 +171,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final bool isLightMode = Theme.of(context).brightness == Brightness.light;
     final auth = context.watch<AuthRepository>();
     final me = context.watch<AuthRepository>().me;
+
+    final avatarUrl = buildAvatarUrl(me?.profilePic);
+
     if (!auth.isAuthed || me == null) {
       return const Scaffold(
         body: SafeArea(child: Center(child: CircularProgressIndicator())),
       );
-    }
-
-    String? avatar = me.profilePic;
-    if (!avatar.startsWith('http')) {
-      avatar = '${UrlInfo.baseUrl}$avatar';
     }
 
     return Scaffold(
@@ -227,11 +225,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     children: [
                       CircleAvatar(
                         key: ValueKey(auth.isAuthed),
-                        backgroundImage: NetworkImage(avatar),
                         radius: SizeConfig.getProportionateScreenWidth(50),
+                        backgroundImage: avatarUrl != null ? NetworkImage(avatarUrl) : null,
+                        backgroundColor: isLightMode ? AppColors.grey200 : AppColors.dark3,
+                        child: avatarUrl == null
+                            ? Icon(
+                                Icons.person,
+                                color: isLightMode ? AppColors.grey600 : AppColors.grey100,
+                                size: SizeConfig.getProportionateScreenWidth(40),
+                              )
+                            : null,
                       ),
                       Text(
-                        me.full_name,
+                        me.fullName,
                         style: TextStyle(
                           fontSize: SizeConfig.getProportionateFontSize(24),
                           color: isLightMode ? AppColors.grey900 : AppColors.white,
@@ -239,7 +245,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ),
                       ),
                       Text(
-                        me.phone_number,
+                        me.phoneNumber,
                         textDirection: TextDirection.ltr,
                         style: TextStyle(
                           fontSize: SizeConfig.getProportionateFontSize(14),
@@ -455,4 +461,21 @@ Future<void> showLogoutSheet(BuildContext rootContext) {
       );
     },
   );
+}
+
+String? buildAvatarUrl(String? raw) {
+  if (raw == null) return null;
+
+  final avatar = raw.trim();
+  if (avatar.isEmpty) return null;
+
+  if (avatar.startsWith('http')) {
+    return avatar;
+  }
+
+  if (avatar.startsWith('/')) {
+    return '${UrlInfo.baseUrl}${avatar.substring(1)}';
+  }
+
+  return '${UrlInfo.baseUrl}$avatar';
 }
