@@ -1,0 +1,58 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+
+import '../theme/app_colors.dart';
+import '../utils/size.dart';
+
+import 'app_progress_indicator.dart';
+
+class AppDialog extends StatelessWidget {
+  const AppDialog({super.key, required this.text});
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    final bool isLightMode = Theme.of(context).brightness == Brightness.light;
+    return Dialog(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(44)),
+      backgroundColor: isLightMode ? AppColors.white : AppColors.dark2,
+      child: SizedBox(
+        width: SizeConfig.getProportionateScreenWidth(340),
+        height: SizeConfig.getProportionateScreenHeight(487),
+        child: Padding(
+          padding: EdgeInsets.all(SizeConfig.getProportionateScreenWidth(24)),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              SvgPicture.asset(
+                'assets/images/successsvg.svg',
+                width: SizeConfig.getProportionateScreenWidth(185),
+                height: SizeConfig.getProportionateScreenHeight(180),
+              ),
+              SizedBox(height: SizeConfig.getProportionateScreenWidth(24)),
+              Text(
+                "تبریک میگم!",
+                style: TextStyle(
+                  fontSize: SizeConfig.getProportionateFontSize(24),
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+              SizedBox(height: SizeConfig.getProportionateScreenWidth(12)),
+              Text(
+                text,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: SizeConfig.getProportionateFontSize(14),
+                  color: isLightMode ? AppColors.grey500 : AppColors.white,
+                ),
+              ),
+              SizedBox(height: SizeConfig.getProportionateScreenWidth(24)),
+              AppProgressBarIndicator(),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
