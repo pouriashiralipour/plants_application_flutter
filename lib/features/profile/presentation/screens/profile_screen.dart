@@ -201,7 +201,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         Text(
                           'پروفایل',
                           style: TextStyle(
-                            fontFamily: 'Peyda',
                             fontSize: SizeConfig.getProportionateFontSize(24),
                             fontWeight: FontWeight.w800,
                             color: isLightMode ? AppColors.grey900 : AppColors.white,
@@ -409,7 +408,6 @@ Future<void> showLogoutSheet(BuildContext rootContext) {
                       color: AppColors.error,
                       fontWeight: FontWeight.w800,
                       fontSize: SizeConfig.getProportionateFontSize(22),
-                      fontFamily: 'Peyda',
                     ),
                   ),
                   const Spacer(),
