@@ -6,14 +6,31 @@ class ThemeRepository extends ChangeNotifier {
   static final ThemeRepository I = ThemeRepository._();
 
   static const _k = 'is_dark';
-  bool _isDark = false;
 
-  bool get isDark => _isDark;
-  ThemeMode get themeMode => _isDark ? ThemeMode.dark : ThemeMode.light;
+  bool? _isDark;
+
+  bool get isDark {
+    if (_isDark != null) {
+      return _isDark!;
+    }
+    final brightness = WidgetsBinding.instance.platformDispatcher.platformBrightness;
+    return brightness == Brightness.dark;
+  }
+
+  ThemeMode get themeMode {
+    if (_isDark == null) {
+      return ThemeMode.system;
+    }
+    return _isDark! ? ThemeMode.dark : ThemeMode.light;
+  }
 
   Future<void> init() async {
     final sp = await SharedPreferences.getInstance();
-    _isDark = sp.getBool(_k) ?? false;
+    if (sp.containsKey(_k)) {
+      _isDark = sp.getBool(_k);
+    } else {
+      _isDark = null;
+    }
   }
 
   Future<void> setDark(bool v) async {
@@ -23,5 +40,12 @@ class ThemeRepository extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> toggle() => setDark(!_isDark);
+  Future<void> clearPreference() async {
+    _isDark = null;
+    final sp = await SharedPreferences.getInstance();
+    await sp.remove(_k);
+    notifyListeners();
+  }
+
+  Future<void> toggle() async => setDark(!isDark);
 }
