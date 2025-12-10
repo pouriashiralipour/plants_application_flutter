@@ -92,7 +92,6 @@ class _ProductScreenState extends State<ProductScreen> {
 
   Widget _buildImageGallery(ProductModel product, bool isLightMode) {
     return Container(
-      height: SizeConfig.screenHeight * 0.3,
       width: double.infinity,
       color: isLightMode ? AppColors.bgSilver1 : AppColors.dark1,
       child: Stack(
@@ -112,20 +111,20 @@ class _ProductScreenState extends State<ProductScreen> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   SizedBox(
-                    height: SizeConfig.getProportionateScreenHeight(200),
-                    width: SizeConfig.getProportionateScreenWidth(200),
+                    height: SizeConfig.getProportionateScreenHeight(280),
+                    width: SizeConfig.getProportionateScreenWidth(280),
                     child: Container(
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(36),
                         image: DecorationImage(image: NetworkImage(image), fit: BoxFit.cover),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.grey.withValues(alpha: 0.5),
-                            spreadRadius: 1,
-                            blurRadius: 7,
-                            offset: Offset(0, 3),
-                          ),
-                        ],
+                        // boxShadow: [
+                        //   BoxShadow(
+                        //     color: Colors.grey.withValues(alpha: 0.5),
+                        //     spreadRadius: 1,
+                        //     blurRadius: 7,
+                        //     offset: Offset(0, 3),
+                        //   ),
+                        // ],
                       ),
                     ),
                   ),
@@ -171,9 +170,11 @@ class _ProductScreenState extends State<ProductScreen> {
       children: [
         AppButton(
           onTap: () {},
-          text: 'اضافه کردن به سبد خرید',
+          text: 'افزودن به سبد خرید',
           color: AppColors.primary,
           width: SizeConfig.screenWidth * 0.5,
+          is_icon: true,
+          fontSize: SizeConfig.getProportionateFontSize(14),
         ),
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -222,36 +223,53 @@ class _ProductScreenState extends State<ProductScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Expanded(
-                child: Text(
-                  product.name,
-                  style: TextStyle(
-                    fontSize: SizeConfig.getProportionateFontSize(18),
-                    color: isLightMode ? AppColors.grey900 : AppColors.white,
-                    fontWeight: FontWeight.w700,
+          Expanded(
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Text(
+                          product.name,
+                          style: TextStyle(
+                            fontSize: SizeConfig.getProportionateFontSize(18),
+                            color: isLightMode ? AppColors.grey900 : AppColors.white,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ),
+                      SvgPicture.asset(
+                        'assets/images/icons/Heart_outline.svg',
+                        color: AppColors.primary,
+                      ),
+                    ],
                   ),
-                ),
+
+                  Gap(SizeConfig.getProportionateScreenHeight(20)),
+
+                  _buildRatingAndSales(product, isLightMode),
+
+                  Gap(SizeConfig.getProportionateScreenHeight(20)),
+                  Divider(color: AppColors.grey200, thickness: 2),
+                  Gap(SizeConfig.getProportionateScreenHeight(10)),
+
+                  _buildDescriptionSection(
+                    product,
+                    shortDescription,
+                    hasLongDescription,
+                    isLightMode,
+                  ),
+
+                  Gap(SizeConfig.getProportionateScreenHeight(10)),
+
+                  _buildQuantitySection(isLightMode),
+                ],
               ),
-              SvgPicture.asset('assets/images/icons/Heart_outline.svg', color: AppColors.primary),
-            ],
+            ),
           ),
-
-          Gap(SizeConfig.getProportionateScreenHeight(20)),
-
-          _buildRatingAndSales(product, isLightMode),
-
-          Gap(SizeConfig.getProportionateScreenHeight(20)),
-          Divider(color: AppColors.grey200, thickness: 2),
-          Gap(SizeConfig.getProportionateScreenHeight(10)),
-
-          _buildDescriptionSection(product, shortDescription, hasLongDescription, isLightMode),
-
-          Gap(SizeConfig.getProportionateScreenHeight(10)),
-
-          _buildQuantitySection(isLightMode),
 
           Gap(SizeConfig.getProportionateScreenHeight(10)),
           Divider(color: AppColors.grey200, thickness: 2),
@@ -565,16 +583,24 @@ class _ProductScreenState extends State<ProductScreen> {
             final shortDescription = _getShortDescription(product.description);
             final hasLongDescription = _hasLongDescription(product.description);
 
-            return SingleChildScrollView(
-              child: Column(
-                children: [
-                  if (product.images.isEmpty) ProductCardShimmer(isLightMode: isLightMode),
+            return Column(
+              children: [
+                if (product.images.isEmpty) ProductCardShimmer(isLightMode: isLightMode),
 
-                  _buildImageGallery(product, isLightMode),
+                SizedBox(
+                  height: SizeConfig.screenHeight * 0.4,
+                  child: _buildImageGallery(product, isLightMode),
+                ),
 
-                  _buildProductInfo(product, shortDescription, hasLongDescription, isLightMode),
-                ],
-              ),
+                Expanded(
+                  child: _buildProductInfo(
+                    product,
+                    shortDescription,
+                    hasLongDescription,
+                    isLightMode,
+                  ),
+                ),
+              ],
             );
           },
         ),

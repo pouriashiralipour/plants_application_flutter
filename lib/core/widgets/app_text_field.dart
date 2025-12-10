@@ -245,7 +245,6 @@ class _AppTextFieldState extends State<AppTextField> {
                 style: TextStyle(
                   color: isLight ? AppColors.grey900 : AppColors.white,
                   fontWeight: FontWeight.w600,
-                  fontFamily: 'Peyda',
                   fontSize: SizeConfig.getProportionateFontSize(14),
                 ),
                 decoration: InputDecoration(
@@ -261,7 +260,6 @@ class _AppTextFieldState extends State<AppTextField> {
                         ? AppColors.grey500
                         : AppColors.grey600,
                     fontSize: SizeConfig.getProportionateFontSize(14),
-                    fontFamily: 'Peyda',
                   ),
                   border: InputBorder.none,
                   errorText: null,

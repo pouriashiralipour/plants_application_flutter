@@ -54,6 +54,7 @@ class OfflineScreen extends StatelessWidget {
                   text: 'امتحان مجدد',
                   color: AppColors.disabledButton,
                   width: SizeConfig.designWidth,
+                  fontSize: SizeConfig.getProportionateFontSize(16),
                 ),
                 Gap(SizeConfig.getProportionateScreenHeight(24)),
               ],

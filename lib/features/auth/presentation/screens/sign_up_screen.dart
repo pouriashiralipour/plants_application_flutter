@@ -154,6 +154,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   color: AppColors.disabledButton,
                   onTap: _submit,
                   width: SizeConfig.screenWidth,
+                  fontSize: SizeConfig.getProportionateFontSize(16),
                 ),
           Gap(SizeConfig.getProportionateScreenHeight(40)),
           BottomAuthText(

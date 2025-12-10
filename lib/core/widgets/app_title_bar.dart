@@ -25,7 +25,6 @@ class AppTitleBar extends StatelessWidget {
               color: isLightMode ? AppColors.grey900 : AppColors.white,
               fontSize: SizeConfig.getProportionateFontSize(18),
               fontWeight: FontWeight.w800,
-              fontFamily: 'Peyda',
             ),
           ),
           GestureDetector(
@@ -36,7 +35,6 @@ class AppTitleBar extends StatelessWidget {
                 color: AppColors.primary,
                 fontSize: SizeConfig.getProportionateFontSize(14),
                 fontWeight: FontWeight.w700,
-                fontFamily: 'Peyda',
               ),
             ),
           ),

@@ -4,7 +4,7 @@ import 'app_colors.dart';
 class AppTheme {
   // Light Theme
   static ThemeData lightTheme = ThemeData(
-    fontFamily: 'Shabnam',
+    fontFamily: 'Vazirmatn',
     brightness: Brightness.light,
     primaryColor: AppColors.primary,
     scaffoldBackgroundColor: AppColors.white,
@@ -23,7 +23,7 @@ class AppTheme {
 
   // Dark Theme
   static ThemeData darkTheme = ThemeData(
-    fontFamily: 'Shabnam',
+    fontFamily: 'Vazirmatn',
     brightness: Brightness.dark,
     primaryColor: AppColors.primary,
     scaffoldBackgroundColor: AppColors.dark1,

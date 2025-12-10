@@ -139,6 +139,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
               color: AppColors.primary,
               onTap: _submit,
               width: SizeConfig.getProportionateScreenWidth(98),
+              fontSize: SizeConfig.getProportionateFontSize(16),
             ),
     );
   }

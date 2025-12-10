@@ -156,6 +156,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   text: 'ورود',
                   color: AppColors.disabledButton,
                   width: SizeConfig.screenWidth,
+                  fontSize: SizeConfig.getProportionateFontSize(16),
                 ),
           Gap(SizeConfig.getProportionateScreenHeight(40)),
           GestureDetector(

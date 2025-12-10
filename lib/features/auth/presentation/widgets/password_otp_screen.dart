@@ -93,7 +93,6 @@ class _OtpPasswordScreenState extends State<OtpPasswordScreen> {
         ],
         maxLength: 1,
         style: TextStyle(
-          fontFamily: 'Peyda',
           fontSize: SizeConfig.getProportionateScreenWidth(24),
           fontWeight: FontWeight.w700,
           height: 1.0,
@@ -387,6 +386,7 @@ class _OtpPasswordScreenState extends State<OtpPasswordScreen> {
               color: AppColors.disabledButton,
               onTap: _verify,
               width: SizeConfig.getProportionateScreenWidth(77),
+              fontSize: SizeConfig.getProportionateFontSize(16),
             ),
     );
   }

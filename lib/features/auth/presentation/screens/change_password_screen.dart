@@ -207,6 +207,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
               text: 'ادامه',
               color: AppColors.primary,
               width: SizeConfig.getProportionateScreenWidth(98),
+              fontSize: SizeConfig.getProportionateFontSize(16),
             ),
     );
   }

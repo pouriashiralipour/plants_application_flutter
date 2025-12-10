@@ -25,7 +25,6 @@ class AppLogo extends StatelessWidget {
         Text(
           'فیلوروپیا',
           style: TextStyle(
-            fontFamily: 'Peyda',
             color: isLightMode ? AppColors.grey900 : AppColors.white,
             fontWeight: FontWeight.w900,
             fontSize: SizeConfig.getProportionateFontSize(textSize),

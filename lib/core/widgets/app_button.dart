@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
+import 'package:full_plants_ecommerce_app/core/widgets/gap.dart';
 
 import '../theme/app_colors.dart';
 import '../utils/size_config.dart';
@@ -12,6 +14,8 @@ class AppButton extends StatelessWidget {
     required this.width,
     this.textColor = AppColors.white,
     this.isShadow = true,
+    this.is_icon = false,
+    required this.fontSize,
   });
 
   final VoidCallback onTap;
@@ -20,6 +24,8 @@ class AppButton extends StatelessWidget {
   final double width;
   final Color? textColor;
   final bool? isShadow;
+  final bool? is_icon;
+  final double fontSize;
 
   @override
   Widget build(BuildContext context) {
@@ -42,14 +48,27 @@ class AppButton extends StatelessWidget {
               ),
           ],
         ),
-        child: Text(
-          text,
-          style: TextStyle(
-            color: textColor,
-            fontSize: SizeConfig.getProportionateFontSize(18),
-            fontFamily: 'Peyda',
-            fontWeight: FontWeight.w800,
-          ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              text,
+              style: TextStyle(
+                color: textColor,
+                fontSize: SizeConfig.getProportionateFontSize(fontSize),
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+            SizedBox(width: SizeConfig.getProportionateScreenWidth(10)),
+            is_icon!
+                ? SvgPicture.asset(
+                    'assets/images/icons/Bag_fill.svg',
+                    color: AppColors.white,
+                    width: SizeConfig.getProportionateScreenWidth(20),
+                    height: SizeConfig.getProportionateScreenWidth(20),
+                  )
+                : Text(''),
+          ],
         ),
       ),
     );

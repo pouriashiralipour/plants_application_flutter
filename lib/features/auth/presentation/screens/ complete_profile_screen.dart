@@ -323,6 +323,7 @@ class _ProfileFormScreenState extends State<ProfileFormScreen> {
               text: 'ادامه',
               color: AppColors.disabledButton,
               width: SizeConfig.getProportionateScreenWidth(98),
+              fontSize: SizeConfig.getProportionateFontSize(16),
             ),
     );
   }
