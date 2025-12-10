@@ -67,6 +67,7 @@ class _RootScreenState extends State<RootScreen> {
         children: List.generate(_screens.length, (index) {
           final item = _items[index];
           return Column(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
               GestureDetector(
                 onTap: () async {
@@ -93,7 +94,8 @@ class _RootScreenState extends State<RootScreen> {
                 child: AnimatedContainer(
                   duration: Duration(milliseconds: 400),
                   curve: Curves.elasticOut,
-                  padding: EdgeInsets.all(SizeConfig.getProportionateScreenWidth(6)),
+                  padding: EdgeInsets.all(SizeConfig.getProportionateScreenWidth(4)),
+                  alignment: Alignment.center,
                   decoration: BoxDecoration(
                     color: bottonIndex == index
                         ? AppColors.primary.withValues(alpha: 0.1)
@@ -107,8 +109,8 @@ class _RootScreenState extends State<RootScreen> {
                   child: SvgPicture.asset(
                     bottonIndex == index ? item['fill_icon'] : item['icon'],
                     color: bottonIndex == index ? AppColors.primary : AppColors.grey500,
-                    height: SizeConfig.getProportionateScreenWidth(24),
-                    width: SizeConfig.getProportionateScreenWidth(24),
+                    height: SizeConfig.getProportionateScreenWidth(22),
+                    width: SizeConfig.getProportionateScreenWidth(22),
                   ),
                 ),
               ),
@@ -116,7 +118,6 @@ class _RootScreenState extends State<RootScreen> {
               Text(
                 item['lable'],
                 style: TextStyle(
-                  fontFamily: 'Peyda',
                   color: bottonIndex == index ? AppColors.primary : AppColors.grey500,
                   fontSize: bottonIndex == index
                       ? SizeConfig.getProportionateFontSize(12)

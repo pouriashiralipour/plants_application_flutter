@@ -46,14 +46,14 @@ class _SpecialOfferCardState extends State<SpecialOfferCard> {
         ],
       ),
       width: double.infinity,
-      height: SizeConfig.getProportionateScreenHeight(320),
+      height: SizeConfig.getProportionateScreenHeight(300),
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
         child: Row(
           children: displayProducts.take(10).map((product) {
             return Container(
-              width: SizeConfig.getProportionateScreenWidth(220),
-              margin: EdgeInsets.only(left: SizeConfig.getProportionateScreenWidth(8)),
+              width: SizeConfig.getProportionateScreenWidth(200),
+              // margin: EdgeInsets.only(left: SizeConfig.getProportionateScreenWidth(1)),
               child: ProductCard(product: product, isLightMode: widget.isLightMode),
             );
           }).toList(),

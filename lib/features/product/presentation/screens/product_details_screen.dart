@@ -172,9 +172,9 @@ class _ProductScreenState extends State<ProductScreen> {
           onTap: () {},
           text: 'افزودن به سبد خرید',
           color: AppColors.primary,
-          width: SizeConfig.screenWidth * 0.5,
+          width: SizeConfig.screenWidth * 0.6,
           is_icon: true,
-          fontSize: SizeConfig.getProportionateFontSize(14),
+          fontSize: SizeConfig.getProportionateFontSize(13),
         ),
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -191,7 +191,7 @@ class _ProductScreenState extends State<ProductScreen> {
               '${(_quantity * product.price).toString().priceFormatter} ریال'.farsiNumber,
               style: TextStyle(
                 color: isLightMode ? AppColors.grey900 : AppColors.white,
-                fontSize: SizeConfig.getProportionateFontSize(16),
+                fontSize: SizeConfig.getProportionateFontSize(14),
                 fontWeight: FontWeight.w700,
               ),
             ),
@@ -311,7 +311,7 @@ class _ProductScreenState extends State<ProductScreen> {
                 width: 40,
                 child: Center(
                   child: Text(
-                    _quantity.toString(),
+                    _quantity.toString().farsiNumber,
                     style: TextStyle(
                       fontWeight: FontWeight.w700,
                       color: AppColors.primary,

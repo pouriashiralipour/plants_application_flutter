@@ -150,15 +150,15 @@ class _HomeScreenState extends State<HomeScreen> {
           child: SingleChildScrollView(
             child: Column(
               children: [
-                SizedBox(height: SizeConfig.getProportionateScreenHeight(24)),
+                SizedBox(height: SizeConfig.getProportionateScreenHeight(20)),
                 CustomAppBar(isLightMode: isLightMode),
-                SizedBox(height: SizeConfig.getProportionateScreenHeight(24)),
+                SizedBox(height: SizeConfig.getProportionateScreenHeight(20)),
                 AppSearchBar(
                   focusNode: _focusNode,
                   isLightMode: isLightMode,
                   isFocused: _isFocused,
                 ),
-                SizedBox(height: SizeConfig.getProportionateScreenHeight(24)),
+                SizedBox(height: SizeConfig.getProportionateScreenHeight(20)),
                 if (shopRepository.error != null)
                   Padding(
                     padding: EdgeInsets.symmetric(horizontal: 16),
@@ -169,13 +169,13 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   ),
                 AppTitleBar(title: 'پیشنهاد ویژه'),
-                SizedBox(height: SizeConfig.getProportionateScreenHeight(24)),
+                SizedBox(height: SizeConfig.getProportionateScreenHeight(20)),
                 SpecialOfferCard(isLightMode: isLightMode),
-                SizedBox(height: SizeConfig.getProportionateScreenHeight(24)),
+                SizedBox(height: SizeConfig.getProportionateScreenHeight(20)),
                 AppTitleBar(title: 'محبوب ترین'),
-                SizedBox(height: SizeConfig.getProportionateScreenHeight(24)),
+                SizedBox(height: SizeConfig.getProportionateScreenHeight(20)),
                 CustomCategoryBar(indexCategory: -1, onCategoryChanged: _onCategoryChanged),
-                SizedBox(height: SizeConfig.getProportionateScreenHeight(24)),
+                SizedBox(height: SizeConfig.getProportionateScreenHeight(20)),
                 if (_isCategoryChanging)
                   ProductGridShimmer(isLightMode: isLightMode)
                 else

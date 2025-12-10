@@ -14,8 +14,8 @@ class ProductCard extends StatelessWidget {
     required this.product,
     required this.isLightMode,
     this.isGrid = false,
-    this.boxSize = 200,
-    this.textSize = 16,
+    this.boxSize = 180,
+    this.textSize = 14,
   });
 
   final ProductModel product;
@@ -38,7 +38,7 @@ class ProductCard extends StatelessWidget {
           MaterialPageRoute(builder: (context) => ProductScreen(productId: product.id)),
         ),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
@@ -52,7 +52,7 @@ class ProductCard extends StatelessWidget {
                       child: AspectRatio(
                         aspectRatio: 1,
                         child: ClipRRect(
-                          borderRadius: BorderRadiusGeometry.circular(36),
+                          borderRadius: BorderRadiusGeometry.circular(32),
                           child: Image.network(mainImage, fit: BoxFit.fill),
                         ),
                       ),
@@ -72,8 +72,8 @@ class ProductCard extends StatelessWidget {
                         child: SvgPicture.asset(
                           'assets/images/icons/Heart_outline.svg',
                           color: AppColors.primary,
-                          width: SizeConfig.getProportionateScreenWidth(24),
-                          height: SizeConfig.getProportionateScreenWidth(24),
+                          width: SizeConfig.getProportionateScreenWidth(20),
+                          height: SizeConfig.getProportionateScreenWidth(20),
                         ),
                       ),
                     ),
@@ -96,7 +96,6 @@ class ProductCard extends StatelessWidget {
                     color: isLightMode ? AppColors.grey900 : AppColors.white,
                     fontSize: SizeConfig.getProportionateFontSize(textSize),
                     fontWeight: FontWeight.w700,
-                    fontFamily: 'Peyda',
                   ),
                 ),
               ),

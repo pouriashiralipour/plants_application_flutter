@@ -23,7 +23,7 @@ class AppTitleBar extends StatelessWidget {
             title,
             style: TextStyle(
               color: isLightMode ? AppColors.grey900 : AppColors.white,
-              fontSize: SizeConfig.getProportionateFontSize(18),
+              fontSize: SizeConfig.getProportionateFontSize(16),
               fontWeight: FontWeight.w800,
             ),
           ),
@@ -33,7 +33,7 @@ class AppTitleBar extends StatelessWidget {
               'مشاهده همه',
               style: TextStyle(
                 color: AppColors.primary,
-                fontSize: SizeConfig.getProportionateFontSize(14),
+                fontSize: SizeConfig.getProportionateFontSize(12),
                 fontWeight: FontWeight.w700,
               ),
             ),
