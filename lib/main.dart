@@ -12,6 +12,7 @@ import 'features/product/data/repositories/product_repository.dart';
 import 'core/services/connectivity_service.dart';
 import 'core/theme/theme_repository.dart';
 import 'core/theme/app_theme.dart';
+import 'features/wishlist/data/repositories/wishlist_repository.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -31,6 +32,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider<ThemeRepository>.value(value: ThemeRepository.I),
         ChangeNotifierProvider<AuthRepository>.value(value: AuthRepository.I),
         ChangeNotifierProvider<ShopRepository>.value(value: ShopRepository.I),
+        ChangeNotifierProvider.value(value: WishlistRepository.I),
         ChangeNotifierProvider<PasswordResetRepository>(create: (_) => PasswordResetRepository()),
         Provider(create: (_) => ConnectivityService()),
       ],

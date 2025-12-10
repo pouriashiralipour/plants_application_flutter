@@ -24,4 +24,5 @@ class UrlInfo {
   // Shop
   static String productsUrl = 'products/';
   static String categoryUrl = 'categories/';
+  static String wishlistUrl = 'wishlists/';
 }

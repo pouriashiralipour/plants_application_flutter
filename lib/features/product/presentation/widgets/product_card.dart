@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:full_plants_ecommerce_app/core/utils/persian_number.dart';
 import 'package:full_plants_ecommerce_app/core/utils/price_formatter.dart';
+import 'package:provider/provider.dart';
 
 import '../../../../core/theme/app_colors.dart';
+import '../../../wishlist/data/repositories/wishlist_repository.dart';
 import '../../data/models/product_model.dart';
 import '../../../product/presentation/screens/product_details_screen.dart';
 import '../../../../core/utils/size_config.dart';
@@ -26,6 +28,9 @@ class ProductCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final wishlist = context.watch<WishlistRepository>();
+    final isFav = wishlist.isWishlisted(product.id);
+
     final mainImage =
         product.mainImage ?? (product.images.isNotEmpty ? product.images.first.image : '');
     return Padding(
@@ -68,9 +73,13 @@ class ProductCard extends StatelessWidget {
                       ),
                       child: InkWell(
                         borderRadius: BorderRadius.circular(20),
-                        onTap: () {},
+                        onTap: () {
+                          context.read<WishlistRepository>().toggle(product);
+                        },
                         child: SvgPicture.asset(
-                          'assets/images/icons/Heart_outline.svg',
+                          isFav
+                              ? 'assets/images/icons/HeartBold.svg'
+                              : 'assets/images/icons/Heart_outline.svg',
                           color: AppColors.primary,
                           width: SizeConfig.getProportionateScreenWidth(20),
                           height: SizeConfig.getProportionateScreenWidth(20),

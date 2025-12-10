@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 
 import '../../features/auth/data/repositories/auth_repository.dart';
 
+import '../../features/wishlist/data/repositories/wishlist_repository.dart';
 import '../theme/app_colors.dart';
 import '../../features/auth/presentation/screens/login_screen.dart';
 import '../../features/cart/presentation/screens/cart_screen.dart';
@@ -56,6 +57,17 @@ class _RootScreenState extends State<RootScreen> {
     },
   ];
   int bottonIndex = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    Future.microtask(() {
+      final auth = context.read<AuthRepository>();
+      if (auth.isAuthed) {
+        context.read<WishlistRepository>().load();
+      }
+    });
+  }
 
   Container customNavBar() {
     return Container(

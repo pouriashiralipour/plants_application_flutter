@@ -10,6 +10,7 @@ import '../../../../core/widgets/gap.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/shimmer/product/product_card_shimmer.dart';
 import '../../../../core/widgets/shimmer/product/product_screen_shimmer.dart';
+import '../../../wishlist/data/repositories/wishlist_repository.dart';
 import '../../data/repositories/product_repository.dart';
 
 import '../../data/models/product_model.dart';
@@ -206,6 +207,7 @@ class _ProductScreenState extends State<ProductScreen> {
     String shortDescription,
     bool hasLongDescription,
     bool isLightMode,
+    bool isFav,
   ) {
     return Container(
       padding: EdgeInsets.symmetric(
@@ -241,9 +243,16 @@ class _ProductScreenState extends State<ProductScreen> {
                           ),
                         ),
                       ),
-                      SvgPicture.asset(
-                        'assets/images/icons/Heart_outline.svg',
-                        color: AppColors.primary,
+                      IconButton(
+                        onPressed: () {
+                          context.read<WishlistRepository>().toggle(product);
+                        },
+                        icon: SvgPicture.asset(
+                          isFav
+                              ? 'assets/images/icons/HeartBold.svg'
+                              : 'assets/images/icons/Heart_outline.svg',
+                          color: AppColors.primary,
+                        ),
                       ),
                     ],
                   ),
@@ -583,6 +592,9 @@ class _ProductScreenState extends State<ProductScreen> {
             final shortDescription = _getShortDescription(product.description);
             final hasLongDescription = _hasLongDescription(product.description);
 
+            final wishlist = context.watch<WishlistRepository>();
+            final isFav = wishlist.isWishlisted(product.id);
+
             return Column(
               children: [
                 if (product.images.isEmpty) ProductCardShimmer(isLightMode: isLightMode),
@@ -598,6 +610,7 @@ class _ProductScreenState extends State<ProductScreen> {
                     shortDescription,
                     hasLongDescription,
                     isLightMode,
+                    isFav,
                   ),
                 ),
               ],
