@@ -187,6 +187,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             padding: EdgeInsets.symmetric(horizontal: SizeConfig.getProportionateScreenWidth(24)),
             child: Column(
               children: [
+                Gap(SizeConfig.getProportionateScreenHeight(15)),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
