@@ -5,6 +5,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 
 import 'core/utils/size_config.dart';
+import 'features/cart/data/repository/cart_repository.dart';
 import 'features/splash/presentation/screens/splash_screen.dart';
 import 'features/auth/data/repositories/auth_repository.dart';
 import 'features/auth/data/repositories/password_reset_repository.dart';
@@ -18,6 +19,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await ThemeRepository.I.init();
   await AuthRepository.I.init();
+  await CartRepository.I.init();
 
   runApp(MyApp());
 }
@@ -32,7 +34,8 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider<ThemeRepository>.value(value: ThemeRepository.I),
         ChangeNotifierProvider<AuthRepository>.value(value: AuthRepository.I),
         ChangeNotifierProvider<ShopRepository>.value(value: ShopRepository.I),
-        ChangeNotifierProvider.value(value: WishlistRepository.I),
+        ChangeNotifierProvider<WishlistRepository>.value(value: WishlistRepository.I),
+        ChangeNotifierProvider<CartRepository>.value(value: CartRepository.I),
         ChangeNotifierProvider<PasswordResetRepository>(create: (_) => PasswordResetRepository()),
         Provider(create: (_) => ConnectivityService()),
       ],
