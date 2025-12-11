@@ -6,10 +6,13 @@ import 'package:provider/provider.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/size_config.dart';
+import '../../../../core/widgets/app_alert_dialog.dart';
+import '../../../../core/widgets/app_progress_indicator.dart';
 import '../../../../core/widgets/gap.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/shimmer/product/product_card_shimmer.dart';
 import '../../../../core/widgets/shimmer/product/product_screen_shimmer.dart';
+import '../../../cart/data/repository/cart_repository.dart';
 import '../../../wishlist/data/repositories/wishlist_repository.dart';
 import '../../data/repositories/product_repository.dart';
 
@@ -29,12 +32,15 @@ class ProductScreen extends StatefulWidget {
 class _ProductScreenState extends State<ProductScreen> {
   PageController pageController = PageController(initialPage: 0);
 
+  bool _cartIsError = false;
+  bool _isAddingToCart = false;
   bool _isCheckingInternet = true;
   bool _isOnline = true;
   int _quantity = 1;
   int _selectedImage = 0;
   bool _showShimmer = true;
 
+  String? _cartMessage;
   late Future<ProductModel?> _productFuture;
 
   @override
@@ -61,14 +67,14 @@ class _ProductScreenState extends State<ProductScreen> {
             fontWeight: FontWeight.w700,
           ),
         ),
-        Gap(SizeConfig.getProportionateScreenHeight(10)),
+        Gap(SizeConfig.getProportionateScreenHeight(8)),
         Text(
           shortDescription,
           style: TextStyle(
             color: isLightMode ? AppColors.grey800 : AppColors.grey300,
-            fontSize: SizeConfig.getProportionateFontSize(14),
+            fontSize: SizeConfig.getProportionateFontSize(13),
             fontWeight: FontWeight.w400,
-            height: 1.6,
+            height: 1.4,
           ),
         ),
 
@@ -166,39 +172,100 @@ class _ProductScreenState extends State<ProductScreen> {
   }
 
   Widget _buildPriceAndButtonSection(ProductModel product, bool isLightMode) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        AppButton(
-          onTap: () {},
-          text: 'افزودن به سبد خرید',
-          color: AppColors.primary,
-          width: SizeConfig.screenWidth * 0.6,
-          is_icon: true,
-          fontSize: SizeConfig.getProportionateFontSize(13),
-        ),
-        Column(
+    return Consumer<CartRepository>(
+      builder: (context, cart, _) {
+        final totalPrice = _quantity * product.price;
+        final isLoading = _isAddingToCart;
+
+        return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'قیمت',
-              style: TextStyle(
-                color: isLightMode ? AppColors.grey600 : AppColors.grey400,
-                fontSize: SizeConfig.getProportionateFontSize(12),
-                fontWeight: FontWeight.w600,
+            if (_cartMessage != null) ...[
+              Padding(
+                padding: EdgeInsets.only(bottom: SizeConfig.getProportionateScreenHeight(12)),
+                child: AppAlertDialog(text: _cartMessage!, isError: _cartIsError),
               ),
-            ),
-            Text(
-              '${(_quantity * product.price).toString().priceFormatter} ریال'.farsiNumber,
-              style: TextStyle(
-                color: isLightMode ? AppColors.grey900 : AppColors.white,
-                fontSize: SizeConfig.getProportionateFontSize(14),
-                fontWeight: FontWeight.w700,
-              ),
+            ],
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                isLoading
+                    ? SizedBox(
+                        width: SizeConfig.screenWidth * 0.6,
+                        height: SizeConfig.getProportionateScreenHeight(48),
+                        child: const Center(child: AppProgressBarIndicator()),
+                      )
+                    : AppButton(
+                        onTap: () async {
+                          setState(() {
+                            _cartMessage = null;
+                            _cartIsError = false;
+                            _isAddingToCart = true;
+                          });
+
+                          final startedAt = DateTime.now();
+
+                          await context.read<CartRepository>().addToCart(
+                            product,
+                            quantity: _quantity,
+                          );
+
+                          if (!mounted) return;
+
+                          final cartRepo = context.read<CartRepository>();
+
+                          final elapsed = DateTime.now().difference(startedAt);
+                          const minDuration = Duration(seconds: 1);
+                          if (elapsed < minDuration) {
+                            await Future.delayed(minDuration - elapsed);
+                          }
+
+                          if (!mounted) return;
+
+                          if (cartRepo.error != null) {
+                            _showCartMessage(cartRepo.error!, isError: true);
+                          } else {
+                            _showCartMessage('محصول به سبد خرید اضافه شد.');
+                          }
+
+                          setState(() {
+                            _isAddingToCart = false;
+                          });
+                        },
+                        text: 'افزودن به سبد خرید',
+                        color: AppColors.primary,
+                        width: SizeConfig.screenWidth * 0.6,
+                        is_icon: true,
+                        fontSize: SizeConfig.getProportionateFontSize(13),
+                      ),
+
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'قیمت',
+                      style: TextStyle(
+                        color: isLightMode ? AppColors.grey600 : AppColors.grey400,
+                        fontSize: SizeConfig.getProportionateFontSize(12),
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    Text(
+                      '${totalPrice.toString().priceFormatter} ریال'.farsiNumber,
+                      style: TextStyle(
+                        color: isLightMode ? AppColors.grey900 : AppColors.white,
+                        fontSize: SizeConfig.getProportionateFontSize(14),
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
             ),
           ],
-        ),
-      ],
+        );
+      },
     );
   }
 
@@ -212,7 +279,7 @@ class _ProductScreenState extends State<ProductScreen> {
     return Container(
       padding: EdgeInsets.symmetric(
         horizontal: SizeConfig.getProportionateScreenWidth(24),
-        vertical: SizeConfig.getProportionateScreenWidth(24),
+        vertical: SizeConfig.getProportionateScreenWidth(12),
       ),
       width: double.infinity,
       decoration: BoxDecoration(
@@ -257,11 +324,11 @@ class _ProductScreenState extends State<ProductScreen> {
                     ],
                   ),
 
-                  Gap(SizeConfig.getProportionateScreenHeight(20)),
+                  Gap(SizeConfig.getProportionateScreenHeight(16)),
 
                   _buildRatingAndSales(product, isLightMode),
 
-                  Gap(SizeConfig.getProportionateScreenHeight(20)),
+                  Gap(SizeConfig.getProportionateScreenHeight(16)),
                   Divider(color: AppColors.grey200, thickness: 2),
                   Gap(SizeConfig.getProportionateScreenHeight(10)),
 
@@ -303,18 +370,23 @@ class _ProductScreenState extends State<ProductScreen> {
           ),
         ),
         Container(
-          width: SizeConfig.getProportionateScreenWidth(138),
-          height: SizeConfig.getProportionateScreenHeight(48),
+          width: SizeConfig.getProportionateScreenWidth(128),
+          height: SizeConfig.getProportionateScreenHeight(40),
           decoration: BoxDecoration(
             color: isLightMode ? AppColors.bgSilver1 : AppColors.dark3,
-            borderRadius: BorderRadius.circular(100),
+            borderRadius: BorderRadius.all(Radius.circular(25)),
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               IconButton(
                 onPressed: _decrementQuantity,
-                icon: Icon(Icons.remove, size: 24, color: AppColors.primary),
+                icon: Icon(
+                  Icons.remove,
+                  size: 24,
+                  color: AppColors.primary,
+                  fontWeight: FontWeight.w900,
+                ),
               ),
               Container(
                 width: 40,
@@ -322,7 +394,7 @@ class _ProductScreenState extends State<ProductScreen> {
                   child: Text(
                     _quantity.toString().farsiNumber,
                     style: TextStyle(
-                      fontWeight: FontWeight.w700,
+                      fontWeight: FontWeight.w900,
                       color: AppColors.primary,
                       fontSize: SizeConfig.getProportionateFontSize(20),
                     ),
@@ -331,7 +403,12 @@ class _ProductScreenState extends State<ProductScreen> {
               ),
               IconButton(
                 onPressed: _incrementQuantity,
-                icon: Icon(Icons.add, size: 24, color: AppColors.primary),
+                icon: Icon(
+                  Icons.add,
+                  size: 24,
+                  color: AppColors.primary,
+                  fontWeight: FontWeight.w900,
+                ),
               ),
             ],
           ),
@@ -459,6 +536,20 @@ class _ProductScreenState extends State<ProductScreen> {
   Future<ProductModel?> _loadProduct() async {
     final shopRepository = context.read<ShopRepository>();
     return await shopRepository.getProduct(widget.productId);
+  }
+
+  void _showCartMessage(String message, {bool isError = false}) {
+    setState(() {
+      _cartMessage = message;
+      _cartIsError = isError;
+    });
+
+    Future.delayed(const Duration(seconds: 5), () {
+      if (!mounted) return;
+      setState(() {
+        _cartMessage = null;
+      });
+    });
   }
 
   void _showDescriptionModal(BuildContext context, String description) {
