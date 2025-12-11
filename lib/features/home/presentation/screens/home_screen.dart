@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../../../../core/utils/size_config.dart';
 import '../../../../core/widgets/shimmer/home_screen_shimmer.dart';
-import '../../../../core/widgets/shimmer/product_grid_shimmer.dart';
+import '../../../../core/widgets/shimmer/product/product_grid_shimmer.dart';
 import '../../../product/data/repositories/product_repository.dart';
 import '../widgets/custom_category_bar.dart';
 import '../../../product/presentation/widgets/product_grid.dart';
@@ -27,12 +27,11 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   final FocusNode _focusNode = FocusNode();
 
-  bool _isFocused = false;
-
+  bool _isCategoryChanging = false;
   bool _isCheckingInternet = true;
+  bool _isFocused = false;
   bool _isOnline = true;
   bool _showShimmer = true;
-  bool _isCategoryChanging = false;
 
   @override
   void dispose() {
@@ -49,17 +48,6 @@ class _HomeScreenState extends State<HomeScreen> {
         _isFocused = _focusNode.hasFocus;
       });
     });
-  }
-
-  Future<void> _initializeApp() async {
-    await Future.delayed(Duration(seconds: 2));
-
-    if (mounted) {
-      setState(() {
-        _showShimmer = false;
-      });
-      await _checkInternetConnection();
-    }
   }
 
   Future<void> _checkInternetConnection() async {
@@ -90,6 +78,17 @@ class _HomeScreenState extends State<HomeScreen> {
           _isCheckingInternet = false;
         });
       }
+    }
+  }
+
+  Future<void> _initializeApp() async {
+    await Future.delayed(Duration(seconds: 2));
+
+    if (mounted) {
+      setState(() {
+        _showShimmer = false;
+      });
+      await _checkInternetConnection();
     }
   }
 

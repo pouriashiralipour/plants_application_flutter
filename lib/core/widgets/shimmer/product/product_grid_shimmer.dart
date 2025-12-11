@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shimmer/shimmer.dart';
 
-import '../../utils/size_config.dart';
+import '../../../utils/size_config.dart';
 
 class ProductGridShimmer extends StatelessWidget {
   final bool isLightMode;

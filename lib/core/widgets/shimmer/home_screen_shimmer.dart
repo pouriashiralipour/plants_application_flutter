@@ -6,7 +6,7 @@ import 'custom_search_bar_shimmer.dart';
 import 'custom_title_bar_shimmer.dart';
 import 'special_offer_shimmer.dart';
 import 'custom_category_bar_shimmer.dart';
-import 'product_grid_shimmer.dart';
+import 'product/product_grid_shimmer.dart';
 
 class HomeScreenShimmer extends StatelessWidget {
   final bool isLightMode;

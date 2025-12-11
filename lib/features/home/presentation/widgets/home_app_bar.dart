@@ -8,6 +8,7 @@ import '../../../auth/data/repositories/auth_repository.dart';
 import '../../../../core/config/app_constants.dart';
 
 import '../../../../core/widgets/app_logo.dart';
+import '../../../wishlist/presentation/screens/wishlist_screen.dart';
 
 class CustomAppBar extends StatefulWidget {
   const CustomAppBar({super.key, required this.isLightMode});
@@ -44,11 +45,16 @@ class _CustomAppBarState extends State<CustomAppBar> {
                   color: widget.isLightMode ? AppColors.grey900 : AppColors.white,
                 ),
                 SizedBox(width: SizeConfig.getProportionateScreenWidth(16)),
-                SvgPicture.asset(
-                  'assets/images/icons/Heart.svg',
-                  height: SizeConfig.getProportionateScreenWidth(24),
-                  width: SizeConfig.getProportionateScreenWidth(24),
-                  color: widget.isLightMode ? AppColors.grey900 : AppColors.white,
+                IconButton(
+                  onPressed: () {
+                    Navigator.of(context).push(MaterialPageRoute(builder: (_) => WishlistScreen()));
+                  },
+                  icon: SvgPicture.asset(
+                    'assets/images/icons/Heart.svg',
+                    height: SizeConfig.getProportionateScreenWidth(24),
+                    width: SizeConfig.getProportionateScreenWidth(24),
+                    color: widget.isLightMode ? AppColors.grey900 : AppColors.white,
+                  ),
                 ),
               ],
             ),
@@ -113,11 +119,16 @@ class _CustomAppBarState extends State<CustomAppBar> {
                 color: widget.isLightMode ? AppColors.grey900 : AppColors.white,
               ),
               SizedBox(width: SizeConfig.getProportionateScreenWidth(16)),
-              SvgPicture.asset(
-                'assets/images/icons/Heart.svg',
-                height: SizeConfig.getProportionateScreenWidth(24),
-                width: SizeConfig.getProportionateScreenWidth(24),
-                color: widget.isLightMode ? AppColors.grey900 : AppColors.white,
+              IconButton(
+                onPressed: () {
+                  Navigator.of(context).push(MaterialPageRoute(builder: (_) => WishlistScreen()));
+                },
+                icon: SvgPicture.asset(
+                  'assets/images/icons/Heart.svg',
+                  height: SizeConfig.getProportionateScreenWidth(24),
+                  width: SizeConfig.getProportionateScreenWidth(24),
+                  color: widget.isLightMode ? AppColors.grey900 : AppColors.white,
+                ),
               ),
             ],
           ),
