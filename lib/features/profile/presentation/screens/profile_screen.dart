@@ -334,7 +334,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 CustomListTile(
                   title: 'خروج',
                   onTap: () async {
-                    await showLogoutSheet(context);
+                    await showLogoutSheet(context, isLightMode);
                   },
                   leadingIcon: 'assets/images/icons/LogoutCurve.svg',
                   isLogout: true,
@@ -348,13 +348,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 }
 
-Future<void> showLogoutSheet(BuildContext rootContext) {
+Future<void> showLogoutSheet(BuildContext rootContext, bool isLightMode) {
   return showModalBottomSheet(
     context: rootContext,
     isScrollControlled: false,
     useSafeArea: true,
     isDismissible: true,
-    backgroundColor: AppColors.white,
+    backgroundColor: isLightMode ? AppColors.white : AppColors.dark2,
     barrierColor: AppColors.black.withOpacity(0.6), // ⬅️ withOpacity
     shape: const RoundedRectangleBorder(
       borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
@@ -418,7 +418,7 @@ Future<void> showLogoutSheet(BuildContext rootContext) {
                     'آیا می خواهید از برنامه خارج شوید ؟',
                     textAlign: TextAlign.center,
                     style: TextStyle(
-                      color: AppColors.grey800,
+                      color: isLightMode ? AppColors.grey800 : AppColors.white,
                       fontSize: SizeConfig.getProportionateFontSize(18),
                       fontWeight: FontWeight.w700,
                     ),
@@ -444,8 +444,8 @@ Future<void> showLogoutSheet(BuildContext rootContext) {
                             Navigator.pop(rootContext);
                           },
                           text: 'خیر',
-                          textColor: AppColors.primary,
-                          color: AppColors.primary.withOpacity(0.1),
+                          textColor: isLightMode ? AppColors.primary : AppColors.white,
+                          color: isLightMode ? AppColors.primary.withOpacity(0.1) : AppColors.dark3,
                           width: SizeConfig.getProportionateScreenWidth(184),
                           isShadow: false,
                           fontSize: SizeConfig.getProportionateFontSize(16),
