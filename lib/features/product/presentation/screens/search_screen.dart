@@ -407,7 +407,12 @@ class _SearchScreenState extends State<SearchScreen> {
                         )
                       : products.isEmpty
                       ? _buildNotFound(isLightMode)
-                      : ProductGrid(shopRepository: shopRepository, isLightMode: isLightMode),
+                      : SingleChildScrollView(
+                          child: ProductGrid(
+                            shopRepository: shopRepository,
+                            isLightMode: isLightMode,
+                          ),
+                        ),
                 ),
               ],
             ),

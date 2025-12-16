@@ -18,8 +18,8 @@ class SearchFilterResult {
   });
 
   final String? category;
-  final int? minPrice;
   final int? maxPrice;
+  final int? minPrice;
   final int? rating;
   final SearchSortOption sortOption;
 }
@@ -36,27 +36,28 @@ class SearchFilterSheet extends StatefulWidget {
     required this.initialSortOption,
   });
 
-  final bool isLightMode;
   final List<String> categories;
   final String? initialCategory;
-  final int? initialMinPrice;
   final int? initialMaxPrice;
+  final int? initialMinPrice;
   final int? initialRating;
   final SearchSortOption initialSortOption;
+  final bool isLightMode;
 
   @override
   State<SearchFilterSheet> createState() => _SearchFilterSheetState();
 }
 
 class _SearchFilterSheetState extends State<SearchFilterSheet> {
-  static const int _minPrice = 0;
-  static const int _maxPrice = 100000000;
   static const List<double> _barHeights = <double>[18, 32, 26, 40, 30, 36, 22, 28, 20, 34, 26, 30];
+  static const int _maxPrice = 100000000;
+  static const int _minPrice = 0;
 
   late RangeValues _priceRange;
+  late SearchSortOption _sortOption;
+
   late String? _selectedCategory;
   late int? _selectedRating;
-  late SearchSortOption _sortOption;
 
   @override
   void initState() {
@@ -68,27 +69,6 @@ class _SearchFilterSheetState extends State<SearchFilterSheet> {
     final double start = (widget.initialMinPrice ?? _minPrice).toDouble();
     final double end = (widget.initialMaxPrice ?? _maxPrice).toDouble();
     _priceRange = RangeValues(start, end);
-  }
-
-  void _reset() {
-    setState(() {
-      _selectedCategory = null;
-      _selectedRating = null;
-      _sortOption = SearchSortOption.popular;
-      _priceRange = RangeValues(_minPrice.toDouble(), _maxPrice.toDouble());
-    });
-  }
-
-  Widget _buildSectionTitle(String title) {
-    return Text(
-      title,
-      textAlign: TextAlign.right,
-      style: TextStyle(
-        fontSize: SizeConfig.getProportionateFontSize(14),
-        fontWeight: FontWeight.w700,
-        color: widget.isLightMode ? AppColors.grey900 : AppColors.white,
-      ),
-    );
   }
 
   Widget _buildPriceHistogramBackground(bool isLightMode) {
@@ -117,6 +97,27 @@ class _SearchFilterSheetState extends State<SearchFilterSheet> {
         }),
       ),
     );
+  }
+
+  Widget _buildSectionTitle(String title) {
+    return Text(
+      title,
+      textAlign: TextAlign.right,
+      style: TextStyle(
+        fontSize: SizeConfig.getProportionateFontSize(14),
+        fontWeight: FontWeight.w700,
+        color: widget.isLightMode ? AppColors.grey900 : AppColors.white,
+      ),
+    );
+  }
+
+  void _reset() {
+    setState(() {
+      _selectedCategory = null;
+      _selectedRating = null;
+      _sortOption = SearchSortOption.popular;
+      _priceRange = RangeValues(_minPrice.toDouble(), _maxPrice.toDouble());
+    });
   }
 
   @override
@@ -171,9 +172,9 @@ class _SearchFilterSheetState extends State<SearchFilterSheet> {
                 thickness: 1,
                 height: SizeConfig.getProportionateScreenHeight(16),
               ),
-
+              Gap(SizeConfig.getProportionateScreenHeight(12)),
               _buildSectionTitle('دسته‌بندی‌ها'),
-              Gap(SizeConfig.getProportionateScreenHeight(8)),
+              Gap(SizeConfig.getProportionateScreenHeight(12)),
               Wrap(
                 spacing: SizeConfig.getProportionateScreenWidth(8),
                 runSpacing: SizeConfig.getProportionateScreenHeight(8),
@@ -189,24 +190,21 @@ class _SearchFilterSheetState extends State<SearchFilterSheet> {
                     },
                   ),
                   ...widget.categories.map(
-                    (String c) => _CategoryChip(
-                      label: c,
-                      selected: _selectedCategory == c,
+                    (String cactegory) => _CategoryChip(
+                      label: cactegory,
+                      selected: _selectedCategory == cactegory,
                       isLightMode: isLightMode,
                       onTap: () {
                         setState(() {
-                          _selectedCategory = c;
+                          _selectedCategory = cactegory;
                         });
                       },
                     ),
                   ),
                 ],
               ),
-
               Gap(SizeConfig.getProportionateScreenHeight(24)),
-
               _buildSectionTitle('بازه قیمت'),
-              Gap(SizeConfig.getProportionateScreenHeight(8)),
               SizedBox(
                 height: SizeConfig.getProportionateScreenHeight(110),
                 child: Stack(
@@ -264,7 +262,7 @@ class _SearchFilterSheetState extends State<SearchFilterSheet> {
               Gap(SizeConfig.getProportionateScreenHeight(24)),
 
               _buildSectionTitle('مرتب‌سازی بر اساس'),
-              Gap(SizeConfig.getProportionateScreenHeight(8)),
+              Gap(SizeConfig.getProportionateScreenHeight(12)),
               Wrap(
                 spacing: SizeConfig.getProportionateScreenWidth(8),
                 runSpacing: SizeConfig.getProportionateScreenHeight(8),
@@ -331,15 +329,15 @@ class _SearchFilterSheetState extends State<SearchFilterSheet> {
                       });
                     },
                   ),
-                  ...[5, 4, 3, 2].map(
-                    (int r) => _RatingChip(
-                      label: '$r',
-                      stars: r,
-                      selected: _selectedRating == r,
+                  ...[5, 4, 3, 2, 1].map(
+                    (int rating) => _RatingChip(
+                      label: '$rating',
+                      stars: rating,
+                      selected: _selectedRating == rating,
                       isLightMode: isLightMode,
                       onTap: () {
                         setState(() {
-                          _selectedRating = r;
+                          _selectedRating = rating;
                         });
                       },
                     ),
@@ -362,7 +360,7 @@ class _SearchFilterSheetState extends State<SearchFilterSheet> {
                       fontSize: SizeConfig.getProportionateFontSize(13),
                     ),
                   ),
-                  Gap(SizeConfig.getProportionateScreenWidth(12)),
+                  SizedBox(width: 10),
                   Expanded(
                     child: AppButton(
                       width: 50,
@@ -401,10 +399,10 @@ class _CategoryChip extends StatelessWidget {
     required this.onTap,
   });
 
-  final String label;
-  final bool selected;
   final bool isLightMode;
+  final String label;
   final VoidCallback onTap;
+  final bool selected;
 
   @override
   Widget build(BuildContext context) {
@@ -418,18 +416,17 @@ class _CategoryChip extends StatelessWidget {
         ),
         decoration: BoxDecoration(
           color: selected
-              ? AppColors.primary.withValues(alpha: 0.1)
-              : (isLightMode ? AppColors.bgSilver1 : AppColors.dark3),
+              ? AppColors.primary
+              : (isLightMode ? AppColors.bgSilver1 : AppColors.dark2),
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: selected ? AppColors.primary : Colors.transparent),
+          border: Border.all(color: selected ? AppColors.primary : AppColors.primary),
         ),
         child: Text(
           label,
           style: TextStyle(
-            fontSize: SizeConfig.getProportionateFontSize(12),
-            color: selected
-                ? AppColors.primary
-                : (isLightMode ? AppColors.grey700 : AppColors.grey200),
+            fontWeight: FontWeight.bold,
+            fontSize: SizeConfig.getProportionateFontSize(14),
+            color: selected ? AppColors.white : AppColors.primary,
           ),
         ),
       ),
@@ -445,10 +442,10 @@ class _FilterChip extends StatelessWidget {
     required this.onTap,
   });
 
-  final String label;
-  final bool selected;
   final bool isLightMode;
+  final String label;
   final VoidCallback onTap;
+  final bool selected;
 
   @override
   Widget build(BuildContext context) {
@@ -461,16 +458,18 @@ class _FilterChip extends StatelessWidget {
           vertical: SizeConfig.getProportionateScreenHeight(6),
         ),
         decoration: BoxDecoration(
+          border: BoxBorder.all(color: AppColors.primary, width: 1),
           color: selected
               ? AppColors.primary
-              : (isLightMode ? AppColors.bgSilver1 : AppColors.dark3),
+              : (isLightMode ? AppColors.bgSilver1 : AppColors.dark2),
           borderRadius: BorderRadius.circular(20),
         ),
         child: Text(
           label,
           style: TextStyle(
-            fontSize: SizeConfig.getProportionateFontSize(12),
-            color: selected ? AppColors.white : AppColors.grey700,
+            fontSize: SizeConfig.getProportionateFontSize(14),
+            fontWeight: FontWeight.bold,
+            color: selected ? AppColors.white : AppColors.primary,
           ),
         ),
       ),
@@ -487,28 +486,32 @@ class _RatingChip extends StatelessWidget {
     required this.onTap,
   });
 
-  final String label;
-  final int? stars;
-  final bool selected;
   final bool isLightMode;
+  final String label;
   final VoidCallback onTap;
+  final bool selected;
+  final int? stars;
 
   @override
   Widget build(BuildContext context) {
     final Color bgColor = selected
         ? AppColors.primary
-        : (isLightMode ? AppColors.bgSilver1 : AppColors.dark3);
-    final Color textColor = selected ? AppColors.white : AppColors.grey700;
+        : (isLightMode ? AppColors.bgSilver1 : AppColors.dark2);
+    final Color textColor = selected ? AppColors.white : AppColors.primary;
 
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(20),
       child: Container(
         padding: EdgeInsets.symmetric(
-          horizontal: SizeConfig.getProportionateScreenWidth(12),
+          horizontal: SizeConfig.getProportionateScreenWidth(10),
           vertical: SizeConfig.getProportionateScreenHeight(6),
         ),
-        decoration: BoxDecoration(color: bgColor, borderRadius: BorderRadius.circular(20)),
+        decoration: BoxDecoration(
+          color: bgColor,
+          borderRadius: BorderRadius.circular(20),
+          border: BoxBorder.all(color: AppColors.primary),
+        ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -521,7 +524,7 @@ class _RatingChip extends StatelessWidget {
               SizedBox(width: SizeConfig.getProportionateScreenWidth(4)),
             ],
             Text(
-              label,
+              label.farsiNumber,
               style: TextStyle(
                 fontSize: SizeConfig.getProportionateFontSize(12),
                 color: textColor,
