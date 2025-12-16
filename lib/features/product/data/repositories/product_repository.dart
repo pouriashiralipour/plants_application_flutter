@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../reviews/data/models/review_model.dart';
 import '../datasources/product_remote_data_source.dart';
 import '../models/category_model.dart';
 import '../models/product_model.dart';
@@ -30,6 +31,32 @@ class ShopRepository extends ChangeNotifier {
   List<ProductModel> get products => _products;
   String? get selectedCategoryName => _selectedCategoryName;
 
+  Future<bool> addProductReview({
+    required String productId,
+    required int rating,
+    String? comment,
+  }) async {
+    try {
+      final result = await _api.addProductReview(
+        productId: productId,
+        rating: rating,
+        comment: comment,
+      );
+
+      if (!result.success) {
+        _error = result.error;
+        notifyListeners();
+        return false;
+      }
+
+      return true;
+    } catch (e) {
+      _error = 'ثبت دیدگاه ناموفق بود: $e';
+      notifyListeners();
+      return false;
+    }
+  }
+
   void clearError() {
     _error = null;
     notifyListeners();
@@ -51,6 +78,24 @@ class ShopRepository extends ChangeNotifier {
       return result.data;
     } catch (e) {
       return null;
+    }
+  }
+
+  Future<List<ReviewModel>> getProductReviews(String productId) async {
+    try {
+      final result = await _api.getProductReviews(productId);
+
+      if (!result.success) {
+        _error = result.error;
+        notifyListeners();
+        return [];
+      }
+
+      return result.data ?? [];
+    } catch (e) {
+      _error = 'خطا در دریافت دیدگاه‌ها: $e';
+      notifyListeners();
+      return [];
     }
   }
 

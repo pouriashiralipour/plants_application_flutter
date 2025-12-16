@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 
+import '../../../reviews/data/models/review_model.dart';
 import '../models/category_model.dart';
 import '../models/product_model.dart';
 import '../../../../core/config/app_constants.dart';
@@ -8,6 +9,54 @@ import '../../../../core/network/api_result.dart';
 
 class ShopApi {
   final Dio _dio = ApiClient.I.dio;
+
+  Future<ApiResult<ReviewModel>> addProductReview({
+    required String productId,
+    required int rating,
+    String? comment,
+  }) async {
+    try {
+      final url = '${UrlInfo.productsUrl}$productId/reviews/';
+
+      final payload = <String, dynamic>{'rating': rating};
+
+      if (comment != null && comment.trim().isNotEmpty) {
+        payload['comment'] = comment.trim();
+      }
+
+      final response = await _dio.post(url, data: payload);
+
+      if (response.statusCode == 201 || response.statusCode == 200) {
+        if (response.data is Map) {
+          final review = ReviewModel.fromJson(response.data as Map<String, dynamic>);
+
+          return ApiResult(true, data: review);
+        } else {
+          return ApiResult(false, error: 'فرمت پاسخ ثبت دیدگاه نامعتبر است.');
+        }
+      }
+
+      return ApiResult(
+        false,
+        error: extractErrorMessage(
+          status: response.statusCode,
+          data: response.data,
+          fallback: 'ثبت دیدگاه ناموفق بود',
+        ),
+      );
+    } on DioException catch (e) {
+      return ApiResult(
+        false,
+        error: extractErrorMessage(
+          status: e.response?.statusCode,
+          data: e.response?.data,
+          fallback: e.message,
+        ),
+      );
+    } catch (e) {
+      return ApiResult(false, error: 'خطای نامشخص در ثبت دیدگاه');
+    }
+  }
 
   Future<ApiResult<List<CategoryModel>>> getCategories() async {
     try {
@@ -73,6 +122,51 @@ class ShopApi {
           fallback: e.message,
         ),
       );
+    }
+  }
+
+  Future<ApiResult<List<ReviewModel>>> getProductReviews(String productId) async {
+    try {
+      final url = UrlInfo.productReview(productId);
+
+      final response = await _dio.get(url);
+
+      if (response.statusCode != 200) {
+        return ApiResult(
+          false,
+          error: extractErrorMessage(
+            status: response.statusCode,
+            data: response.data,
+            fallback: 'خطا در دریافت دیدگاه‌ها',
+          ),
+        );
+      }
+
+      final data = response.data;
+
+      List<dynamic> rawList;
+      if (data is List) {
+        rawList = data;
+      } else if (data is Map && data['results'] is List) {
+        rawList = data['results'] as List;
+      } else {
+        return ApiResult(false, error: 'فرمت پاسخ لیست دیدگاه‌ها نامعتبر است.');
+      }
+
+      final reviews = rawList.map((e) => ReviewModel.fromJson(e as Map<String, dynamic>)).toList();
+
+      return ApiResult(true, data: reviews);
+    } on DioException catch (e) {
+      return ApiResult(
+        false,
+        error: extractErrorMessage(
+          status: e.response?.statusCode,
+          data: e.response?.data,
+          fallback: e.message,
+        ),
+      );
+    } catch (e) {
+      return ApiResult(false, error: 'خطای نامشخص در دریافت دیدگاه‌ها');
     }
   }
 

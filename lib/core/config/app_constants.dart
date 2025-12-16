@@ -30,4 +30,6 @@ class UrlInfo {
   static String wishlistUrl = 'wishlists/';
 
   static String cartItemsUrl(String cartId) => 'carts/$cartId/items/';
+
+  static String productReview(String productId) => '${productsUrl}$productId/reviews/';
 }

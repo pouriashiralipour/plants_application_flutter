@@ -16,6 +16,7 @@ class ProductModel {
     required this.category,
     required this.images,
     this.mainImage,
+    required this.totalReviews,
   });
 
   factory ProductModel.fromJson(Map<String, dynamic> json) {
@@ -28,6 +29,7 @@ class ProductModel {
       isActive: json['is_active'] ?? true,
       averageRating: (json['average_rating'] as num?)?.toDouble() ?? 0.0,
       salesCount: (json['sales_count'] as num?)?.toInt() ?? 0,
+      totalReviews: (json['total_reviews'] as num?)?.toInt() ?? 0,
       category: CategoryModel.fromJson(json['category'] ?? {}),
       images: (json['images'] as List? ?? []).map((e) => ProductImageModel.fromJson(e)).toList(),
       mainImage: json['image'] ?? json['main_image'],
@@ -45,6 +47,7 @@ class ProductModel {
   final String name;
   final int price;
   final int salesCount;
+  final int totalReviews;
 
   int get displayPrice => price ~/ 10;
 
