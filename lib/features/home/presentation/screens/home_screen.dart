@@ -43,6 +43,11 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     _initializeApp();
+    Future.microtask(() async {
+      final repo = ShopRepository.I;
+      final result = await repo.searchProductsWithFilter(ordering: '-price');
+      debugPrint('SEARCH RESULT COUNT = ${result.length}');
+    });
     _focusNode.addListener(() {
       setState(() {
         _isFocused = _focusNode.hasFocus;

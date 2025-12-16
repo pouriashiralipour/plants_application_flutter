@@ -87,7 +87,6 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                       style: TextStyle(
                         fontSize: SizeConfig.getProportionateFontSize(36),
                         fontWeight: FontWeight.w900,
-                        fontFamily: 'Peyda',
                         color: Theme.of(context).brightness == Brightness.light
                             ? AppColors.grey900
                             : AppColors.white,
@@ -109,7 +108,6 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                       fontWeight: FontWeight.w900,
                       color: AppColors.green,
                       height: 1.3,
-                      fontFamily: 'Peyda',
                     ),
                   ),
                 ),

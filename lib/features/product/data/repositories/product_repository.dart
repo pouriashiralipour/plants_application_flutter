@@ -105,6 +105,9 @@ class ShopRepository extends ChangeNotifier {
     String? search,
     String? category,
     String? ordering,
+    int? priceMin,
+    int? priceMax,
+    int? rating,
     bool forceRefresh = false,
   }) async {
     if (_isLoading) return;
@@ -114,7 +117,12 @@ class ShopRepository extends ChangeNotifier {
     notifyListeners();
 
     try {
-      if (!forceRefresh && category == null && search == null) {
+      if (!forceRefresh &&
+          category == null &&
+          search == null &&
+          priceMin == null &&
+          priceMax == null &&
+          rating == null) {
         final cachedProducts = await _storage.getCachedProducts();
         if (cachedProducts != null) {
           _products = cachedProducts;
@@ -124,12 +132,23 @@ class ShopRepository extends ChangeNotifier {
         }
       }
 
-      final result = await _api.getProducts(search: search, category: category, ordering: ordering);
+      final result = await _api.getProducts(
+        search: search,
+        category: category,
+        ordering: ordering,
+        priceMin: priceMin,
+        priceMax: priceMax,
+        rating: rating,
+      );
 
       if (result.success && result.data != null) {
         _products = result.data!;
 
-        if (category == null && search == null) {
+        if (category == null &&
+            search == null &&
+            priceMin == null &&
+            priceMax == null &&
+            rating == null) {
           _allProducts = List.from(_products);
           await _storage.cacheProducts(_products);
         }
@@ -150,8 +169,26 @@ class ShopRepository extends ChangeNotifier {
   }
 
   Future<List<ProductModel>> searchProducts(String query) async {
+    return searchProductsWithFilter(query: query);
+  }
+
+  Future<List<ProductModel>> searchProductsWithFilter({
+    String? query,
+    String? category,
+    int? priceMin,
+    int? priceMax,
+    int? rating,
+    String? ordering,
+  }) async {
     try {
-      final result = await _api.getProducts(search: query);
+      final result = await _api.getProducts(
+        search: query,
+        category: category,
+        priceMin: priceMin,
+        priceMax: priceMax,
+        rating: rating,
+        ordering: ordering,
+      );
       return result.data ?? [];
     } catch (e) {
       return [];

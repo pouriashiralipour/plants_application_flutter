@@ -97,7 +97,6 @@ class _OnBoardingState extends State<OnBoarding> {
                                 ? AppColors.grey900
                                 : AppColors.white,
                             fontWeight: FontWeight.w800,
-                            fontFamily: 'Peyda',
                             fontSize: SizeConfig.getProportionateScreenWidth(21),
                           ),
                         ),
@@ -186,7 +185,6 @@ class _OnBoardingState extends State<OnBoarding> {
                             style: TextStyle(
                               color: AppColors.white,
                               fontSize: SizeConfig.getProportionateScreenWidth(18),
-                              fontFamily: 'Peyda',
                               fontWeight: FontWeight.w700,
                             ),
                           ),

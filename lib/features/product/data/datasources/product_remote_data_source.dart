@@ -81,14 +81,33 @@ class ShopApi {
     String? category,
     String? ordering,
     int? page,
+    int? priceMin,
+    int? priceMax,
+    int? rating,
   }) async {
     try {
       final Map<String, dynamic> queryParams = {};
-      if (search != null) queryParams['search'] = search;
-      if (category != null) queryParams['category'] = category;
 
-      if (ordering != null) queryParams['ordering'] = ordering;
+      if (search != null && search.isNotEmpty) {
+        queryParams['search'] = search;
+      }
+
+      if (category != null && category.isNotEmpty) {
+        queryParams['category'] = category;
+      }
+
+      if (ordering != null && ordering.isNotEmpty) {
+        queryParams['ordering'] = ordering;
+      }
+
       if (page != null) queryParams['page'] = page;
+
+      if (priceMin != null) queryParams['price_min'] = priceMin;
+      if (priceMax != null) queryParams['price_max'] = priceMax;
+
+      if (rating != null && rating > 0) {
+        queryParams['rating'] = rating;
+      }
 
       final response = await _dio.get(
         UrlInfo.productsUrl,
