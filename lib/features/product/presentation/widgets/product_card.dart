@@ -173,7 +173,7 @@ class ProductCard extends StatelessWidget {
                 left: SizeConfig.getProportionateScreenWidth(10),
               ),
               child: Text(
-                '${product.price.toString().priceFormatter} ریال'.farsiNumber,
+                product.formattedDisplayPrice,
                 style: TextStyle(
                   color: AppColors.primary,
                   fontSize: SizeConfig.getProportionateFontSize(textSize),

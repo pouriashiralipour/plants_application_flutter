@@ -1,4 +1,5 @@
-
+import '../../../../core/utils/persian_number.dart';
+import '../../../../core/utils/price_formatter.dart';
 import 'category_model.dart';
 import 'product_images_model.dart';
 
@@ -44,6 +45,10 @@ class ProductModel {
   final String name;
   final int price;
   final int salesCount;
+
+  int get displayPrice => price ~/ 10;
+
+  String get formattedDisplayPrice => '${displayPrice.toString().priceFormatter} تومان'.farsiNumber;
 
   Map<String, dynamic> toJson() {
     return {

@@ -98,7 +98,7 @@ class CartScreen extends StatelessWidget {
                 },
               ),
             ),
-            CartSummaryBar(totalPrice: cart.totalPrice, isLightMode: isLightMode),
+            CartSummaryBar(totalPrice: cart.displaytotalPrice, isLightMode: isLightMode),
           ],
         ),
       ),

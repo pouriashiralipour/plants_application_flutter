@@ -1,3 +1,6 @@
+import '../../../../core/utils/persian_number.dart';
+import '../../../../core/utils/price_formatter.dart';
+
 class CartProductModel {
   const CartProductModel({
     required this.id,
@@ -10,6 +13,10 @@ class CartProductModel {
   final String name;
   final int price;
   final String image;
+
+  int get displayPrice => price ~/ 10;
+
+  String get formattedDisplayPrice => '${displayPrice.toString().priceFormatter} تومان'.farsiNumber;
 
   factory CartProductModel.fromJson(Map<String, dynamic> json) {
     return CartProductModel(
@@ -60,6 +67,8 @@ class CartModel {
   final String id;
   final List<CartItemModel> items;
   final int totalPrice;
+
+  int get displaytotalPrice => totalPrice ~/ 10;
 
   factory CartModel.fromJson(Map<String, dynamic> json) {
     return CartModel(

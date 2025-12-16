@@ -51,7 +51,7 @@ class CartSummaryBar extends StatelessWidget {
                   ),
                   Gap(SizeConfig.getProportionateScreenHeight(4)),
                   Text(
-                    '${totalPrice.toString().priceFormatter} ریال'.farsiNumber,
+                    '${totalPrice.toString().priceFormatter} تومان'.farsiNumber,
                     style: TextStyle(
                       fontSize: SizeConfig.getProportionateFontSize(16),
                       fontWeight: FontWeight.w700,

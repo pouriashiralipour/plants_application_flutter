@@ -174,7 +174,7 @@ class _ProductScreenState extends State<ProductScreen> {
   Widget _buildPriceAndButtonSection(ProductModel product, bool isLightMode) {
     return Consumer<CartRepository>(
       builder: (context, cart, _) {
-        final totalPrice = _quantity * product.price;
+        final totalPrice = _quantity * product.displayPrice;
         final isLoading = _isAddingToCart;
 
         return Column(
@@ -252,7 +252,7 @@ class _ProductScreenState extends State<ProductScreen> {
                       ),
                     ),
                     Text(
-                      '${totalPrice.toString().priceFormatter} ریال'.farsiNumber,
+                      '${totalPrice.toString().priceFormatter} تومان'.farsiNumber,
                       style: TextStyle(
                         color: isLightMode ? AppColors.grey900 : AppColors.white,
                         fontSize: SizeConfig.getProportionateFontSize(14),

@@ -5,6 +5,7 @@ import '../../../../core/utils/size_config.dart';
 import '../../../../core/widgets/shimmer/home_screen_shimmer.dart';
 import '../../../../core/widgets/shimmer/product/product_grid_shimmer.dart';
 import '../../../product/data/repositories/product_repository.dart';
+import '../../../product/presentation/screens/search_screen.dart';
 import '../widgets/custom_category_bar.dart';
 import '../../../product/presentation/widgets/product_grid.dart';
 import '../widgets/home_app_bar.dart';
@@ -43,11 +44,6 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     _initializeApp();
-    Future.microtask(() async {
-      final repo = ShopRepository.I;
-      final result = await repo.searchProductsWithFilter(ordering: '-price');
-      debugPrint('SEARCH RESULT COUNT = ${result.length}');
-    });
     _focusNode.addListener(() {
       setState(() {
         _isFocused = _focusNode.hasFocus;
@@ -158,9 +154,17 @@ class _HomeScreenState extends State<HomeScreen> {
                 CustomAppBar(isLightMode: isLightMode),
                 SizedBox(height: SizeConfig.getProportionateScreenHeight(20)),
                 AppSearchBar(
+                  filterOnTap: () {},
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const SearchScreen()),
+                    );
+                  },
                   focusNode: _focusNode,
                   isLightMode: isLightMode,
                   isFocused: _isFocused,
+                  readOnly: true,
                 ),
                 SizedBox(height: SizeConfig.getProportionateScreenHeight(20)),
                 if (shopRepository.error != null)

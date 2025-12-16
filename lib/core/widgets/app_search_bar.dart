@@ -10,11 +10,24 @@ class AppSearchBar extends StatelessWidget {
     required FocusNode focusNode,
     required this.isLightMode,
     required bool isFocused,
+    required this.onTap,
+    required this.filterOnTap,
+    this.controller,
+    this.onSubmitted,
+    this.onChanged,
+    required this.readOnly,
   }) : _focusNode = focusNode,
        _isFocused = isFocused;
 
-  final FocusNode _focusNode;
+  final TextEditingController? controller;
   final bool isLightMode;
+  final ValueChanged<String>? onChanged;
+  final VoidCallback filterOnTap;
+  final ValueChanged<String>? onSubmitted;
+  final VoidCallback onTap;
+  final bool readOnly;
+
+  final FocusNode _focusNode;
   final bool _isFocused;
 
   @override
@@ -22,7 +35,13 @@ class AppSearchBar extends StatelessWidget {
     return Container(
       margin: EdgeInsets.symmetric(horizontal: SizeConfig.getProportionateScreenWidth(24)),
       child: TextFormField(
+        onTap: onTap,
         focusNode: _focusNode,
+        controller: controller,
+        readOnly: readOnly,
+        textInputAction: TextInputAction.search,
+        onFieldSubmitted: onSubmitted,
+        onChanged: onChanged,
         style: TextStyle(
           color: isLightMode ? AppColors.grey900 : AppColors.white,
           fontWeight: FontWeight.w600,
@@ -58,13 +77,16 @@ class AppSearchBar extends StatelessWidget {
           suffixIcon: SizedBox(
             width: SizeConfig.getProportionateScreenWidth(60),
             child: Center(
-              child: SvgPicture.asset(
-                _isFocused
-                    ? 'assets/images/icons/Filter_fill.svg'
-                    : 'assets/images/icons/Filter.svg',
-                width: SizeConfig.getProportionateScreenWidth(20),
-                height: SizeConfig.getProportionateScreenWidth(20),
-                color: AppColors.primary,
+              child: IconButton(
+                icon: SvgPicture.asset(
+                  _isFocused
+                      ? 'assets/images/icons/Filter_fill.svg'
+                      : 'assets/images/icons/Filter.svg',
+                  width: SizeConfig.getProportionateScreenWidth(20),
+                  height: SizeConfig.getProportionateScreenWidth(20),
+                  color: AppColors.primary,
+                ),
+                onPressed: filterOnTap,
               ),
             ),
           ),

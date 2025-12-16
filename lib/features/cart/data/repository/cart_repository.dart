@@ -27,7 +27,7 @@ class CartRepository extends ChangeNotifier {
   bool get isLoading => _isLoading;
   List<CartItemModel> get items => _cart?.items ?? const [];
   int get totalItems => items.fold<int>(0, (sum, item) => sum + item.quantity);
-  int get totalPrice => _cart?.totalPrice ?? 0;
+  int get displaytotalPrice => _cart?.displaytotalPrice ?? 0;
 
   Future<void> addToCart(ProductModel product, {int quantity = 1}) async {
     _error = null;

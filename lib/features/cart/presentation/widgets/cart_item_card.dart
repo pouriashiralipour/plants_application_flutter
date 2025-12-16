@@ -29,7 +29,7 @@ class CartItemCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final product = item.product;
-
+    final totalPrice = item.quantity * product.displayPrice;
     return Container(
       padding: EdgeInsets.all(SizeConfig.getProportionateScreenWidth(15)),
       decoration: BoxDecoration(
@@ -79,7 +79,7 @@ class CartItemCard extends StatelessWidget {
                 ),
                 Gap(SizeConfig.getProportionateScreenHeight(4)),
                 Text(
-                  '${product.price.toString().priceFormatter} ریال'.farsiNumber,
+                  '${totalPrice.toString().priceFormatter} تومان'.farsiNumber,
                   style: TextStyle(
                     fontSize: SizeConfig.getProportionateFontSize(14),
                     fontWeight: FontWeight.w900,
