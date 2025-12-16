@@ -32,4 +32,6 @@ class UrlInfo {
   static String cartItemsUrl(String cartId) => 'carts/$cartId/items/';
 
   static String productReview(String productId) => '${productsUrl}$productId/reviews/';
+  static String productReviewLike(String productId, String reviewId) =>
+      '${productReview(productId)}$reviewId/like/';
 }

@@ -43,7 +43,7 @@ class ReviewModel {
       comment: json['comment']?.toString(),
       likesCount: (json['likes_count'] as num?)?.toInt() ?? 0,
       createdAt: DateTime.tryParse(json['created_at']?.toString() ?? '') ?? DateTime.now(),
-      isLikedByMe: (json['is_liked_by_me'] as bool?) ?? (json['is_liked'] as bool?) ?? false,
+      isLikedByMe: (json['is_liked_by_me'] as bool?) ?? false,
     );
   }
 

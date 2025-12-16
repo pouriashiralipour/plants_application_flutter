@@ -170,6 +170,46 @@ class ShopApi {
     }
   }
 
+  Future<ApiResult<ReviewModel>> toggleReviewLike({
+    required String productId,
+    required String reviewId,
+  }) async {
+    try {
+      final url = UrlInfo.productReviewLike(productId, reviewId);
+
+      final response = await _dio.post(url);
+
+      if (response.statusCode == 200) {
+        if (response.data is Map) {
+          final review = ReviewModel.fromJson(response.data as Map<String, dynamic>);
+          return ApiResult(true, data: review);
+        } else {
+          return ApiResult(false, error: 'فرمت پاسخ لایک دیدگاه نامعتبر است.');
+        }
+      }
+
+      return ApiResult(
+        false,
+        error: extractErrorMessage(
+          status: response.statusCode,
+          data: response.data,
+          fallback: 'خطا در لایک/آن‌لایک دیدگاه',
+        ),
+      );
+    } on DioException catch (e) {
+      return ApiResult(
+        false,
+        error: extractErrorMessage(
+          status: e.response?.statusCode,
+          data: e.response?.data,
+          fallback: e.message,
+        ),
+      );
+    } catch (e) {
+      return ApiResult(false, error: 'خطای نامشخص در لایک/آن‌لایک دیدگاه');
+    }
+  }
+
   Future<ApiResult<List<ProductModel>>> getProducts({
     String? search,
     String? category,

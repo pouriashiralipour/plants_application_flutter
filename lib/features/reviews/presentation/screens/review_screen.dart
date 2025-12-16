@@ -33,7 +33,7 @@ class ReviewScreen extends StatefulWidget {
 class _ReviewScreenState extends State<ReviewScreen> {
   bool _isAdding = false;
   late Future<List<ReviewModel>> _reviewsFuture;
-
+  bool _isTogglingLike = false;
   String? _error;
   int? _ratingFilter;
 
@@ -41,6 +41,31 @@ class _ReviewScreenState extends State<ReviewScreen> {
   void initState() {
     super.initState();
     _reviewsFuture = _loadReviews();
+  }
+
+  Future<void> _handleToggleLike(ReviewModel review) async {
+    if (_isTogglingLike) return;
+
+    setState(() {
+      _isTogglingLike = true;
+    });
+
+    final repo = context.read<ShopRepository>();
+    final updated = await repo.toggleReviewLike(productId: widget.productId, review: review);
+
+    if (!mounted) return;
+
+    setState(() {
+      _isTogglingLike = false;
+    });
+
+    if (updated != null) {
+      setState(() {
+        _reviewsFuture = _loadReviews();
+      });
+    } else if (repo.error != null) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(repo.error!)));
+    }
   }
 
   Widget _buildRatingFilterChips(bool isLightMode) {
@@ -100,7 +125,11 @@ class _ReviewScreenState extends State<ReviewScreen> {
     );
   }
 
-  Widget _buildReviewItem(ReviewModel review, bool isLightMode) {
+  Widget _buildReviewItem(
+    ReviewModel review,
+    bool isLightMode, {
+    required VoidCallback onToggleLike,
+  }) {
     final name = review.user.fullName.isEmpty ? 'کاربر' : review.user.fullName;
     final likeText = review.likesCount.toString().priceFormatter.farsiNumber;
     final timeText = _formatRelativeTime(review.createdAt);
@@ -208,20 +237,27 @@ class _ReviewScreenState extends State<ReviewScreen> {
           Gap(SizeConfig.getProportionateScreenHeight(12)),
           Row(
             children: [
-              Text(
-                likeText,
-                style: TextStyle(
-                  fontSize: SizeConfig.getProportionateFontSize(14),
-                  fontWeight: FontWeight.w600,
-                  color: likeColor,
+              GestureDetector(
+                onTap: onToggleLike,
+                child: Row(
+                  children: [
+                    Text(
+                      likeText,
+                      style: TextStyle(
+                        fontSize: SizeConfig.getProportionateFontSize(14),
+                        fontWeight: FontWeight.w600,
+                        color: likeColor,
+                      ),
+                    ),
+                    SizedBox(width: SizeConfig.getProportionateScreenWidth(6)),
+                    SvgPicture.asset(
+                      'assets/images/icons/HeartBold.svg',
+                      color: likeColor,
+                      width: SizeConfig.getProportionateScreenWidth(18),
+                      height: SizeConfig.getProportionateScreenWidth(18),
+                    ),
+                  ],
                 ),
-              ),
-              SizedBox(width: SizeConfig.getProportionateScreenWidth(6)),
-              SvgPicture.asset(
-                'assets/images/icons/HeartBold.svg',
-                color: likeColor,
-                width: SizeConfig.getProportionateScreenWidth(18),
-                height: SizeConfig.getProportionateScreenWidth(18),
               ),
               SizedBox(width: SizeConfig.getProportionateScreenWidth(16)),
               Text(
@@ -537,8 +573,14 @@ class _ReviewScreenState extends State<ReviewScreen> {
                     child: ListView.separated(
                       itemCount: filtered.length,
                       separatorBuilder: (_, __) => Gap(SizeConfig.getProportionateScreenHeight(16)),
-                      itemBuilder: (context, index) =>
-                          _buildReviewItem(filtered[index], isLightMode),
+                      itemBuilder: (context, index) {
+                        final review = filtered[index];
+                        return _buildReviewItem(
+                          review,
+                          isLightMode,
+                          onToggleLike: () => _handleToggleLike(review),
+                        );
+                      },
                     ),
                   );
                 },

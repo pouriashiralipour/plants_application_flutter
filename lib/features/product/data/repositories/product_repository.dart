@@ -239,4 +239,25 @@ class ShopRepository extends ChangeNotifier {
       return [];
     }
   }
+
+  Future<ReviewModel?> toggleReviewLike({
+    required String productId,
+    required ReviewModel review,
+  }) async {
+    try {
+      final result = await _api.toggleReviewLike(productId: productId, reviewId: review.id);
+
+      if (!result.success) {
+        _error = result.error;
+        notifyListeners();
+        return null;
+      }
+
+      return result.data;
+    } catch (e) {
+      _error = 'خطا در لایک/آن‌لایک دیدگاه: $e';
+      notifyListeners();
+      return null;
+    }
+  }
 }
