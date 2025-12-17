@@ -3,6 +3,7 @@ import 'package:flutter_svg/svg.dart';
 
 import 'package:provider/provider.dart';
 
+import '../../../../core/services/app_message_controller.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/theme_repository.dart';
 import '../../../../core/utils/size_config.dart';
@@ -370,6 +371,8 @@ Future<void> showLogoutSheet(BuildContext rootContext, bool isLightMode) {
             await Future.delayed(const Duration(seconds: 2));
 
             await rootContext.read<AuthRepository>().logout();
+
+            context.read<AppMessageController>().showSuccess('خارج شدی');
 
             if (Navigator.of(sheetContext).canPop()) {
               Navigator.of(sheetContext).pop();

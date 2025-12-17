@@ -167,15 +167,6 @@ class _HomeScreenState extends State<HomeScreen> {
                   readOnly: true,
                 ),
                 SizedBox(height: SizeConfig.getProportionateScreenHeight(20)),
-                if (shopRepository.error != null)
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 16),
-                    child: Text(
-                      shopRepository.error!,
-                      style: TextStyle(color: Colors.red),
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
                 AppTitleBar(title: 'پیشنهاد ویژه'),
                 SizedBox(height: SizeConfig.getProportionateScreenHeight(20)),
                 SpecialOfferCard(isLightMode: isLightMode),
