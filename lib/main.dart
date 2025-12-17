@@ -4,7 +4,9 @@ import 'package:persian_datetime_picker/persian_datetime_picker.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 
+import 'core/services/app_message_controller.dart';
 import 'core/utils/size_config.dart';
+import 'core/widgets/app_toast_layer.dart';
 import 'features/cart/data/repository/cart_repository.dart';
 import 'features/splash/presentation/screens/splash_screen.dart';
 import 'features/auth/data/repositories/auth_repository.dart';
@@ -37,6 +39,8 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider<WishlistRepository>.value(value: WishlistRepository.I),
         ChangeNotifierProvider<CartRepository>.value(value: CartRepository.I),
         ChangeNotifierProvider<PasswordResetRepository>(create: (_) => PasswordResetRepository()),
+        ChangeNotifierProvider<AppMessageController>(create: (_) => AppMessageController()),
+
         Provider(create: (_) => ConnectivityService()),
       ],
       child: Consumer<ThemeRepository>(
@@ -59,6 +63,9 @@ class MyApp extends StatelessWidget {
                 theme: AppTheme.lightTheme,
                 darkTheme: AppTheme.darkTheme,
                 themeMode: theme.themeMode,
+                builder: (context, child) {
+                  return Stack(children: [if (child != null) child, const AppToastLayer()]);
+                },
                 home: SplashScreen(),
               );
             },
