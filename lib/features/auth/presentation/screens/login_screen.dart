@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../core/config/root_screen.dart';
+import '../../../../core/services/app_message_controller.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/iran_contact_validator.dart';
 import '../../../../core/utils/validators.dart';
@@ -87,12 +88,21 @@ class _LoginScreenState extends State<LoginScreen> {
 
     if (response.success && response.data != null) {
       await context.read<AuthRepository>().setTokens(response.data!.tokens);
+
       if (!mounted) return;
-      debugPrint('LOGIN: isAuthed = ${context.read<AuthRepository>().isAuthed}');
+
+      context.read<AppMessageController>().showSuccess(response.message ?? 'خوش برگشتی');
+
       setState(() => _isLoading = true);
       await Future.delayed(const Duration(seconds: 2));
       setState(() => _isLoading = false);
-      Navigator.push(context, MaterialPageRoute(builder: (context) => RootScreen()));
+
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (_) => RootScreen()),
+        (route) => false,
+      );
+      return;
     } else {
       setState(() => _serverErrorMessage = response.error ?? 'ورود ناموفق بود');
       _showServerError(_serverErrorMessage!);
