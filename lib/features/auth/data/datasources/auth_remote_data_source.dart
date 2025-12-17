@@ -18,6 +18,7 @@ class AuthApi {
         return ApiResult(
           true,
           data: AuthPayload.fromJson(response.data as Map),
+          message: extractServerMessage(response.data),
           status: response.statusCode,
           raw: response.data,
         );
@@ -53,7 +54,13 @@ class AuthApi {
         final payload = AuthPayload(
           tokens: AuthTokens(access: access!, refresh: refresh),
         );
-        return ApiResult(true, data: payload, status: 200, raw: response.data);
+        return ApiResult(
+          true,
+          data: payload,
+          status: 200,
+          raw: response.data,
+          message: extractServerMessage(response.data),
+        );
       }
       return ApiResult(
         false,
@@ -93,6 +100,7 @@ class AuthApi {
           data: response.data,
           fallback: 'درخواست نامعتبر بود',
         ),
+        message: extractServerMessage(response.data),
         status: response.statusCode,
         raw: response.data,
       );
@@ -119,6 +127,7 @@ class AuthApi {
           data: response.data,
           fallback: 'درخواست نامعتبر بود',
         ),
+        message: extractServerMessage(response.data),
         status: response.statusCode,
         raw: response.data,
       );
@@ -148,7 +157,8 @@ class AuthApi {
           if (confirmNewPassword != null) 'password_confirm': confirmNewPassword,
         },
       );
-      if (response.statusCode == 200 || response.statusCode == 204) return const ApiResult(true);
+      if (response.statusCode == 200 || response.statusCode == 204)
+        return ApiResult(true, message: extractServerMessage(response.data));
       return ApiResult(
         false,
         error: extractErrorMessage(data: response.data, fallback: 'تغییر پسورد ناموفق بود'),
@@ -170,6 +180,7 @@ class AuthApi {
           data: AuthPayload.fromJson(response.data as Map),
           status: response.statusCode,
           raw: response.data,
+          message: extractServerMessage(response.data),
         );
       }
       ;
@@ -200,6 +211,7 @@ class AuthApi {
       final response = await _dio.post(UrlInfo.passwordResetVerifyUrl, data: {'code': code});
       if (response.statusCode == 200) {
         return ApiResult(
+          message: extractServerMessage(response.data),
           true,
           data: ResetTokenPayload.fromJson(response.data as Map<String, dynamic>),
         );

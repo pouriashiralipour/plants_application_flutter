@@ -1,10 +1,19 @@
 class ApiResult<T> {
-  final bool success;
+  const ApiResult(this.success, {this.data, this.error, this.status, this.raw, this.message});
+
   final T? data;
   final String? error;
-  final int? status;
+  final String? message;
   final dynamic raw;
-  const ApiResult(this.success, {this.data, this.error, this.status, this.raw});
+  final int? status;
+  final bool success;
+}
+
+String? extractServerMessage(dynamic data) {
+  final t = _pickFirstValue(data, const ['message', 'detail', 'success']);
+  if (t == null) return null;
+  final s = t.trim();
+  return s.isEmpty ? null : s;
 }
 
 String extractErrorMessage({int? status, dynamic data, String? fallback}) {
