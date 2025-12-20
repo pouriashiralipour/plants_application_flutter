@@ -27,8 +27,8 @@ class AppDropDown extends StatefulWidget {
   final List<String> items;
   final String? label;
   final ValueChanged<String>? onChanged;
-  final FormFieldValidator<String>? validator;
   final bool showErrors;
+  final FormFieldValidator<String>? validator;
 
   @override
   State<AppDropDown> createState() => _AppDropDownState();
@@ -39,18 +39,17 @@ class _AppDropDownState extends State<AppDropDown> with SingleTickerProviderStat
     vsync: this,
     duration: const Duration(milliseconds: 200),
   );
+
+  late final TextEditingController _controller;
   late final Animation<double> _fade = CurvedAnimation(parent: _ac, curve: Curves.easeOut);
+  final GlobalKey _fieldKey = GlobalKey();
+  final LayerLink _layerLink = LayerLink();
   late final Animation<double> _scale = Tween(
     begin: 0.95,
     end: 1.0,
   ).animate(CurvedAnimation(parent: _ac, curve: Curves.easeOutCubic));
 
-  final GlobalKey _fieldKey = GlobalKey();
-  final LayerLink _layerLink = LayerLink();
-
-  late final TextEditingController _controller;
   late FocusNode _focusNode;
-
   bool _hasText = false;
   bool _isFocused = false;
   bool _open = false;
@@ -58,14 +57,39 @@ class _AppDropDownState extends State<AppDropDown> with SingleTickerProviderStat
   bool _showAbove = false;
 
   OverlayEntry? _entry;
+  MediaQueryData? _mq;
+  OverlayState? _overlayState;
 
-  bool get _isActive => _isFocused || _open;
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _overlayState ??= Overlay.of(context, rootOverlay: true);
+    _mq ??= MediaQuery.of(context);
+  }
+
+  @override
+  void dispose() {
+    _removeOverlay(immediate: true);
+    _focusNode.dispose();
+    _ac.dispose();
+    if (_ownController) _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  void deactivate() {
+    _removeOverlay(immediate: true);
+    super.deactivate();
+  }
 
   @override
   void initState() {
     super.initState();
     _focusNode = FocusNode();
-    _focusNode.addListener(() => setState(() => _isFocused = _focusNode.hasFocus));
+    _focusNode.addListener(() {
+      if (!mounted) return;
+      setState(() => _isFocused = _focusNode.hasFocus);
+    });
 
     if (widget.controller == null) {
       _controller = TextEditingController();
@@ -76,21 +100,7 @@ class _AppDropDownState extends State<AppDropDown> with SingleTickerProviderStat
     _hasText = _controller.text.isNotEmpty;
   }
 
-  @override
-  void dispose() {
-    _focusNode.dispose();
-    _removeOverlay();
-    _ac.dispose();
-    if (_ownController) _controller.dispose();
-    super.dispose();
-  }
-
-  Color _resolveFillColor(bool isLightMode, {required bool hasError}) {
-    if (hasError) return AppColors.error.withValues(alpha: 0.08);
-    final focusColor = AppColors.primary.withValues(alpha: 0.08);
-    if (_isActive) return focusColor;
-    return isLightMode ? AppColors.grey50 : AppColors.dark2;
-  }
+  bool get _isActive => _isFocused || _open;
 
   Color _iconColor({
     required bool isActive,
@@ -105,21 +115,55 @@ class _AppDropDownState extends State<AppDropDown> with SingleTickerProviderStat
         : (isLightMode ? AppColors.grey500 : AppColors.grey600);
   }
 
-  void _toggle(FormFieldState<String> field) => _open ? _removeOverlay() : _showOverlay(field);
+  void _removeOverlay({bool immediate = false}) {
+    final entry = _entry;
+    if (entry == null) return;
 
-  void _showOverlay(field) {
+    _entry = null;
+    _open = false;
+
+    if (immediate) {
+      _ac.stop();
+    } else {
+      _ac.reverse();
+    }
+
+    entry.remove();
+
+    if (mounted) {
+      setState(() {});
+    }
+  }
+
+  Color _resolveFillColor(bool isLightMode, {required bool hasError}) {
+    if (hasError) return AppColors.error.withValues(alpha: 0.08);
+    final focusColor = AppColors.primary.withValues(alpha: 0.08);
+    if (_isActive) return focusColor;
+    return isLightMode ? AppColors.grey50 : AppColors.dark2;
+  }
+
+  void _showOverlay(FormFieldState<String> field) {
+    if (!mounted) return;
     if (_entry != null) return;
 
-    final box = _fieldKey.currentContext!.findRenderObject() as RenderBox;
-    final Size size = box.size;
-    final Offset pos = box.localToGlobal(Offset.zero);
+    final fieldCtx = _fieldKey.currentContext;
+    if (fieldCtx == null) return;
+
+    final ro = fieldCtx.findRenderObject();
+    if (ro is! RenderBox || !ro.hasSize) return;
+
+    final Size size = ro.size;
+    final Offset pos = ro.localToGlobal(Offset.zero);
     final screenH = MediaQuery.of(context).size.height;
+
+    final mq = _mq;
+    if (mq == null) return;
 
     final desiredH = (widget.dropdownMaxHeight ?? 280) + 16;
     _showAbove = (screenH - (pos.dy + size.height)) < desiredH;
 
     _entry = OverlayEntry(
-      builder: (context) {
+      builder: (overlayContext) {
         final isLightMode = Theme.of(context).brightness == Brightness.light;
 
         final scrimColor = isLightMode
@@ -258,18 +302,13 @@ class _AppDropDownState extends State<AppDropDown> with SingleTickerProviderStat
       },
     );
 
-    Overlay.of(context, rootOverlay: true).insert(_entry!);
-    setState(() => _open = true);
+    _overlayState?.insert(_entry!);
+    _open = true;
+    if (mounted) setState(() {});
     _ac.forward(from: 0);
   }
 
-  void _removeOverlay() {
-    if (_entry == null) return;
-    _ac.reverse();
-    _entry!.remove();
-    _entry = null;
-    setState(() => _open = false);
-  }
+  void _toggle(FormFieldState<String> field) => _open ? _removeOverlay() : _showOverlay(field);
 
   @override
   Widget build(BuildContext context) {
