@@ -35,19 +35,12 @@ class AppDropDown extends StatefulWidget {
 }
 
 class _AppDropDownState extends State<AppDropDown> with SingleTickerProviderStateMixin {
-  late final AnimationController _ac = AnimationController(
-    vsync: this,
-    duration: const Duration(milliseconds: 200),
-  );
-
+  late final AnimationController _ac;
   late final TextEditingController _controller;
-  late final Animation<double> _fade = CurvedAnimation(parent: _ac, curve: Curves.easeOut);
+  late final Animation<double> _fade;
   final GlobalKey _fieldKey = GlobalKey();
   final LayerLink _layerLink = LayerLink();
-  late final Animation<double> _scale = Tween(
-    begin: 0.95,
-    end: 1.0,
-  ).animate(CurvedAnimation(parent: _ac, curve: Curves.easeOutCubic));
+  late final Animation<double> _scale;
 
   late FocusNode _focusNode;
   bool _hasText = false;
@@ -61,16 +54,16 @@ class _AppDropDownState extends State<AppDropDown> with SingleTickerProviderStat
   OverlayState? _overlayState;
 
   @override
+  void deactivate() {
+    _removeOverlay(immediate: true, notify: false);
+    super.deactivate();
+  }
+
+  @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     _overlayState ??= Overlay.of(context, rootOverlay: true);
     _mq ??= MediaQuery.of(context);
-  }
-
-  @override
-  void deactivate() {
-    _removeOverlay(immediate: true, notify: false);
-    super.deactivate();
   }
 
   @override
@@ -85,6 +78,16 @@ class _AppDropDownState extends State<AppDropDown> with SingleTickerProviderStat
   @override
   void initState() {
     super.initState();
+
+    _ac = AnimationController(vsync: this, duration: const Duration(milliseconds: 200));
+
+    _fade = CurvedAnimation(parent: _ac, curve: Curves.easeOut);
+
+    _scale = Tween(
+      begin: 0.95,
+      end: 1.0,
+    ).animate(CurvedAnimation(parent: _ac, curve: Curves.easeOutCubic));
+
     _focusNode = FocusNode();
     _focusNode.addListener(() {
       if (!mounted) return;
