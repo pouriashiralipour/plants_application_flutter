@@ -69,7 +69,7 @@ class _AppDropDownState extends State<AppDropDown> with SingleTickerProviderStat
 
   @override
   void dispose() {
-    _removeOverlay(immediate: true);
+    _removeOverlay(immediate: true, notify: false);
     _focusNode.dispose();
     _ac.dispose();
     if (_ownController) _controller.dispose();
@@ -78,7 +78,7 @@ class _AppDropDownState extends State<AppDropDown> with SingleTickerProviderStat
 
   @override
   void deactivate() {
-    _removeOverlay(immediate: true);
+    _removeOverlay(immediate: true, notify: false);
     super.deactivate();
   }
 
@@ -115,7 +115,7 @@ class _AppDropDownState extends State<AppDropDown> with SingleTickerProviderStat
         : (isLightMode ? AppColors.grey500 : AppColors.grey600);
   }
 
-  void _removeOverlay({bool immediate = false}) {
+  void _removeOverlay({bool immediate = false, bool notify = true}) {
     final entry = _entry;
     if (entry == null) return;
 
@@ -130,7 +130,7 @@ class _AppDropDownState extends State<AppDropDown> with SingleTickerProviderStat
 
     entry.remove();
 
-    if (mounted) {
+    if (notify && mounted) {
       setState(() {});
     }
   }
@@ -154,10 +154,11 @@ class _AppDropDownState extends State<AppDropDown> with SingleTickerProviderStat
 
     final Size size = ro.size;
     final Offset pos = ro.localToGlobal(Offset.zero);
-    final screenH = MediaQuery.of(context).size.height;
 
     final mq = _mq;
     if (mq == null) return;
+
+    final screenH = mq.size.height;
 
     final desiredH = (widget.dropdownMaxHeight ?? 280) + 16;
     _showAbove = (screenH - (pos.dy + size.height)) < desiredH;
@@ -302,13 +303,18 @@ class _AppDropDownState extends State<AppDropDown> with SingleTickerProviderStat
       },
     );
 
-    _overlayState?.insert(_entry!);
+    final overlay = _overlayState;
+    if (overlay == null) return;
+
+    overlay.insert(_entry!);
+
     _open = true;
     if (mounted) setState(() {});
     _ac.forward(from: 0);
   }
 
-  void _toggle(FormFieldState<String> field) => _open ? _removeOverlay() : _showOverlay(field);
+  void _toggle(FormFieldState<String> field) =>
+      _open ? _removeOverlay(immediate: false) : _showOverlay(field);
 
   @override
   Widget build(BuildContext context) {
