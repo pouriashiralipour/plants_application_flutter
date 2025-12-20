@@ -7,14 +7,16 @@ import 'package:provider/provider.dart';
 import 'core/services/app_message_controller.dart';
 import 'core/utils/size_config.dart';
 import 'core/widgets/app_toast_layer.dart';
+import 'core/services/connectivity_service.dart';
+import 'core/theme/theme_repository.dart';
+import 'core/theme/app_theme.dart';
+
 import 'features/cart/data/repository/cart_repository.dart';
+import 'features/profile/data/epositories/address_repository.dart';
 import 'features/splash/presentation/screens/splash_screen.dart';
 import 'features/auth/data/repositories/auth_repository.dart';
 import 'features/auth/data/repositories/password_reset_repository.dart';
 import 'features/product/data/repositories/product_repository.dart';
-import 'core/services/connectivity_service.dart';
-import 'core/theme/theme_repository.dart';
-import 'core/theme/app_theme.dart';
 import 'features/wishlist/data/repositories/wishlist_repository.dart';
 
 void main() async {
@@ -38,6 +40,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider<ShopRepository>.value(value: ShopRepository.I),
         ChangeNotifierProvider<WishlistRepository>.value(value: WishlistRepository.I),
         ChangeNotifierProvider<CartRepository>.value(value: CartRepository.I),
+        ChangeNotifierProvider<AddressRepository>.value(value: AddressRepository.I),
         ChangeNotifierProvider<PasswordResetRepository>(create: (_) => PasswordResetRepository()),
         ChangeNotifierProvider<AppMessageController>(create: (_) => AppMessageController()),
 

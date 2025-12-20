@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../../reviews/data/models/review_model.dart';
+import '../models/review_model.dart';
 import '../datasources/product_remote_data_source.dart';
 import '../models/category_model.dart';
 import '../models/product_model.dart';

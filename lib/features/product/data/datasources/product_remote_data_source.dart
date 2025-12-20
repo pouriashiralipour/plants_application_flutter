@@ -1,6 +1,6 @@
 import 'package:dio/dio.dart';
 
-import '../../../reviews/data/models/review_model.dart';
+import '../models/review_model.dart';
 import '../models/category_model.dart';
 import '../models/product_model.dart';
 import '../../../../core/config/app_constants.dart';

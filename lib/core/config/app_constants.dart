@@ -21,6 +21,7 @@ class UrlInfo {
 
   // PROFILE
   static String profileCompleteUrl = 'auth/profile_complete/';
+  static String addressUrl = 'addresses/';
 
   // TOKENS
   static String refreshToken = 'api/token/refresh/';
