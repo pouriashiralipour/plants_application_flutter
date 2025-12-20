@@ -7,11 +7,10 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/persian_number.dart';
 import '../../../../core/utils/price_formatter.dart';
 import '../../../../core/utils/size_config.dart';
-import '../../../../core/widgets/app_alert_dialog.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_progress_indicator.dart';
 import '../../../../core/widgets/gap.dart';
-import '../../../product/data/repositories/product_repository.dart';
+import '../../data/repositories/product_repository.dart';
 import '../../data/models/review_model.dart';
 
 class ReviewScreen extends StatefulWidget {

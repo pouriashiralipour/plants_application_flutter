@@ -13,7 +13,7 @@ import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/shimmer/product/product_card_shimmer.dart';
 import '../../../../core/widgets/shimmer/product/product_screen_shimmer.dart';
 import '../../../cart/data/repository/cart_repository.dart';
-import '../../../reviews/presentation/screens/review_screen.dart';
+import 'review_screen.dart';
 import '../../../wishlist/data/repositories/wishlist_repository.dart';
 import '../../data/repositories/product_repository.dart';
 
