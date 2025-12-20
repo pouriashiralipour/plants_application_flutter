@@ -68,18 +68,18 @@ class _AppDropDownState extends State<AppDropDown> with SingleTickerProviderStat
   }
 
   @override
+  void deactivate() {
+    _removeOverlay(immediate: true, notify: false);
+    super.deactivate();
+  }
+
+  @override
   void dispose() {
     _removeOverlay(immediate: true, notify: false);
     _focusNode.dispose();
     _ac.dispose();
     if (_ownController) _controller.dispose();
     super.dispose();
-  }
-
-  @override
-  void deactivate() {
-    _removeOverlay(immediate: true, notify: false);
-    super.deactivate();
   }
 
   @override
@@ -165,7 +165,7 @@ class _AppDropDownState extends State<AppDropDown> with SingleTickerProviderStat
 
     _entry = OverlayEntry(
       builder: (overlayContext) {
-        final isLightMode = Theme.of(context).brightness == Brightness.light;
+        final isLightMode = Theme.of(overlayContext).brightness == Brightness.light;
 
         final scrimColor = isLightMode
             ? AppColors.white.withValues(alpha: 0.3)
