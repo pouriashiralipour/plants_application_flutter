@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:full_plants_ecommerce_app/core/utils/persian_number.dart';
 
 import 'package:provider/provider.dart';
 
@@ -254,12 +255,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ),
                       ),
                       Text(
-                        me.phoneNumber,
+                        me.phoneNumber.toString().farsiNumber,
                         textDirection: TextDirection.ltr,
                         style: TextStyle(
-                          fontSize: SizeConfig.getProportionateFontSize(14),
+                          fontSize: SizeConfig.getProportionateFontSize(16),
                           color: isLightMode ? AppColors.grey900 : AppColors.white,
-                          fontWeight: FontWeight.w500,
+                          fontWeight: FontWeight.w700,
                         ),
                       ),
                     ],
