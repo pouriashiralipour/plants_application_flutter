@@ -12,18 +12,16 @@ class UserProfile {
   });
 
   factory UserProfile.fromJson(Map<String, dynamic> json) {
-    final firstName = json['first_name'] as String? ?? '';
-    final fullName = json['full_name'] as String? ?? '';
-    final lastNameJson = json['last_name'] as String? ?? '';
+    final first = (json['first_name'] as String?) ?? '';
+    final full = (json['full_name'] as String?) ?? '';
+    final lastJson = (json['last_name'] as String?) ?? '';
 
     return UserProfile(
       email: json['email'] as String? ?? '',
       gender: json['gender'] as String? ?? '',
-      firstName: firstName,
-      lastName: lastNameJson.isNotEmpty
-          ? lastNameJson
-          : _deriveLastName(fullName: fullName, firstName: firstName),
-      fullName: fullName,
+      firstName: first,
+      lastName: lastJson.isNotEmpty ? lastJson : _deriveLastName(fullName: full, firstName: first),
+      fullName: full,
       phoneNumber: json['phone_number'] as String? ?? '',
       userId: json['id'] as String,
       birthDate: json['date_of_birth'] as String?,
