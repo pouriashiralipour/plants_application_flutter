@@ -25,6 +25,14 @@ class ApiClient {
         error: true,
       ),
     );
+    _dio.interceptors.add(
+      InterceptorsWrapper(
+        onRequest: (options, handler) {
+          options.headers['Accept-Language'] = 'fa';
+          return handler.next(options);
+        },
+      ),
+    );
     final adapter = _dio.httpClientAdapter as IOHttpClientAdapter;
     adapter.onHttpClientCreate = (HttpClient client) {
       client.badCertificateCallback = (X509Certificate cert, String host, int port) => true;

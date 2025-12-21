@@ -40,7 +40,7 @@ class ProfileApi {
     File? avatarFile,
   }) async {
     try {
-      final Map<String, dynamic> body = Map<String, dynamic>.from(fields);
+      final Map<String, dynamic> body = {...fields};
 
       if (avatarFile != null) {
         body['profile_pic'] = await MultipartFile.fromFile(
@@ -50,38 +50,22 @@ class ProfileApi {
       }
 
       final formData = FormData.fromMap(body);
-
       final response = await _dio.patch(UrlInfo.profileCompleteUrl, data: formData);
 
-      if (response.statusCode == 200 && response.data is Map) {
-        return ApiResult(
-          true,
-          data: UserProfile.fromJson(Map<String, dynamic>.from(response.data as Map)),
-          status: response.statusCode,
-          raw: response.data,
-        );
-      }
-
       return ApiResult(
-        false,
-        status: response.statusCode,
-        raw: response.data,
-        error: extractErrorMessage(
-          status: response.statusCode,
-          data: response.data,
-          fallback: 'بروزرسانی پروفایل ناموفق بود',
-        ),
+        true,
+        data: UserProfile.fromJson(Map<String, dynamic>.from(response.data as Map)),
       );
     } on DioException catch (e) {
       return ApiResult(
         false,
-        status: e.response?.statusCode,
-        raw: e.response?.data,
         error: extractErrorMessage(
           status: e.response?.statusCode,
           data: e.response?.data,
           fallback: e.message,
         ),
+        status: e.response?.statusCode,
+        raw: e.response?.data,
       );
     } catch (e) {
       return ApiResult(false, error: e.toString());

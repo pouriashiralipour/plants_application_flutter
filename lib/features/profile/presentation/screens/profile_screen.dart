@@ -14,6 +14,8 @@ import '../../../auth/data/repositories/auth_repository.dart';
 
 import '../../../../core/config/app_constants.dart';
 import '../../../../core/config/root_screen.dart';
+import 'address_screen.dart';
+import 'edit_profile_screen.dart';
 
 class AppToggle extends StatelessWidget {
   const AppToggle({
@@ -224,18 +226,24 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      CircleAvatar(
-                        key: ValueKey(auth.isAuthed),
-                        radius: SizeConfig.getProportionateScreenWidth(50),
-                        backgroundImage: avatarUrl != null ? NetworkImage(avatarUrl) : null,
-                        backgroundColor: isLightMode ? AppColors.grey200 : AppColors.dark3,
-                        child: avatarUrl == null
-                            ? Icon(
-                                Icons.person,
-                                color: isLightMode ? AppColors.grey600 : AppColors.grey100,
-                                size: SizeConfig.getProportionateScreenWidth(40),
-                              )
-                            : null,
+                      Container(
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: BoxBorder.all(color: AppColors.primary, width: 2),
+                        ),
+                        child: CircleAvatar(
+                          key: ValueKey(auth.isAuthed),
+                          radius: SizeConfig.getProportionateScreenWidth(50),
+                          backgroundImage: avatarUrl != null ? NetworkImage(avatarUrl) : null,
+                          backgroundColor: isLightMode ? AppColors.grey200 : AppColors.dark3,
+                          child: avatarUrl == null
+                              ? Icon(
+                                  Icons.person,
+                                  color: isLightMode ? AppColors.grey600 : AppColors.grey100,
+                                  size: SizeConfig.getProportionateScreenWidth(40),
+                                )
+                              : null,
+                        ),
                       ),
                       Text(
                         me.fullName,
@@ -260,14 +268,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 Gap(SizeConfig.getProportionateScreenHeight(15)),
                 CustomListTile(
                   title: 'ویرایش پروفایل',
-                  onTap: () {},
+                  onTap: () {
+                    Navigator.of(
+                      context,
+                    ).push(MaterialPageRoute(builder: (context) => EditProfileScreen()));
+                  },
                   leadingIcon: 'assets/images/icons/Profile_curve.svg',
                   trailingIcon: 'assets/images/icons/ArrowCurve-Left2.svg',
                 ),
                 Gap(SizeConfig.getProportionateScreenHeight(5)),
                 CustomListTile(
                   title: 'آدرس',
-                  onTap: () {},
+                  onTap: () {
+                    Navigator.of(
+                      context,
+                    ).push(MaterialPageRoute(builder: (context) => AddressScreen()));
+                  },
                   leadingIcon: 'assets/images/icons/Location_curve.svg',
                   trailingIcon: 'assets/images/icons/ArrowCurve-Left2.svg',
                 ),
@@ -283,20 +299,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   title: 'پرداخت',
                   onTap: () {},
                   leadingIcon: 'assets/images/icons/WalletCurev.svg',
-                  trailingIcon: 'assets/images/icons/ArrowCurve-Left2.svg',
-                ),
-                Gap(SizeConfig.getProportionateScreenHeight(5)),
-                CustomListTile(
-                  title: 'امنیت',
-                  onTap: () {},
-                  leadingIcon: 'assets/images/icons/ShieldDoneCurve.svg',
-                  trailingIcon: 'assets/images/icons/ArrowCurve-Left2.svg',
-                ),
-                Gap(SizeConfig.getProportionateScreenHeight(5)),
-                CustomListTile(
-                  title: 'زبان',
-                  onTap: () {},
-                  leadingIcon: 'assets/images/icons/MoreCircleCurve.svg',
                   trailingIcon: 'assets/images/icons/ArrowCurve-Left2.svg',
                 ),
                 Gap(SizeConfig.getProportionateScreenHeight(5)),
@@ -319,7 +321,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
                 Gap(SizeConfig.getProportionateScreenHeight(5)),
                 CustomListTile(
-                  title: 'کمک',
+                  title: 'پشتیبانی',
                   onTap: () {},
                   leadingIcon: 'assets/images/icons/InfoSquareCurve.svg',
                   trailingIcon: 'assets/images/icons/ArrowCurve-Left2.svg',

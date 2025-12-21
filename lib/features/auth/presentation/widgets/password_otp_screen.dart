@@ -337,7 +337,7 @@ class _OtpPasswordScreenState extends State<OtpPasswordScreen> {
               ? RichText(
                   text: TextSpan(
                     style: TextStyle(
-                      fontFamily: 'Shabnam',
+                      fontFamily: 'Vazirmatn',
                       fontWeight: FontWeight.w500,
                       fontSize: SizeConfig.getProportionateFontSize(16),
                       color: AppColors.grey900,
@@ -346,6 +346,7 @@ class _OtpPasswordScreenState extends State<OtpPasswordScreen> {
                       TextSpan(
                         text: "ارسال دوباره کد در ",
                         style: TextStyle(
+                          fontFamily: 'Vazirmatn',
                           color: isLightMode ? AppColors.grey900 : AppColors.white,
                           fontWeight: FontWeight.w500,
                           fontSize: SizeConfig.getProportionateFontSize(16),
@@ -353,11 +354,12 @@ class _OtpPasswordScreenState extends State<OtpPasswordScreen> {
                       ),
                       TextSpan(
                         text: '$_secondsRemaining'.farsiNumber,
-                        style: const TextStyle(color: AppColors.primary),
+                        style: const TextStyle(color: AppColors.primary, fontFamily: 'Vazirmatn'),
                       ),
                       TextSpan(
                         text: " ثانیه",
                         style: TextStyle(
+                          fontFamily: 'Vazirmatn',
                           color: isLightMode ? AppColors.grey900 : AppColors.white,
                           fontWeight: FontWeight.w500,
                           fontSize: SizeConfig.getProportionateFontSize(16),
