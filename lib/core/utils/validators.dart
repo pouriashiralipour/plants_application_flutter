@@ -1,3 +1,5 @@
+import 'package:full_plants_ecommerce_app/core/utils/persian_number.dart';
+
 import 'iran_contact_validator.dart';
 
 class Validators {
@@ -22,10 +24,13 @@ class Validators {
   }
 
   static String? requiredMobileValidator(String? v) {
-    final value = (v ?? '').trim();
-    if (v == null || v.trim().isEmpty) {
+    final raw = (v ?? '').trim();
+
+    if (raw == null || raw.trim().isEmpty) {
       return 'شماره موبایل خود را وارد کنید';
     }
+
+    final value = raw.englishNumber;
     if (!isValidIranPhone(value)) {
       return 'شماره موبایل را به‌درستی وارد کنید ';
     }
@@ -43,15 +48,17 @@ class Validators {
   }
 
   static String? requiredTargetValidator(String? v) {
-    final value = (v ?? '').trim();
-    if (v == null || v.trim().isEmpty) {
+    final raw = (v ?? '').trim();
+    if (raw.isEmpty) {
       return 'شماره موبایل یا ایمیل خود را وارد کنید';
     }
-    if (value.contains('@')) {
-      if (!isValidEmail(value)) {
+
+    if (raw.contains('@')) {
+      if (!isValidEmail(raw)) {
         return 'ایمیل را به‌درستی وارد کنید';
       }
     } else {
+      final value = raw.englishNumber;
       if (!isValidIranPhone(value)) {
         return 'شماره موبایل را به‌درستی وارد کنید ';
       }
