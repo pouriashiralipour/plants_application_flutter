@@ -12,21 +12,21 @@ enum AppImagePickStatus { picked, cancelled, permissionDenied, error }
 class AppImagePickResult {
   const AppImagePickResult._(this.status, {this.file, this.message});
 
-  final AppImagePickStatus status;
-  final File? file;
-  final String? message;
-
-  factory AppImagePickResult.picked(File f) =>
-      AppImagePickResult._(AppImagePickStatus.picked, file: f);
-
   factory AppImagePickResult.cancelled() =>
       const AppImagePickResult._(AppImagePickStatus.cancelled);
+
+  factory AppImagePickResult.error(String msg) =>
+      AppImagePickResult._(AppImagePickStatus.error, message: msg);
 
   factory AppImagePickResult.permissionDenied([String? msg]) =>
       AppImagePickResult._(AppImagePickStatus.permissionDenied, message: msg);
 
-  factory AppImagePickResult.error(String msg) =>
-      AppImagePickResult._(AppImagePickStatus.error, message: msg);
+  factory AppImagePickResult.picked(File f) =>
+      AppImagePickResult._(AppImagePickStatus.picked, file: f);
+
+  final File? file;
+  final String? message;
+  final AppImagePickStatus status;
 }
 
 class AppImagePicker {
@@ -63,19 +63,6 @@ class AppImagePicker {
     }
   }
 
-  static Future<bool> _requestPermission(ImageSource source) async {
-    if (source == ImageSource.camera) {
-      final camera = await Permission.camera.request();
-      return camera.isGranted;
-    }
-
-    final photos = await Permission.photos.request();
-    if (photos.isGranted) return true;
-
-    final storage = await Permission.storage.request();
-    return storage.isGranted;
-  }
-
   static Future<CroppedFile?> _crop({
     required BuildContext context,
     required String sourcePath,
@@ -90,23 +77,56 @@ class AppImagePicker {
 
     return ImageCropper().cropImage(
       sourcePath: sourcePath,
-      aspectRatio: aspectRatio,
+
+      aspectRatio: aspectRatio ?? const CropAspectRatio(ratioX: 1, ratioY: 1),
+
       compressQuality: compressQuality,
+
       uiSettings: [
         AndroidUiSettings(
-          toolbarTitle: 'برش تصویر',
+          toolbarTitle: 'ویرایش تصویر',
           toolbarColor: toolbarColor,
           toolbarWidgetColor: toolbarWidgetColor,
-          initAspectRatio: CropAspectRatioPreset.square,
-          lockAspectRatio: cropStyle == CropStyle.circle || aspectRatio != null,
-          hideBottomControls: false,
+
           cropStyle: cropStyle,
+
+          showCropGrid: false,
+
+          hideBottomControls: false,
+          lockAspectRatio: true,
+          initAspectRatio: CropAspectRatioPreset.square,
+          aspectRatioPresets: const [CropAspectRatioPreset.square],
         ),
+
         IOSUiSettings(
-          title: 'برش تصویر',
-          aspectRatioLockEnabled: cropStyle == CropStyle.circle || aspectRatio != null,
+          title: 'ویرایش تصویر',
+          cropStyle: cropStyle,
+
+          aspectRatioLockEnabled: true,
+
+          resetAspectRatioEnabled: false,
+
+          aspectRatioPickerButtonHidden: true,
+
+          rotateButtonsHidden: false,
+          rotateClockwiseButtonHidden: false,
+
+          resetButtonHidden: true,
         ),
       ],
     );
+  }
+
+  static Future<bool> _requestPermission(ImageSource source) async {
+    if (source == ImageSource.camera) {
+      final camera = await Permission.camera.request();
+      return camera.isGranted;
+    }
+
+    final photos = await Permission.photos.request();
+    if (photos.isGranted) return true;
+
+    final storage = await Permission.storage.request();
+    return storage.isGranted;
   }
 }
