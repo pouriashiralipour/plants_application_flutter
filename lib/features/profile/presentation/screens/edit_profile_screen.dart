@@ -44,14 +44,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   bool _showErrors = false;
   bool _prefilled = false;
 
-  // آواتار جدید (بعد از crop)
   File? _avatarFile;
 
-  // پیام سرور
   String? _serverMessage;
   bool _serverIsError = true;
 
-  // snapshot برای PATCH
   late String _iFirstName;
   late String _iLastName;
   late String _iDob;
@@ -81,7 +78,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     _firstNameCtrl.text = me.firstName;
     _lastNameCtrl.text = me.lastName;
 
-    // نمایش تاریخ و موبایل با اعداد فارسی
     _dobCtrl.text = (me.birthDate ?? '').replaceAll('-', '/').farsiNumber;
     _phoneCtrl.text = (me.phoneNumber).farsiNumber;
 
@@ -146,7 +142,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         _showMsg(res.message ?? 'خطا', isError: true);
         break;
       case AppImagePickStatus.cancelled:
-        // هیچ کاری نکن
         break;
     }
   }
@@ -169,7 +164,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     final firstNow = _firstNameCtrl.text.trim();
     final lastNow = _lastNameCtrl.text.trim();
 
-    final dobUi = _dobCtrl.text.trim(); // ممکنه فارسی باشد
+    final dobUi = _dobCtrl.text.trim();
     final dobServer = _toEnglishDigits(dobUi).replaceAll('/', '-');
 
     final emailNow = _emailCtrl.text.trim();
@@ -216,7 +211,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     if (res.success && res.data != null) {
       await authRepo.setMe(res.data!);
 
-      // فرم و snapshot را با داده جدید sync کن (بدون صدا زدن didChangeDependencies دستی)
       _prefilled = false;
       _applyProfileToForm(res.data!);
 
@@ -288,7 +282,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     children: [
                       Gap(SizeConfig.getProportionateScreenHeight(14)),
 
-                      // ✅ آواتار مثل ProfileScreen
                       Stack(
                         alignment: Alignment.center,
                         children: [
@@ -385,7 +378,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       ),
                       Gap(SizeConfig.getProportionateScreenHeight(15)),
 
-                      // ✅ موبایل: ورودی و نمایش فارسی
                       AppTextField(
                         isLightMode: isLightMode,
                         controller: _phoneCtrl,
