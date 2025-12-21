@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:image_cropper/image_cropper.dart';
 
 import 'package:image_picker/image_picker.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'dart:io';
 
 import '../../../../core/config/root_screen.dart';
+import '../../../../core/services/app_image_picker.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/size_config.dart';
 import '../../../../core/utils/validators.dart';
@@ -47,7 +48,6 @@ class _ProfileFormScreenState extends State<ProfileFormScreen> {
   final _lastNameCtrl = TextEditingController();
   final _passwordCtrl = TextEditingController();
   final _phoneCtrl = TextEditingController();
-  final ImagePicker _picker = ImagePicker();
 
   bool _isLoading = false;
   bool _showErrors = false;
@@ -92,22 +92,27 @@ class _ProfileFormScreenState extends State<ProfileFormScreen> {
   }
 
   Future<void> _pickImage() async {
-    var status = await Permission.photos.request();
+    final res = await AppImagePicker.pickAndCrop(
+      context: context,
+      source: ImageSource.gallery,
+      cropStyle: CropStyle.circle,
+      aspectRatio: const CropAspectRatio(ratioX: 1, ratioY: 1),
+    );
 
-    if (status.isDenied || status.isPermanentlyDenied) {
-      return _showServerError("اجازه دسترسی به تصاویر داده نشد");
-    }
+    if (!mounted) return;
 
-    try {
-      final XFile? pickedFile = await _picker.pickImage(source: ImageSource.gallery);
-
-      if (pickedFile != null) {
-        setState(() {
-          _imageFile = File(pickedFile.path);
-        });
-      }
-    } catch (e) {
-      _showServerError("خطا در انتخاب تصویر: $e");
+    switch (res.status) {
+      case AppImagePickStatus.picked:
+        setState(() => _imageFile = res.file);
+        break;
+      case AppImagePickStatus.permissionDenied:
+        _showServerError(res.message ?? "اجازه دسترسی به تصاویر داده نشد");
+        break;
+      case AppImagePickStatus.error:
+        _showServerError(res.message ?? "خطا");
+        break;
+      case AppImagePickStatus.cancelled:
+        break;
     }
   }
 
