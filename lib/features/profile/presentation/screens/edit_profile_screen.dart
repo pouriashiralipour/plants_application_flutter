@@ -3,10 +3,14 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
+import 'package:image_cropper/image_cropper.dart';
 
+import '../../../../core/config/app_constants.dart';
+import '../../../../core/services/app_image_picker.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/utils/persian_digits_input_formatter.dart';
+import '../../../../core/utils/persian_number.dart';
 import '../../../../core/utils/size_config.dart';
 import '../../../../core/utils/validators.dart';
 import '../../../../core/widgets/app_alert_dialog.dart';
@@ -15,8 +19,8 @@ import '../../../../core/widgets/app_drop_down.dart';
 import '../../../../core/widgets/app_progress_indicator.dart';
 import '../../../../core/widgets/app_text_field.dart';
 import '../../../../core/widgets/gap.dart';
-import '../../../auth/data/datasources/profile_remote_data_source.dart';
 import '../../../auth/data/repositories/auth_repository.dart';
+import '../../../auth/data/datasources/profile_remote_data_source.dart';
 import '../../data/models/profile_models.dart';
 
 class EditProfileScreen extends StatefulWidget {
@@ -27,28 +31,33 @@ class EditProfileScreen extends StatefulWidget {
 }
 
 class _EditProfileScreenState extends State<EditProfileScreen> {
+  final _formKey = GlobalKey<FormState>();
+
+  final _firstNameCtrl = TextEditingController();
+  final _lastNameCtrl = TextEditingController();
   final _dobCtrl = TextEditingController();
   final _emailCtrl = TextEditingController();
-  final _firstNameCtrl = TextEditingController();
-  final _formKey = GlobalKey<FormState>();
-  final _genderCtrl = TextEditingController();
-  final _lastNameCtrl = TextEditingController();
   final _phoneCtrl = TextEditingController();
-  final ImagePicker _picker = ImagePicker();
+  final _genderCtrl = TextEditingController();
 
+  bool _loading = false;
+  bool _showErrors = false;
+  bool _prefilled = false;
+
+  // آواتار جدید (بعد از crop)
+  File? _avatarFile;
+
+  // پیام سرور
+  String? _serverMessage;
+  bool _serverIsError = true;
+
+  // snapshot برای PATCH
+  late String _iFirstName;
+  late String _iLastName;
   late String _iDob;
   late String _iEmail;
-  late String _iFirstName;
-  late String _iGenderEn;
-  late String _iLastName;
   late String _iPhone;
-  bool _isLoading = false;
-  bool _prefilled = false;
-  bool _serverIsError = true;
-  bool _showErrors = false;
-
-  File? _imageFile;
-  String? _serverMessage;
+  late String _iGenderEn;
 
   @override
   void didChangeDependencies() {
@@ -59,6 +68,27 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     if (me == null) return;
 
     _applyProfileToForm(me);
+  }
+
+  void _applyProfileToForm(UserProfile me) {
+    _iFirstName = me.firstName;
+    _iLastName = me.lastName;
+    _iDob = me.birthDate ?? '';
+    _iEmail = me.email;
+    _iPhone = me.phoneNumber;
+    _iGenderEn = me.gender;
+
+    _firstNameCtrl.text = me.firstName;
+    _lastNameCtrl.text = me.lastName;
+
+    // نمایش تاریخ و موبایل با اعداد فارسی
+    _dobCtrl.text = (me.birthDate ?? '').replaceAll('-', '/').farsiNumber;
+    _phoneCtrl.text = (me.phoneNumber).farsiNumber;
+
+    _emailCtrl.text = me.email;
+    _genderCtrl.text = _mapGenderEnToFa(me.gender);
+
+    _prefilled = true;
   }
 
   @override
@@ -72,68 +102,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     super.dispose();
   }
 
-  void _applyProfileToForm(UserProfile me) {
-    _iFirstName = me.firstName;
-    _iLastName = me.lastName;
-    _iDob = me.birthDate ?? '';
-    _iEmail = me.email;
-    _iPhone = me.phoneNumber;
-    _iGenderEn = me.gender;
-
-    _firstNameCtrl.text = me.firstName;
-    _lastNameCtrl.text = me.lastName;
-    _dobCtrl.text = (me.birthDate ?? '').replaceAll('-', '/');
-    _emailCtrl.text = me.email;
-    _phoneCtrl.text = me.phoneNumber;
-    _genderCtrl.text = _mapGenderEnToFa(me.gender);
-
-    _prefilled = true;
-  }
-
-  Map<String, dynamic> _buildPatchBody() {
-    final patch = <String, dynamic>{};
-
-    final firstNow = _firstNameCtrl.text.trim();
-    final lastNow = _lastNameCtrl.text.trim();
-
-    final dobNow = _toEnglishDigits(_dobCtrl.text.trim()).replaceAll('/', '-');
-    final emailNow = _emailCtrl.text.trim();
-    final phoneNow = _toEnglishDigits(_phoneCtrl.text.trim());
-    final genderEnNow = _mapGenderFaToEn(_genderCtrl.text.trim());
-
-    if (firstNow.isNotEmpty && firstNow != _iFirstName) {
-      patch['first_name'] = firstNow;
-    }
-
-    if (lastNow.isNotEmpty && lastNow != _iLastName) {
-      patch['last_name'] = lastNow;
-    }
-
-    if (dobNow != (_iDob.isEmpty ? '' : _iDob)) {
-      if (dobNow.isNotEmpty) patch['date_of_birth'] = dobNow;
-    }
-
-    if (emailNow.isNotEmpty && emailNow != _iEmail) {
-      patch['email'] = emailNow;
-    }
-
-    if (phoneNow.isNotEmpty && phoneNow != _toEnglishDigits(_iPhone)) {
-      patch['phone_number'] = phoneNow;
-    }
-
-    if (genderEnNow.isNotEmpty && genderEnNow != _iGenderEn) {
-      patch['gender'] = genderEnNow;
-    }
-
-    return patch;
-  }
-
-  String? _dobValidator(String? v) {
-    final s = _toEnglishDigits((v ?? '').trim());
-    if (s.isEmpty) return 'تاریخ تولد را وارد کنید';
-    final re = RegExp(r'^\d{4}/\d{2}/\d{2}$');
-    if (!re.hasMatch(s)) return 'قالب تاریخ: YYYY/MM/DD';
-    return null;
+  String _mapGenderFaToEn(String? g) {
+    if (g == 'زن') return 'Female';
+    if (g == 'مرد') return 'Male';
+    return '';
   }
 
   String _mapGenderEnToFa(String g) {
@@ -144,27 +116,38 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     return '';
   }
 
-  String _mapGenderFaToEn(String? g) {
-    if (g == 'زن') return 'Female';
-    if (g == 'مرد') return 'Male';
-    return '';
+  String? _dobValidator(String? v) {
+    final s = _toEnglishDigits((v ?? '').trim());
+    if (s.isEmpty) return 'تاریخ تولد را وارد کنید';
+    final re = RegExp(r'^\d{4}/\d{2}/\d{2}$');
+    if (!re.hasMatch(s)) return 'قالب تاریخ: YYYY/MM/DD';
+    return null;
   }
 
-  Future<void> _pickImage() async {
-    final status = await Permission.photos.request();
+  Future<void> _pickAvatar() async {
+    final res = await AppImagePicker.pickAndCrop(
+      context: context,
+      source: ImageSource.gallery,
+      cropStyle: CropStyle.circle,
+      aspectRatio: const CropAspectRatio(ratioX: 1, ratioY: 1),
+    );
 
-    if (status.isDenied || status.isPermanentlyDenied) {
-      return _showMsg('اجازه دسترسی به تصاویر داده نشد', isError: true);
-    }
+    if (!mounted) return;
 
-    try {
-      final XFile? pickedFile = await _picker.pickImage(source: ImageSource.gallery);
-      if (pickedFile != null) {
-        setState(() => _imageFile = File(pickedFile.path));
+    switch (res.status) {
+      case AppImagePickStatus.picked:
+        setState(() => _avatarFile = res.file);
         _showMsg('عکس انتخاب شد (برای ذخیره تایید بزن)', isError: false);
-      }
-    } catch (e) {
-      _showMsg('خطا در انتخاب تصویر: $e', isError: true);
+        break;
+      case AppImagePickStatus.permissionDenied:
+        _showMsg(res.message ?? 'اجازه دسترسی به تصاویر داده نشد', isError: true);
+        break;
+      case AppImagePickStatus.error:
+        _showMsg(res.message ?? 'خطا', isError: true);
+        break;
+      case AppImagePickStatus.cancelled:
+        // هیچ کاری نکن
+        break;
     }
   }
 
@@ -180,6 +163,35 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     });
   }
 
+  Map<String, dynamic> _buildPatchBody() {
+    final patch = <String, dynamic>{};
+
+    final firstNow = _firstNameCtrl.text.trim();
+    final lastNow = _lastNameCtrl.text.trim();
+
+    final dobUi = _dobCtrl.text.trim(); // ممکنه فارسی باشد
+    final dobServer = _toEnglishDigits(dobUi).replaceAll('/', '-');
+
+    final emailNow = _emailCtrl.text.trim();
+    final phoneNow = _toEnglishDigits(_phoneCtrl.text.trim());
+    final genderEnNow = _mapGenderFaToEn(_genderCtrl.text.trim());
+
+    if (firstNow.isNotEmpty && firstNow != _iFirstName) patch['first_name'] = firstNow;
+    if (lastNow.isNotEmpty && lastNow != _iLastName) patch['last_name'] = lastNow;
+
+    if (dobServer != (_iDob.isEmpty ? '' : _iDob)) {
+      if (dobServer.isNotEmpty) patch['date_of_birth'] = dobServer;
+    }
+
+    if (emailNow.isNotEmpty && emailNow != _iEmail) patch['email'] = emailNow;
+    if (phoneNow.isNotEmpty && phoneNow != _toEnglishDigits(_iPhone))
+      patch['phone_number'] = phoneNow;
+
+    if (genderEnNow.isNotEmpty && genderEnNow != _iGenderEn) patch['gender'] = genderEnNow;
+
+    return patch;
+  }
+
   Future<void> _submit() async {
     setState(() {
       _showErrors = true;
@@ -189,27 +201,26 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     if (!_formKey.currentState!.validate()) return;
 
     final patch = _buildPatchBody();
-    if (patch.isEmpty && _imageFile == null) {
+    if (patch.isEmpty && _avatarFile == null) {
       return _showMsg('هیچ تغییری ثبت نشده است', isError: true);
     }
 
     final authRepo = context.read<AuthRepository>();
 
-    setState(() => _isLoading = true);
-
-    final res = await ProfileApi().edit(fields: patch, avatarFile: _imageFile);
+    setState(() => _loading = true);
+    final res = await ProfileApi().edit(fields: patch, avatarFile: _avatarFile);
 
     if (!mounted) return;
-    setState(() => _isLoading = false);
+    setState(() => _loading = false);
 
     if (res.success && res.data != null) {
       await authRepo.setMe(res.data!);
 
+      // فرم و snapshot را با داده جدید sync کن (بدون صدا زدن didChangeDependencies دستی)
       _prefilled = false;
       _applyProfileToForm(res.data!);
 
-      _imageFile = null;
-
+      _avatarFile = null;
       _showMsg('اطلاعات بروزرسانی شد', isError: false);
     } else {
       _showMsg(res.error ?? 'خطا', isError: true);
@@ -227,7 +238,14 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final bool isLightMode = Theme.of(context).brightness == Brightness.light;
+    final isLightMode = Theme.of(context).brightness == Brightness.light;
+
+    final me = context.watch<AuthRepository>().me;
+    final avatarUrl = buildAvatarUrl(me?.profilePic, UrlInfo.baseUrl);
+
+    final ImageProvider? avatarProvider = _avatarFile != null
+        ? FileImage(_avatarFile!)
+        : (avatarUrl != null ? NetworkImage(avatarUrl) : null);
 
     return Scaffold(
       backgroundColor: isLightMode ? AppColors.white : AppColors.dark1,
@@ -235,19 +253,18 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         backgroundColor: isLightMode ? AppColors.white : AppColors.dark1,
         elevation: 0,
         title: Text(
-          'تغییر پروفایل',
+          'ویرایش پروفایل',
           style: TextStyle(
-            fontWeight: FontWeight.bold,
+            fontWeight: FontWeight.w800,
             color: isLightMode ? AppColors.grey900 : AppColors.white,
-            fontSize: SizeConfig.getProportionateScreenWidth(21),
-            fontFamily: 'Peyda',
+            fontSize: SizeConfig.getProportionateFontSize(21),
           ),
         ),
         actions: [
           Padding(
             padding: EdgeInsets.only(left: SizeConfig.getProportionateScreenWidth(20)),
             child: IconButton(
-              onPressed: _pickImage,
+              onPressed: _pickAvatar,
               icon: SvgPicture.asset(
                 'assets/images/icons/Image.svg',
                 width: SizeConfig.getProportionateScreenWidth(24),
@@ -264,76 +281,121 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               child: SingleChildScrollView(
                 padding: EdgeInsets.symmetric(
                   horizontal: SizeConfig.getProportionateScreenWidth(24),
-                  vertical: SizeConfig.getProportionateScreenHeight(24),
                 ),
                 child: Form(
                   key: _formKey,
                   child: Column(
                     children: [
-                      Gap(SizeConfig.getProportionateScreenHeight(24)),
+                      Gap(SizeConfig.getProportionateScreenHeight(14)),
+
+                      // ✅ آواتار مثل ProfileScreen
+                      Stack(
+                        alignment: Alignment.center,
+                        children: [
+                          CircleAvatar(
+                            radius: SizeConfig.getProportionateScreenWidth(50),
+                            backgroundColor: isLightMode ? AppColors.grey200 : AppColors.dark3,
+                            backgroundImage: avatarProvider,
+                            child: avatarProvider == null
+                                ? Icon(
+                                    Icons.person,
+                                    color: isLightMode ? AppColors.grey600 : AppColors.grey100,
+                                    size: SizeConfig.getProportionateScreenWidth(40),
+                                  )
+                                : null,
+                          ),
+                          Positioned(
+                            bottom: 0,
+                            right: 0,
+                            child: GestureDetector(
+                              onTap: _pickAvatar,
+                              child: Container(
+                                width: SizeConfig.getProportionateScreenWidth(34),
+                                height: SizeConfig.getProportionateScreenWidth(34),
+                                decoration: BoxDecoration(
+                                  color: AppColors.primary,
+                                  shape: BoxShape.circle,
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withOpacity(0.12),
+                                      blurRadius: 10,
+                                      offset: const Offset(0, 4),
+                                    ),
+                                  ],
+                                ),
+                                child: Icon(
+                                  Icons.edit,
+                                  color: Colors.white,
+                                  size: SizeConfig.getProportionateScreenWidth(18),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+
+                      Gap(SizeConfig.getProportionateScreenHeight(16)),
+
                       if (_serverMessage != null) ...[
                         AppAlertDialog(text: _serverMessage!, isError: _serverIsError),
                         Gap(SizeConfig.getProportionateScreenHeight(12)),
                       ],
+
                       AppTextField(
-                        isPassword: false,
                         isLightMode: isLightMode,
-                        showErrors: _showErrors,
-                        validator: Validators.requiredBlankValidator,
+                        controller: _firstNameCtrl,
                         hintText: 'نام',
                         suffixIcon: 'assets/images/icons/Profile.svg',
-                        controller: _firstNameCtrl,
+                        showErrors: _showErrors,
+                        validator: Validators.requiredBlankValidator,
+                        textDirection: TextDirection.rtl,
                       ),
-
                       Gap(SizeConfig.getProportionateScreenHeight(15)),
 
                       AppTextField(
-                        isPassword: false,
                         isLightMode: isLightMode,
+                        controller: _lastNameCtrl,
                         hintText: 'نام خانوادگی',
                         suffixIcon: 'assets/images/icons/Profile.svg',
-                        controller: _lastNameCtrl,
                         showErrors: _showErrors,
                         validator: Validators.requiredBlankValidator,
                       ),
-
                       Gap(SizeConfig.getProportionateScreenHeight(15)),
 
                       AppTextField(
-                        isPassword: false,
                         isLightMode: isLightMode,
-                        hintText: 'تاریخ تولد',
-                        suffixIcon: 'assets/images/icons/Calendar_curve.svg',
-                        isDateField: true,
                         controller: _dobCtrl,
+                        hintText: 'تاریخ تولد',
+                        isDateField: true,
+                        suffixIcon: 'assets/images/icons/Calendar_curve.svg',
+                        showErrors: _showErrors,
                         validator: _dobValidator,
-                        showErrors: _showErrors,
                       ),
-
                       Gap(SizeConfig.getProportionateScreenHeight(15)),
 
                       AppTextField(
-                        isPassword: false,
                         isLightMode: isLightMode,
-                        hintText: 'ایمیل',
                         controller: _emailCtrl,
+                        hintText: 'ایمیل',
                         suffixIcon: 'assets/images/icons/Message_curve.svg',
-                        validator: Validators.requiredEmailValidator,
                         showErrors: _showErrors,
+                        validator: Validators.requiredEmailValidator,
                         textDirection: TextDirection.ltr,
+                        keyboardType: TextInputType.emailAddress,
                       ),
-
                       Gap(SizeConfig.getProportionateScreenHeight(15)),
 
+                      // ✅ موبایل: ورودی و نمایش فارسی
                       AppTextField(
-                        isPassword: false,
                         isLightMode: isLightMode,
-                        hintText: 'شماره موبایل',
                         controller: _phoneCtrl,
+                        hintText: 'شماره موبایل',
                         suffixIcon: 'assets/images/icons/Call_curve.svg',
-                        validator: Validators.requiredMobileValidator,
                         showErrors: _showErrors,
+                        validator: Validators.requiredMobileValidator,
                         textDirection: TextDirection.ltr,
+                        keyboardType: TextInputType.phone,
+                        inputFormatters: const [PersianDigitsTextInputFormatter()],
                       ),
 
                       Gap(SizeConfig.getProportionateScreenHeight(15)),
@@ -366,7 +428,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     ? SizeConfig.getProportionateScreenHeight(12)
                     : SizeConfig.getProportionateScreenHeight(18),
               ),
-              child: _isLoading
+              child: _loading
                   ? const AppProgressBarIndicator()
                   : AppButton(
                       onTap: _submit,
@@ -381,4 +443,13 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       ),
     );
   }
+}
+
+String? buildAvatarUrl(String? raw, String baseUrl) {
+  if (raw == null) return null;
+  final avatar = raw.trim();
+  if (avatar.isEmpty) return null;
+  if (avatar.startsWith('http')) return avatar;
+  if (avatar.startsWith('/')) return '$baseUrl${avatar.substring(1)}';
+  return '$baseUrl$avatar';
 }
