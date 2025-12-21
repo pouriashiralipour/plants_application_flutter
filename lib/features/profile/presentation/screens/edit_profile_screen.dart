@@ -17,6 +17,7 @@ import '../../../../core/widgets/app_text_field.dart';
 import '../../../../core/widgets/gap.dart';
 import '../../../auth/data/datasources/profile_remote_data_source.dart';
 import '../../../auth/data/repositories/auth_repository.dart';
+import '../../data/models/profile_models.dart';
 
 class EditProfileScreen extends StatefulWidget {
   const EditProfileScreen({super.key});
@@ -26,7 +27,6 @@ class EditProfileScreen extends StatefulWidget {
 }
 
 class _EditProfileScreenState extends State<EditProfileScreen> {
-  final _countryCtrl = TextEditingController();
   final _dobCtrl = TextEditingController();
   final _emailCtrl = TextEditingController();
   final _firstNameCtrl = TextEditingController();
@@ -39,15 +39,15 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   late String _iDob;
   late String _iEmail;
   late String _iFirstName;
+  late String _iGenderEn;
   late String _iLastName;
-  late String _iGender;
   late String _iPhone;
-  bool _loading = false;
+  bool _isLoading = false;
   bool _prefilled = false;
   bool _serverIsError = true;
   bool _showErrors = false;
 
-  File? _avatarFile;
+  File? _imageFile;
   String? _serverMessage;
 
   @override
@@ -58,34 +58,74 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     final me = context.read<AuthRepository>().me;
     if (me == null) return;
 
-    _iLastName = me.lastName;
-    _iFirstName = me.firstName;
-    _iDob = me.birthDate ?? '';
-    _iEmail = me.email;
-    _iPhone = me.phoneNumber;
-    _iGender = me.gender;
-
-    _lastNameCtrl.text = me.lastName;
-    _firstNameCtrl.text = me.firstName;
-    _dobCtrl.text = (me.birthDate ?? '').replaceAll('-', '/');
-    _emailCtrl.text = me.email;
-    _phoneCtrl.text = me.phoneNumber;
-
-    _genderCtrl.text = me.gender.isEmpty ? 'Male' : me.gender;
-
-    _prefilled = true;
+    _applyProfileToForm(me);
   }
 
   @override
   void dispose() {
-    _lastNameCtrl.dispose();
     _firstNameCtrl.dispose();
+    _lastNameCtrl.dispose();
     _dobCtrl.dispose();
     _emailCtrl.dispose();
-    _countryCtrl.dispose();
     _phoneCtrl.dispose();
     _genderCtrl.dispose();
     super.dispose();
+  }
+
+  void _applyProfileToForm(UserProfile me) {
+    _iFirstName = me.firstName;
+    _iLastName = me.lastName;
+    _iDob = me.birthDate ?? '';
+    _iEmail = me.email;
+    _iPhone = me.phoneNumber;
+    _iGenderEn = me.gender;
+
+    _firstNameCtrl.text = me.firstName;
+    _lastNameCtrl.text = me.lastName;
+    _dobCtrl.text = (me.birthDate ?? '').replaceAll('-', '/');
+    _emailCtrl.text = me.email;
+    _phoneCtrl.text = me.phoneNumber;
+    _genderCtrl.text = _mapGenderEnToFa(me.gender);
+
+    _prefilled = true;
+  }
+
+  Map<String, dynamic> _buildPatchBody() {
+    final patch = <String, dynamic>{};
+
+    final firstNow = _firstNameCtrl.text.trim();
+    final lastNow = _lastNameCtrl.text.trim();
+
+    final dobNow = _toEnglishDigits(_dobCtrl.text.trim()).replaceAll('/', '-');
+    final emailNow = _emailCtrl.text.trim();
+    final phoneNow = _toEnglishDigits(_phoneCtrl.text.trim());
+    final genderEnNow = _mapGenderFaToEn(_genderCtrl.text.trim());
+
+    if (firstNow.isNotEmpty && firstNow != _iFirstName) {
+      patch['first_name'] = firstNow;
+    }
+
+    if (lastNow.isNotEmpty && lastNow != _iLastName) {
+      patch['last_name'] = lastNow;
+    }
+
+    if (dobNow != (_iDob.isEmpty ? '' : _iDob)) {
+      if (dobNow.isNotEmpty) patch['date_of_birth'] = dobNow;
+    }
+
+    if (emailNow.isNotEmpty && emailNow != _iEmail) {
+      patch['email'] = emailNow;
+    }
+
+    if (phoneNow.isNotEmpty && phoneNow != _toEnglishDigits(_iPhone)) {
+      patch['phone_number'] = phoneNow;
+    }
+
+    if (genderEnNow.isNotEmpty && genderEnNow != _iGenderEn) {
+      patch['gender'] = genderEnNow;
+    }
+
+    return patch;
   }
 
   String? _dobValidator(String? v) {
@@ -96,84 +136,36 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     return null;
   }
 
+  String _mapGenderEnToFa(String g) {
+    final x = g.trim().toLowerCase();
+    if (x == 'female') return 'زن';
+    if (x == 'male') return 'مرد';
+    if (g == 'زن' || g == 'مرد') return g;
+    return '';
+  }
+
   String _mapGenderFaToEn(String? g) {
     if (g == 'زن') return 'Female';
     if (g == 'مرد') return 'Male';
     return '';
   }
 
-  Map<String, dynamic> _buildPatchBody() {
-    final patch = <String, dynamic>{};
-
-    final lastNow = _lastNameCtrl.text.trim();
-    final firstNow = _firstNameCtrl.text.trim();
-
-    final dobUi = _dobCtrl.text.trim();
-    final dobServer = _toEnglishDigits(dobUi).replaceAll('/', '-');
-
-    final emailNow = _emailCtrl.text.trim();
-    final phoneNow = _toEnglishDigits(_phoneCtrl.text.trim());
-    final genderNow = _genderCtrl.text.trim();
-
-    final lastChanged = lastNow != _iLastName.trim();
-    final firstChanged = firstNow != _iFirstName.trim();
-
-    if (lastChanged || firstChanged) {
-      final desiredFirst = firstNow.isNotEmpty
-          ? firstNow
-          : (lastNow.isNotEmpty ? lastNow.split(' ').first : _iFirstName);
-
-      final desiredLast = lastChanged
-          ? _guessLastName(fullName: lastNow, firstName: desiredFirst)
-          : _guessLastName(fullName: _iLastName, firstName: _iFirstName);
-
-      patch['first_name'] = desiredFirst;
-      patch['last_name'] = desiredLast;
-    }
-
-    if (dobServer != (_iDob.isEmpty ? '' : _iDob)) {
-      if (dobServer.isNotEmpty) patch['date_of_birth'] = dobServer;
-    }
-
-    if (emailNow != _iEmail) {
-      patch['email'] = emailNow;
-    }
-
-    if (phoneNow != _toEnglishDigits(_iPhone)) {
-      patch['phone_number'] = phoneNow;
-    }
-
-    if (genderNow.isNotEmpty && genderNow != _iGender) {
-      patch['gender'] = genderNow;
-    }
-
-    return patch;
-  }
-
-  String _guessLastName({required String fullName, required String firstName}) {
-    final f = firstName.trim();
-    final full = fullName.trim();
-    if (full.isEmpty) return '';
-    final parts = full.split(' ').where((e) => e.trim().isNotEmpty).toList();
-    if (parts.length <= 1) return '';
-    if (f.isNotEmpty && full.startsWith(f)) {
-      return full.substring(f.length).trim();
-    }
-    return parts.sublist(1).join(' ');
-  }
-
-  Future<void> _pickAvatar() async {
+  Future<void> _pickImage() async {
     final status = await Permission.photos.request();
+
     if (status.isDenied || status.isPermanentlyDenied) {
-      _showMsg('اجازه دسترسی به تصاویر داده نشد', isError: true);
-      return;
+      return _showMsg('اجازه دسترسی به تصاویر داده نشد', isError: true);
     }
 
-    final XFile? picked = await _picker.pickImage(source: ImageSource.gallery);
-    if (picked == null) return;
-
-    setState(() => _avatarFile = File(picked.path));
-    _showMsg('عکس انتخاب شد (برای ذخیره Update بزن)', isError: false);
+    try {
+      final XFile? pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+      if (pickedFile != null) {
+        setState(() => _imageFile = File(pickedFile.path));
+        _showMsg('عکس انتخاب شد (برای ذخیره تایید بزن)', isError: false);
+      }
+    } catch (e) {
+      _showMsg('خطا در انتخاب تصویر: $e', isError: true);
+    }
   }
 
   void _showMsg(String text, {required bool isError}) {
@@ -197,24 +189,26 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     if (!_formKey.currentState!.validate()) return;
 
     final patch = _buildPatchBody();
-
-    if (patch.isEmpty && _avatarFile == null) {
-      _showMsg('هیچ تغییری ثبت نشده است', isError: true);
-      return;
+    if (patch.isEmpty && _imageFile == null) {
+      return _showMsg('هیچ تغییری ثبت نشده است', isError: true);
     }
 
-    setState(() => _loading = true);
+    final authRepo = context.read<AuthRepository>();
 
-    final res = await ProfileApi().edit(fields: patch, avatarFile: _avatarFile);
+    setState(() => _isLoading = true);
+
+    final res = await ProfileApi().edit(fields: patch, avatarFile: _imageFile);
 
     if (!mounted) return;
-    setState(() => _loading = false);
+    setState(() => _isLoading = false);
 
     if (res.success && res.data != null) {
-      await context.read<AuthRepository>().setMe(res.data!);
+      await authRepo.setMe(res.data!);
 
       _prefilled = false;
-      didChangeDependencies();
+      _applyProfileToForm(res.data!);
+
+      _imageFile = null;
 
       _showMsg('اطلاعات بروزرسانی شد', isError: false);
     } else {
@@ -243,21 +237,21 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         title: Text(
           'تغییر پروفایل',
           style: TextStyle(
-            fontWeight: FontWeight.w800,
+            fontWeight: FontWeight.bold,
             color: isLightMode ? AppColors.grey900 : AppColors.white,
-            fontSize: SizeConfig.getProportionateFontSize(21),
+            fontSize: SizeConfig.getProportionateScreenWidth(21),
+            fontFamily: 'Peyda',
           ),
         ),
         actions: [
           Padding(
             padding: EdgeInsets.only(left: SizeConfig.getProportionateScreenWidth(20)),
             child: IconButton(
-              onPressed: _pickAvatar,
+              onPressed: _pickImage,
               icon: SvgPicture.asset(
                 'assets/images/icons/Image.svg',
                 width: SizeConfig.getProportionateScreenWidth(24),
                 height: SizeConfig.getProportionateScreenWidth(24),
-                color: isLightMode ? AppColors.grey900 : AppColors.white,
               ),
             ),
           ),
@@ -270,59 +264,65 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               child: SingleChildScrollView(
                 padding: EdgeInsets.symmetric(
                   horizontal: SizeConfig.getProportionateScreenWidth(24),
+                  vertical: SizeConfig.getProportionateScreenHeight(24),
                 ),
                 child: Form(
                   key: _formKey,
                   child: Column(
                     children: [
-                      Gap(SizeConfig.getProportionateScreenHeight(14)),
+                      Gap(SizeConfig.getProportionateScreenHeight(24)),
                       if (_serverMessage != null) ...[
                         AppAlertDialog(text: _serverMessage!, isError: _serverIsError),
                         Gap(SizeConfig.getProportionateScreenHeight(12)),
                       ],
-
                       AppTextField(
+                        isPassword: false,
                         isLightMode: isLightMode,
-                        controller: _firstNameCtrl,
+                        showErrors: _showErrors,
+                        validator: Validators.requiredBlankValidator,
                         hintText: 'نام',
                         suffixIcon: 'assets/images/icons/Profile.svg',
-                        showErrors: _showErrors,
-                        validator: Validators.requiredBlankValidator,
-                        textDirection: TextDirection.rtl,
+                        controller: _firstNameCtrl,
                       ),
+
                       Gap(SizeConfig.getProportionateScreenHeight(15)),
 
                       AppTextField(
+                        isPassword: false,
                         isLightMode: isLightMode,
-                        controller: _lastNameCtrl,
                         hintText: 'نام خانوادگی',
                         suffixIcon: 'assets/images/icons/Profile.svg',
+                        controller: _lastNameCtrl,
                         showErrors: _showErrors,
                         validator: Validators.requiredBlankValidator,
                       ),
+
                       Gap(SizeConfig.getProportionateScreenHeight(15)),
 
                       AppTextField(
+                        isPassword: false,
                         isLightMode: isLightMode,
-                        controller: _dobCtrl,
                         hintText: 'تاریخ تولد',
-                        isDateField: true,
                         suffixIcon: 'assets/images/icons/Calendar_curve.svg',
-                        showErrors: _showErrors,
+                        isDateField: true,
+                        controller: _dobCtrl,
                         validator: _dobValidator,
+                        showErrors: _showErrors,
                       ),
+
                       Gap(SizeConfig.getProportionateScreenHeight(15)),
 
                       AppTextField(
+                        isPassword: false,
                         isLightMode: isLightMode,
-                        controller: _emailCtrl,
                         hintText: 'ایمیل',
+                        controller: _emailCtrl,
                         suffixIcon: 'assets/images/icons/Message_curve.svg',
-                        showErrors: _showErrors,
                         validator: Validators.requiredEmailValidator,
+                        showErrors: _showErrors,
                         textDirection: TextDirection.ltr,
-                        keyboardType: TextInputType.emailAddress,
                       ),
+
                       Gap(SizeConfig.getProportionateScreenHeight(15)),
 
                       AppTextField(
@@ -333,16 +333,18 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         suffixIcon: 'assets/images/icons/Call_curve.svg',
                         validator: Validators.requiredMobileValidator,
                         showErrors: _showErrors,
+                        textDirection: TextDirection.ltr,
                       ),
 
                       Gap(SizeConfig.getProportionateScreenHeight(15)),
+
                       AppDropDown(
                         controller: _genderCtrl,
                         hint: 'جنسیت',
                         items: const ['زن', 'مرد'],
                         showErrors: _showErrors,
                         validator: (v) {
-                          if ((v ?? '').trim().isEmpty) return 'لطفاً انتخاب کنید';
+                          if ((v ?? '').trim().isEmpty) return 'لطفاً جنسیت را انتخاب کنید';
                           return null;
                         },
                         onChanged: (v) => _genderCtrl.text = v,
@@ -364,7 +366,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     ? SizeConfig.getProportionateScreenHeight(12)
                     : SizeConfig.getProportionateScreenHeight(18),
               ),
-              child: _loading
+              child: _isLoading
                   ? const AppProgressBarIndicator()
                   : AppButton(
                       onTap: _submit,
