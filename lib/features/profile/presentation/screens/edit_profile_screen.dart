@@ -254,19 +254,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             fontSize: SizeConfig.getProportionateFontSize(21),
           ),
         ),
-        actions: [
-          Padding(
-            padding: EdgeInsets.only(left: SizeConfig.getProportionateScreenWidth(20)),
-            child: IconButton(
-              onPressed: _pickAvatar,
-              icon: SvgPicture.asset(
-                'assets/images/icons/Image.svg',
-                width: SizeConfig.getProportionateScreenWidth(24),
-                height: SizeConfig.getProportionateScreenWidth(24),
-              ),
-            ),
-          ),
-        ],
       ),
       body: SafeArea(
         child: Column(
@@ -286,7 +273,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         alignment: Alignment.center,
                         children: [
                           CircleAvatar(
-                            radius: SizeConfig.getProportionateScreenWidth(50),
+                            radius: SizeConfig.getProportionateScreenWidth(60),
                             backgroundColor: isLightMode ? AppColors.grey200 : AppColors.dark3,
                             backgroundImage: avatarProvider,
                             child: avatarProvider == null
@@ -302,24 +289,12 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                             right: 0,
                             child: GestureDetector(
                               onTap: _pickAvatar,
-                              child: Container(
-                                width: SizeConfig.getProportionateScreenWidth(34),
-                                height: SizeConfig.getProportionateScreenWidth(34),
-                                decoration: BoxDecoration(
+                              child: SizedBox(
+                                width: SizeConfig.getProportionateScreenWidth(30),
+                                height: SizeConfig.getProportionateScreenWidth(30),
+                                child: SvgPicture.asset(
+                                  'assets/images/icons/Edit_squre.svg',
                                   color: AppColors.primary,
-                                  shape: BoxShape.circle,
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.black.withOpacity(0.12),
-                                      blurRadius: 10,
-                                      offset: const Offset(0, 4),
-                                    ),
-                                  ],
-                                ),
-                                child: Icon(
-                                  Icons.edit,
-                                  color: Colors.white,
-                                  size: SizeConfig.getProportionateScreenWidth(18),
                                 ),
                               ),
                             ),
@@ -373,7 +348,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         suffixIcon: 'assets/images/icons/Message_curve.svg',
                         showErrors: _showErrors,
                         validator: Validators.requiredEmailValidator,
-                        textDirection: TextDirection.ltr,
+                        textDirection: TextDirection.rtl,
                         keyboardType: TextInputType.emailAddress,
                       ),
                       Gap(SizeConfig.getProportionateScreenHeight(15)),
@@ -385,7 +360,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         suffixIcon: 'assets/images/icons/Call_curve.svg',
                         showErrors: _showErrors,
                         validator: Validators.requiredMobileValidator,
-                        textDirection: TextDirection.ltr,
+                        textDirection: TextDirection.rtl,
                         keyboardType: TextInputType.phone,
                         inputFormatters: const [PersianDigitsTextInputFormatter()],
                       ),
