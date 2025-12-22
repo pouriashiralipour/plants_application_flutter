@@ -16,6 +16,9 @@ class UrlInfo {
   static String otpVerifyUrl = 'auth/otp_verify/';
   static String passwordResetRequestUrl = 'auth/password_reset_request/';
   static String passwordResetVerifyUrl = 'auth/password_reset_verify/';
+  static const changeIdentifierRequestUrl = '/auth/change_identifier_request/';
+  static const changeIdentifierVerifyUrl = '/auth/change_identifier_verify/';
+
   // Shop
   static String productsUrl = 'products/';
 
