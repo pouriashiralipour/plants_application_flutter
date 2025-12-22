@@ -19,9 +19,12 @@ import '../../../../core/widgets/app_drop_down.dart';
 import '../../../../core/widgets/app_progress_indicator.dart';
 import '../../../../core/widgets/app_text_field.dart';
 import '../../../../core/widgets/gap.dart';
+import '../../../auth/data/datasources/auth_remote_data_source.dart';
 import '../../../auth/data/repositories/auth_repository.dart';
 import '../../../auth/data/datasources/profile_remote_data_source.dart';
 import '../../data/models/profile_models.dart';
+
+enum _ChangeIdMode { email, phone }
 
 class EditProfileScreen extends StatefulWidget {
   const EditProfileScreen({super.key});
@@ -31,30 +34,33 @@ class EditProfileScreen extends StatefulWidget {
 }
 
 class _EditProfileScreenState extends State<EditProfileScreen> {
-  final _formKey = GlobalKey<FormState>();
-
-  final _firstNameCtrl = TextEditingController();
-  final _lastNameCtrl = TextEditingController();
   final _dobCtrl = TextEditingController();
   final _emailCtrl = TextEditingController();
-  final _phoneCtrl = TextEditingController();
+  final _emailOtpCtrl = TextEditingController();
+  final _firstNameCtrl = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
   final _genderCtrl = TextEditingController();
+  final _lastNameCtrl = TextEditingController();
+  final _newEmailCtrl = TextEditingController();
+  final _phoneCtrl = TextEditingController();
 
-  bool _loading = false;
-  bool _showErrors = false;
-  bool _prefilled = false;
-
-  File? _avatarFile;
-
-  String? _serverMessage;
-  bool _serverIsError = true;
-
-  late String _iFirstName;
-  late String _iLastName;
+  bool _emailFlowOpen = false;
+  bool _emailOtpSent = false;
+  bool _emailReqLoading = false;
+  bool _emailVerifyLoading = false;
   late String _iDob;
   late String _iEmail;
-  late String _iPhone;
+  late String _iFirstName;
   late String _iGenderEn;
+  late String _iLastName;
+  late String _iPhone;
+  bool _loading = false;
+  bool _prefilled = false;
+  bool _serverIsError = true;
+  bool _showErrors = false;
+
+  File? _avatarFile;
+  String? _serverMessage;
 
   @override
   void didChangeDependencies() {
@@ -65,6 +71,26 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     if (me == null) return;
 
     _applyProfileToForm(me);
+  }
+
+  @override
+  void dispose() {
+    _firstNameCtrl.dispose();
+    _lastNameCtrl.dispose();
+    _dobCtrl.dispose();
+    _emailCtrl.dispose();
+    _phoneCtrl.dispose();
+    _genderCtrl.dispose();
+    _newEmailCtrl.dispose();
+    _emailOtpCtrl.dispose();
+
+    super.dispose();
+  }
+
+  @override
+  void reassemble() {
+    super.reassemble();
+    _showErrors = false;
   }
 
   void _applyProfileToForm(UserProfile me) {
@@ -87,21 +113,35 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     _prefilled = true;
   }
 
-  @override
-  void dispose() {
-    _firstNameCtrl.dispose();
-    _lastNameCtrl.dispose();
-    _dobCtrl.dispose();
-    _emailCtrl.dispose();
-    _phoneCtrl.dispose();
-    _genderCtrl.dispose();
-    super.dispose();
+  Map<String, dynamic> _buildPatchBody() {
+    final patch = <String, dynamic>{};
+
+    final firstNow = _firstNameCtrl.text.trim();
+    final lastNow = _lastNameCtrl.text.trim();
+
+    final dobUi = _dobCtrl.text.trim();
+    final dobServer = _toEnglishDigits(dobUi).replaceAll('/', '-');
+
+    final genderEnNow = _mapGenderFaToEn(_genderCtrl.text.trim());
+
+    if (firstNow.isNotEmpty && firstNow != _iFirstName) patch['first_name'] = firstNow;
+    if (lastNow.isNotEmpty && lastNow != _iLastName) patch['last_name'] = lastNow;
+
+    if (dobServer != (_iDob.isEmpty ? '' : _iDob)) {
+      if (dobServer.isNotEmpty) patch['date_of_birth'] = dobServer;
+    }
+
+    if (genderEnNow.isNotEmpty && genderEnNow != _iGenderEn) patch['gender'] = genderEnNow;
+
+    return patch;
   }
 
-  String _mapGenderFaToEn(String? g) {
-    if (g == 'زن') return 'Female';
-    if (g == 'مرد') return 'Male';
-    return '';
+  String? _dobValidator(String? v) {
+    final s = _toEnglishDigits((v ?? '').trim());
+    if (s.isEmpty) return 'تاریخ تولد را وارد کنید';
+    final re = RegExp(r'^\d{4}/\d{2}/\d{2}$');
+    if (!re.hasMatch(s)) return 'قالب تاریخ: YYYY/MM/DD';
+    return null;
   }
 
   String _mapGenderEnToFa(String g) {
@@ -112,12 +152,37 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     return '';
   }
 
-  String? _dobValidator(String? v) {
-    final s = _toEnglishDigits((v ?? '').trim());
-    if (s.isEmpty) return 'تاریخ تولد را وارد کنید';
-    final re = RegExp(r'^\d{4}/\d{2}/\d{2}$');
-    if (!re.hasMatch(s)) return 'قالب تاریخ: YYYY/MM/DD';
-    return null;
+  String _mapGenderFaToEn(String? g) {
+    if (g == 'زن') return 'Female';
+    if (g == 'مرد') return 'Male';
+    return '';
+  }
+
+  Future<void> _openChangeIdentifierModal({required _ChangeIdMode mode}) async {
+    final me = context.read<AuthRepository>().me;
+    if (me == null) return;
+
+    final currentValue = mode == _ChangeIdMode.email ? me.email : me.phoneNumber;
+
+    final result = await showModalBottomSheet<UserProfile>(
+      context: context,
+      isScrollControlled: true,
+      useSafeArea: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => _ChangeIdentifierOtpSheet(mode: mode, currentValue: currentValue),
+    );
+
+    if (result == null || !mounted) return;
+
+    // ✅ Sync UI
+    await context.read<AuthRepository>().setMe(result);
+    _prefilled = false;
+    _applyProfileToForm(result);
+
+    _showMsg(
+      mode == _ChangeIdMode.email ? 'ایمیل بروزرسانی شد' : 'شماره موبایل بروزرسانی شد',
+      isError: false,
+    );
   }
 
   Future<void> _pickAvatar() async {
@@ -146,6 +211,29 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     }
   }
 
+  Future<void> _requestEmailOtp() async {
+    final target = _newEmailCtrl.text.trim().toLowerCase();
+    final err = Validators.requiredEmailValidator(target);
+    if (err != null) return _showMsg(err, isError: true);
+
+    setState(() {
+      _emailReqLoading = true;
+      _serverMessage = null;
+    });
+
+    final res = await AuthApi().requestChangeIdentifierOtp(target: target);
+
+    if (!mounted) return;
+    setState(() => _emailReqLoading = false);
+
+    if (res.success) {
+      setState(() => _emailOtpSent = true);
+      _showMsg('کد تایید به ایمیل جدید ارسال شد', isError: false);
+    } else {
+      _showMsg(res.error ?? 'ارسال کد ناموفق بود', isError: true);
+    }
+  }
+
   void _showMsg(String text, {required bool isError}) {
     setState(() {
       _serverMessage = text;
@@ -156,35 +244,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       if (!mounted) return;
       setState(() => _serverMessage = null);
     });
-  }
-
-  Map<String, dynamic> _buildPatchBody() {
-    final patch = <String, dynamic>{};
-
-    final firstNow = _firstNameCtrl.text.trim();
-    final lastNow = _lastNameCtrl.text.trim();
-
-    final dobUi = _dobCtrl.text.trim();
-    final dobServer = _toEnglishDigits(dobUi).replaceAll('/', '-');
-
-    final emailNow = _emailCtrl.text.trim();
-    final phoneNow = _toEnglishDigits(_phoneCtrl.text.trim());
-    final genderEnNow = _mapGenderFaToEn(_genderCtrl.text.trim());
-
-    if (firstNow.isNotEmpty && firstNow != _iFirstName) patch['first_name'] = firstNow;
-    if (lastNow.isNotEmpty && lastNow != _iLastName) patch['last_name'] = lastNow;
-
-    if (dobServer != (_iDob.isEmpty ? '' : _iDob)) {
-      if (dobServer.isNotEmpty) patch['date_of_birth'] = dobServer;
-    }
-
-    if (emailNow.isNotEmpty && emailNow != _iEmail) patch['email'] = emailNow;
-    if (phoneNow.isNotEmpty && phoneNow != _toEnglishDigits(_iPhone))
-      patch['phone_number'] = phoneNow;
-
-    if (genderEnNow.isNotEmpty && genderEnNow != _iGenderEn) patch['gender'] = genderEnNow;
-
-    return patch;
   }
 
   Future<void> _submit() async {
@@ -240,6 +299,41 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       s = s.replaceAll(fa[i], i.toString()).replaceAll(ar[i], i.toString());
     }
     return s;
+  }
+
+  Future<void> _verifyEmailOtp() async {
+    final code = _emailOtpCtrl.text.trim().englishNumber;
+    if (code.length != 6) return _showMsg('کد ۶ رقمی را کامل وارد کنید', isError: true);
+
+    setState(() {
+      _emailVerifyLoading = true;
+      _serverMessage = null;
+    });
+
+    final res = await AuthApi().verifyChangeIdentifierOtp(code: code);
+
+    if (!mounted) return;
+    setState(() => _emailVerifyLoading = false);
+
+    if (res.success && res.data != null) {
+      final updated = res.data!;
+      await context.read<AuthRepository>().setMe(updated);
+
+      // فرم را هم آپدیت کن
+      _prefilled = false;
+      _applyProfileToForm(updated);
+
+      setState(() {
+        _emailFlowOpen = false;
+        _emailOtpSent = false;
+        _newEmailCtrl.clear();
+        _emailOtpCtrl.clear();
+      });
+
+      _showMsg('ایمیل با موفقیت تغییر کرد', isError: false);
+    } else {
+      _showMsg(res.error ?? 'کد نامعتبر است', isError: true);
+    }
   }
 
   @override
@@ -368,7 +462,19 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         validator: Validators.requiredEmailValidator,
                         textDirection: TextDirection.ltr,
                         keyboardType: TextInputType.emailAddress,
+                        enabled: false,
                       ),
+                      Align(
+                        alignment: AlignmentDirectional.centerStart,
+                        child: TextButton(
+                          onPressed: () => _openChangeIdentifierModal(mode: _ChangeIdMode.email),
+                          child: Text(
+                            'تغییر ایمیل با OTP',
+                            style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.w700),
+                          ),
+                        ),
+                      ),
+
                       Gap(SizeConfig.getProportionateScreenHeight(15)),
 
                       AppTextField(
@@ -381,6 +487,16 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         textDirection: TextDirection.ltr,
                         keyboardType: TextInputType.phone,
                         inputFormatters: const [PersianDigitsTextInputFormatter()],
+                      ),
+                      Align(
+                        alignment: AlignmentDirectional.centerStart,
+                        child: TextButton(
+                          onPressed: () => _openChangeIdentifierModal(mode: _ChangeIdMode.phone),
+                          child: Text(
+                            'تغییر شماره موبایل با OTP',
+                            style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.w700),
+                          ),
+                        ),
                       ),
 
                       Gap(SizeConfig.getProportionateScreenHeight(15)),
@@ -437,4 +553,284 @@ String? buildAvatarUrl(String? raw, String baseUrl) {
   if (avatar.startsWith('http')) return avatar;
   if (avatar.startsWith('/')) return '$baseUrl${avatar.substring(1)}';
   return '$baseUrl$avatar';
+}
+
+class _ChangeIdentifierOtpSheet extends StatefulWidget {
+  const _ChangeIdentifierOtpSheet({required this.mode, required this.currentValue});
+
+  final String currentValue;
+  final _ChangeIdMode mode;
+
+  @override
+  State<_ChangeIdentifierOtpSheet> createState() => _ChangeIdentifierOtpSheetState();
+}
+
+class _ChangeIdentifierOtpSheetState extends State<_ChangeIdentifierOtpSheet> {
+  final _formKey = GlobalKey<FormState>();
+  final _otpCtrl = TextEditingController();
+  final _targetCtrl = TextEditingController();
+
+  bool _isError = true;
+  bool _otpSent = false;
+  bool _reqLoading = false;
+  bool _showErrors = false;
+  bool _verifyLoading = false;
+
+  String? _msg;
+
+  @override
+  void dispose() {
+    _targetCtrl.dispose();
+    _otpCtrl.dispose();
+    super.dispose();
+  }
+
+  String _normalizeForCompare(String raw) {
+    final v = raw.trim();
+
+    if (widget.mode == _ChangeIdMode.email) {
+      return v.toLowerCase();
+    }
+
+    var x = v.englishNumber.replaceAll(RegExp(r'[\s\-\(\)]'), '');
+
+    if (x.startsWith('+98')) x = '0${x.substring(3)}';
+    if (x.startsWith('98')) x = '0${x.substring(2)}';
+
+    return x;
+  }
+
+  String _normalizeTarget(String raw) {
+    final v = raw.trim();
+    if (widget.mode == _ChangeIdMode.phone) {
+      return v.englishNumber.replaceAll(RegExp(r'\s+'), '');
+    }
+    return v;
+  }
+
+  Future<void> _requestOtp() async {
+    setState(() {
+      _showErrors = true;
+      _msg = null;
+    });
+
+    if (!_formKey.currentState!.validate()) return;
+
+    final target = _normalizeTarget(_targetCtrl.text);
+    final targetCmp = _normalizeForCompare(target);
+    final currentCmp = _normalizeForCompare(widget.currentValue);
+
+    if (targetCmp == currentCmp) {
+      _setMsg(
+        widget.mode == _ChangeIdMode.email
+            ? 'این ایمیل همان ایمیل فعلی است؛ لطفاً ایمیل جدید وارد کنید.'
+            : 'این شماره همان شماره فعلی است؛ لطفاً شماره جدید وارد کنید.',
+        isError: true,
+      );
+      return;
+    }
+
+    setState(() => _reqLoading = true);
+
+    final res = await AuthApi().requestChangeIdentifierOtp(target: target);
+
+    if (!mounted) return;
+    setState(() => _reqLoading = false);
+
+    if (res.success) {
+      setState(() => _otpSent = true);
+      _setMsg('کد تایید ارسال شد', isError: false);
+    } else {
+      final raw = (res.error ?? '').trim();
+
+      final isDuplicate =
+          raw.toLowerCase().contains('already') ||
+          raw.toLowerCase().contains('exists') ||
+          raw.contains('تکراری') ||
+          raw.contains('قبلا') ||
+          raw.contains('استفاده');
+
+      if (isDuplicate) {
+        _setMsg(
+          widget.mode == _ChangeIdMode.email
+              ? 'این ایمیل قبلاً ثبت شده است. لطفاً یک ایمیل دیگر وارد کنید.'
+              : 'این شماره قبلاً ثبت شده است. لطفاً یک شماره دیگر وارد کنید.',
+          isError: true,
+        );
+      } else {
+        _setMsg(raw.isEmpty ? 'ارسال کد ناموفق بود' : raw, isError: true);
+      }
+    }
+  }
+
+  void _setMsg(String text, {required bool isError}) {
+    setState(() {
+      _msg = text;
+      _isError = isError;
+    });
+  }
+
+  String? _targetValidator(String? v) {
+    final raw = (v ?? '').trim();
+    if (widget.mode == _ChangeIdMode.email) {
+      return Validators.requiredEmailValidator(raw);
+    }
+    return Validators.requiredMobileValidator(raw);
+  }
+
+  Future<void> _verifyOtp() async {
+    final code = _otpCtrl.text.trim().englishNumber;
+    if (code.length != 6) {
+      _setMsg('کد ۶ رقمی را کامل وارد کنید', isError: true);
+      return;
+    }
+
+    setState(() {
+      _verifyLoading = true;
+      _msg = null;
+    });
+
+    final res = await AuthApi().verifyChangeIdentifierOtp(code: code);
+
+    if (!mounted) return;
+    setState(() => _verifyLoading = false);
+
+    if (res.success && res.data != null) {
+      Navigator.pop(context, res.data!);
+    } else {
+      _setMsg(res.error ?? 'کد نامعتبر است', isError: true);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final isLightMode = Theme.of(context).brightness == Brightness.light;
+
+    final title = widget.mode == _ChangeIdMode.email ? 'تغییر ایمیل' : 'تغییر شماره موبایل';
+    final hint = widget.mode == _ChangeIdMode.email ? 'ایمیل جدید' : 'شماره جدید';
+    final current = widget.mode == _ChangeIdMode.phone
+        ? widget.currentValue.farsiNumber
+        : widget.currentValue;
+
+    return Padding(
+      padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+      child: Container(
+        decoration: BoxDecoration(
+          color: isLightMode ? AppColors.white : AppColors.dark1,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.12),
+              blurRadius: 28,
+              offset: const Offset(0, -10),
+            ),
+          ],
+        ),
+        padding: EdgeInsets.symmetric(
+          horizontal: SizeConfig.getProportionateScreenWidth(20),
+          vertical: SizeConfig.getProportionateScreenHeight(14),
+        ),
+        child: SafeArea(
+          top: false,
+          child: Form(
+            key: _formKey,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 44,
+                  height: 5,
+                  decoration: BoxDecoration(
+                    color: AppColors.grey300.withValues(alpha: 0.9),
+                    borderRadius: BorderRadius.circular(99),
+                  ),
+                ),
+                Gap(SizeConfig.getProportionateScreenHeight(12)),
+
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        title,
+                        style: TextStyle(
+                          fontSize: SizeConfig.getProportionateFontSize(18),
+                          fontWeight: FontWeight.w800,
+                          color: isLightMode ? AppColors.grey900 : AppColors.white,
+                        ),
+                      ),
+                    ),
+                    IconButton(
+                      onPressed: () => Navigator.pop(context),
+                      icon: Icon(
+                        Icons.close_rounded,
+                        color: isLightMode ? AppColors.grey900 : AppColors.white,
+                      ),
+                    ),
+                  ],
+                ),
+
+                Gap(SizeConfig.getProportionateScreenHeight(12)),
+
+                if (_msg != null) ...[
+                  AppAlertDialog(text: _msg!, isError: _isError),
+                  Gap(SizeConfig.getProportionateScreenHeight(12)),
+                ],
+
+                AppTextField(
+                  isLightMode: isLightMode,
+                  controller: _targetCtrl,
+                  hintText: hint,
+                  showErrors: _showErrors,
+                  validator: _targetValidator,
+                  textDirection: TextDirection.ltr,
+                  keyboardType: widget.mode == _ChangeIdMode.email
+                      ? TextInputType.emailAddress
+                      : TextInputType.phone,
+                  inputFormatters: widget.mode == _ChangeIdMode.phone
+                      ? const [PersianDigitsTextInputFormatter()]
+                      : null,
+                ),
+
+                Gap(SizeConfig.getProportionateScreenHeight(12)),
+
+                _reqLoading
+                    ? const AppProgressBarIndicator()
+                    : AppButton(
+                        onTap: _requestOtp,
+                        text: _otpSent ? 'ارسال مجدد کد' : 'ارسال کد تایید',
+                        color: AppColors.primary,
+                        width: SizeConfig.screenWidth,
+                        fontSize: SizeConfig.getProportionateFontSize(14),
+                      ),
+
+                if (_otpSent) ...[
+                  Gap(SizeConfig.getProportionateScreenHeight(14)),
+                  AppTextField(
+                    isLightMode: isLightMode,
+                    controller: _otpCtrl,
+                    hintText: 'کد ۶ رقمی',
+                    textDirection: TextDirection.ltr,
+                    keyboardType: TextInputType.number,
+                    inputFormatters: const [PersianDigitsTextInputFormatter()],
+                  ),
+                  Gap(SizeConfig.getProportionateScreenHeight(12)),
+                  _verifyLoading
+                      ? const AppProgressBarIndicator()
+                      : AppButton(
+                          onTap: _verifyOtp,
+                          text: 'تایید و اعمال تغییر',
+                          color: AppColors.success,
+                          width: SizeConfig.screenWidth,
+                          fontSize: SizeConfig.getProportionateFontSize(14),
+                        ),
+                ],
+
+                Gap(SizeConfig.getProportionateScreenHeight(18)),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 }
