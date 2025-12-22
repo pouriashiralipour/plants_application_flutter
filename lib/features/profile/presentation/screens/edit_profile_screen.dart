@@ -44,10 +44,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   final _newEmailCtrl = TextEditingController();
   final _phoneCtrl = TextEditingController();
 
-  bool _emailFlowOpen = false;
-  bool _emailOtpSent = false;
-  bool _emailReqLoading = false;
-  bool _emailVerifyLoading = false;
   late String _iDob;
   late String _iEmail;
   late String _iFirstName;
@@ -211,29 +207,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     }
   }
 
-  Future<void> _requestEmailOtp() async {
-    final target = _newEmailCtrl.text.trim().toLowerCase();
-    final err = Validators.requiredEmailValidator(target);
-    if (err != null) return _showMsg(err, isError: true);
-
-    setState(() {
-      _emailReqLoading = true;
-      _serverMessage = null;
-    });
-
-    final res = await AuthApi().requestChangeIdentifierOtp(target: target);
-
-    if (!mounted) return;
-    setState(() => _emailReqLoading = false);
-
-    if (res.success) {
-      setState(() => _emailOtpSent = true);
-      _showMsg('کد تایید به ایمیل جدید ارسال شد', isError: false);
-    } else {
-      _showMsg(res.error ?? 'ارسال کد ناموفق بود', isError: true);
-    }
-  }
-
   void _showMsg(String text, {required bool isError}) {
     setState(() {
       _serverMessage = text;
@@ -299,41 +272,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       s = s.replaceAll(fa[i], i.toString()).replaceAll(ar[i], i.toString());
     }
     return s;
-  }
-
-  Future<void> _verifyEmailOtp() async {
-    final code = _emailOtpCtrl.text.trim().englishNumber;
-    if (code.length != 6) return _showMsg('کد ۶ رقمی را کامل وارد کنید', isError: true);
-
-    setState(() {
-      _emailVerifyLoading = true;
-      _serverMessage = null;
-    });
-
-    final res = await AuthApi().verifyChangeIdentifierOtp(code: code);
-
-    if (!mounted) return;
-    setState(() => _emailVerifyLoading = false);
-
-    if (res.success && res.data != null) {
-      final updated = res.data!;
-      await context.read<AuthRepository>().setMe(updated);
-
-      // فرم را هم آپدیت کن
-      _prefilled = false;
-      _applyProfileToForm(updated);
-
-      setState(() {
-        _emailFlowOpen = false;
-        _emailOtpSent = false;
-        _newEmailCtrl.clear();
-        _emailOtpCtrl.clear();
-      });
-
-      _showMsg('ایمیل با موفقیت تغییر کرد', isError: false);
-    } else {
-      _showMsg(res.error ?? 'کد نامعتبر است', isError: true);
-    }
   }
 
   @override
@@ -708,9 +646,6 @@ class _ChangeIdentifierOtpSheetState extends State<_ChangeIdentifierOtpSheet> {
 
     final title = widget.mode == _ChangeIdMode.email ? 'تغییر ایمیل' : 'تغییر شماره موبایل';
     final hint = widget.mode == _ChangeIdMode.email ? 'ایمیل جدید' : 'شماره جدید';
-    final current = widget.mode == _ChangeIdMode.phone
-        ? widget.currentValue.farsiNumber
-        : widget.currentValue;
 
     return Padding(
       padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
