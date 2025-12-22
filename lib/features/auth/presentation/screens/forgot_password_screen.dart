@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/utils/persian_digits_input_formatter.dart';
 import '../../../../core/utils/size_config.dart';
 import '../../../../core/widgets/gap.dart';
 import '../../../../core/widgets/app_alert_dialog.dart';
@@ -128,6 +129,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
               controller: _targetCtrl,
               validator: Validators.requiredTargetValidator,
               textDirection: TextDirection.ltr,
+              inputFormatters: const [PersianDigitsTextInputFormatter()],
             ),
           ],
         ),

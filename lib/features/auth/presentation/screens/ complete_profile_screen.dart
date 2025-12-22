@@ -9,6 +9,7 @@ import 'dart:io';
 import '../../../../core/config/root_screen.dart';
 import '../../../../core/services/app_image_picker.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/utils/persian_digits_input_formatter.dart';
 import '../../../../core/utils/size_config.dart';
 import '../../../../core/utils/validators.dart';
 import '../../../../core/widgets/gap.dart';
@@ -191,7 +192,6 @@ class _ProfileFormScreenState extends State<ProfileFormScreen> {
             color: isLightMode ? AppColors.grey900 : AppColors.white,
             fontWeight: FontWeight.bold,
             fontSize: SizeConfig.getProportionateScreenWidth(21),
-            fontFamily: 'Peyda',
           ),
         ),
       ),
@@ -293,6 +293,7 @@ class _ProfileFormScreenState extends State<ProfileFormScreen> {
                     suffixIcon: 'assets/images/icons/Call_curve.svg',
                     validator: Validators.requiredMobileValidator,
                     showErrors: _showErrors,
+                    inputFormatters: const [PersianDigitsTextInputFormatter()],
                   ),
             Gap(SizeConfig.getProportionateScreenHeight(15)),
             AppTextField(

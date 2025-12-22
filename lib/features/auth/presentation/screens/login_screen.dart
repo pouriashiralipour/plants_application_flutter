@@ -6,6 +6,7 @@ import '../../../../core/config/root_screen.dart';
 import '../../../../core/services/app_message_controller.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/iran_contact_validator.dart';
+import '../../../../core/utils/persian_digits_input_formatter.dart';
 import '../../../../core/utils/validators.dart';
 import '../../../../core/utils/size_config.dart';
 import '../../../../core/widgets/gap.dart';
@@ -139,6 +140,7 @@ class _LoginScreenState extends State<LoginScreen> {
               showErrors: _showErrors,
               validator: Validators.requiredTargetValidator,
               controller: _loginCtrl,
+              inputFormatters: const [PersianDigitsTextInputFormatter()],
             ),
             Gap(SizeConfig.getProportionateScreenHeight(20)),
             AppTextField(

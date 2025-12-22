@@ -26,7 +26,7 @@ class Validators {
   static String? requiredMobileValidator(String? v) {
     final raw = (v ?? '').trim();
 
-    if (raw == null || raw.trim().isEmpty) {
+    if (raw.trim().isEmpty) {
       return 'شماره موبایل خود را وارد کنید';
     }
 
