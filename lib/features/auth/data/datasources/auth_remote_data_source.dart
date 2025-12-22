@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 
+import '../../../profile/data/models/profile_models.dart';
 import '../models/auth_tokens_model.dart';
 import '../../../../core/config/app_constants.dart';
 import '../../../../core/network/api_client.dart';
@@ -224,6 +225,78 @@ class AuthApi {
       return ApiResult(
         false,
         error: extractErrorMessage(data: e.response?.data, fallback: e.message),
+      );
+    }
+  }
+
+  Future<ApiResult<void>> requestChangeIdentifierOtp({required String target}) async {
+    try {
+      final response = await _dio.post(
+        UrlInfo.changeIdentifierRequestUrl,
+        data: {'target': target},
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        return const ApiResult(true);
+      }
+
+      return ApiResult(
+        false,
+        error: extractErrorMessage(
+          status: response.statusCode,
+          data: response.data,
+          fallback: 'ارسال کد ناموفق بود',
+        ),
+        status: response.statusCode,
+        raw: response.data,
+      );
+    } on DioException catch (e) {
+      return ApiResult(
+        false,
+        error: extractErrorMessage(
+          status: e.response?.statusCode,
+          data: e.response?.data,
+          fallback: e.message,
+        ),
+        status: e.response?.statusCode,
+        raw: e.response?.data,
+      );
+    }
+  }
+
+  Future<ApiResult<UserProfile>> verifyChangeIdentifierOtp({required String code}) async {
+    try {
+      final response = await _dio.post(UrlInfo.changeIdentifierVerifyUrl, data: {'code': code});
+
+      if (response.statusCode == 200 && response.data is Map) {
+        return ApiResult(
+          true,
+          data: UserProfile.fromJson(Map<String, dynamic>.from(response.data as Map)),
+          status: response.statusCode,
+          raw: response.data,
+        );
+      }
+
+      return ApiResult(
+        false,
+        error: extractErrorMessage(
+          status: response.statusCode,
+          data: response.data,
+          fallback: 'کد نامعتبر است',
+        ),
+        status: response.statusCode,
+        raw: response.data,
+      );
+    } on DioException catch (e) {
+      return ApiResult(
+        false,
+        error: extractErrorMessage(
+          status: e.response?.statusCode,
+          data: e.response?.data,
+          fallback: e.message,
+        ),
+        status: e.response?.statusCode,
+        raw: e.response?.data,
       );
     }
   }
