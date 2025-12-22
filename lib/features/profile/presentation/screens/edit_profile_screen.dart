@@ -203,7 +203,19 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     final authRepo = context.read<AuthRepository>();
 
     setState(() => _loading = true);
+
+    await WidgetsBinding.instance.endOfFrame;
+
+    const minLoading = Duration(seconds: 1);
+    final sw = Stopwatch()..start();
+
     final res = await ProfileApi().edit(fields: patch, avatarFile: _avatarFile);
+
+    sw.stop();
+    final remaining = minLoading - sw.elapsed;
+    if (remaining > Duration.zero) {
+      await Future.delayed(remaining);
+    }
 
     if (!mounted) return;
     setState(() => _loading = false);
@@ -272,17 +284,23 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       Stack(
                         alignment: Alignment.center,
                         children: [
-                          CircleAvatar(
-                            radius: SizeConfig.getProportionateScreenWidth(60),
-                            backgroundColor: isLightMode ? AppColors.grey200 : AppColors.dark3,
-                            backgroundImage: avatarProvider,
-                            child: avatarProvider == null
-                                ? Icon(
-                                    Icons.person,
-                                    color: isLightMode ? AppColors.grey600 : AppColors.grey100,
-                                    size: SizeConfig.getProportionateScreenWidth(40),
-                                  )
-                                : null,
+                          Container(
+                            decoration: BoxDecoration(
+                              shape: .circle,
+                              border: .all(width: 2, color: AppColors.primary),
+                            ),
+                            child: CircleAvatar(
+                              radius: SizeConfig.getProportionateScreenWidth(60),
+                              backgroundColor: isLightMode ? AppColors.grey200 : AppColors.dark3,
+                              backgroundImage: avatarProvider,
+                              child: avatarProvider == null
+                                  ? Icon(
+                                      Icons.person,
+                                      color: isLightMode ? AppColors.grey600 : AppColors.grey100,
+                                      size: SizeConfig.getProportionateScreenWidth(40),
+                                    )
+                                  : null,
+                            ),
                           ),
                           Positioned(
                             bottom: 0,
