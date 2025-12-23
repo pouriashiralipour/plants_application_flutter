@@ -6,6 +6,8 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/size_config.dart';
 import '../../../../core/widgets/shimmer/special_offer_shimmer.dart';
 import '../../data/repositories/product_repository.dart';
+import '../../../product/presentation/controllers/product_controller.dart';
+import '../../../product/presentation/widgets/product_card_entity.dart';
 
 import 'product_card.dart';
 
@@ -21,12 +23,14 @@ class SpecialOfferCard extends StatefulWidget {
 class _SpecialOfferCardState extends State<SpecialOfferCard> {
   @override
   Widget build(BuildContext context) {
-    final shopRepository = context.watch<ShopRepository>();
+    final controller = context.watch<ProductController>();
+    final displayProducts = controller.allProducts;
 
-    final displayProducts = shopRepository.allProducts;
-
-    if (displayProducts.isEmpty) {
+    if (controller.isLoading && displayProducts.isEmpty) {
       return SpecialOfferShimmer(isLightMode: widget.isLightMode);
+    }
+    if (displayProducts.isEmpty) {
+      return const SizedBox.shrink();
     }
 
     return Container(
@@ -53,8 +57,7 @@ class _SpecialOfferCardState extends State<SpecialOfferCard> {
           children: displayProducts.take(10).map((product) {
             return Container(
               width: SizeConfig.getProportionateScreenWidth(200),
-              // margin: EdgeInsets.only(left: SizeConfig.getProportionateScreenWidth(1)),
-              child: ProductCard(product: product, isLightMode: widget.isLightMode),
+              child: ProductCardEntity(product: product, isLightMode: widget.isLightMode),
             );
           }).toList(),
         ),
