@@ -4,8 +4,10 @@ import 'package:provider/provider.dart';
 import '../../../../core/utils/size_config.dart';
 import '../../../../core/widgets/shimmer/home_screen_shimmer.dart';
 import '../../../../core/widgets/shimmer/product/product_grid_shimmer.dart';
-import '../../../product/data/repositories/product_repository.dart';
+import '../../../product/presentation/controllers/product_controller.dart';
 import '../../../product/presentation/screens/search_screen.dart';
+import '../../../product/presentation/widgets/product_grid_entity.dart';
+import '../widgets/category_bar_entity.dart';
 import '../widgets/custom_category_bar.dart';
 import '../../../product/presentation/widgets/product_grid.dart';
 import '../widgets/home_app_bar.dart';
@@ -94,14 +96,11 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _loadData() {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final shopRepository = context.read<ShopRepository>();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final controller = context.read<ProductController>();
 
-      shopRepository.loadCategories().then((_) {
-        shopRepository.loadAllProducts().then((_) {
-          shopRepository.loadProducts();
-        });
-      });
+      await controller.loadCategories();
+      await controller.loadProducts();
     });
   }
 
@@ -122,7 +121,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     final bool isLightMode = Theme.of(context).brightness == Brightness.light;
-    final shopRepository = context.watch<ShopRepository>();
+    final controller = context.watch<ProductController>();
 
     if (_showShimmer) {
       return HomeScreenShimmer(isLightMode: isLightMode);
@@ -173,12 +172,12 @@ class _HomeScreenState extends State<HomeScreen> {
                 SizedBox(height: SizeConfig.getProportionateScreenHeight(20)),
                 AppTitleBar(title: 'محبوب ترین'),
                 SizedBox(height: SizeConfig.getProportionateScreenHeight(20)),
-                CustomCategoryBar(indexCategory: -1, onCategoryChanged: _onCategoryChanged),
+                CategoryBarEntity(indexCategory: -1, onCategoryChanged: _onCategoryChanged),
                 SizedBox(height: SizeConfig.getProportionateScreenHeight(20)),
                 if (_isCategoryChanging)
                   ProductGridShimmer(isLightMode: isLightMode)
                 else
-                  ProductGrid(shopRepository: shopRepository, isLightMode: isLightMode),
+                  ProductGridEntity(isLightMode: isLightMode, products: controller.products),
                 SizedBox(height: SizeConfig.getProportionateScreenHeight(24)),
               ],
             ),
