@@ -21,6 +21,13 @@ import 'features/cart/domain/usecases/add_cart_item.dart';
 import 'features/cart/domain/usecases/update_cart_item_quantity.dart';
 import 'features/cart/domain/usecases/remove_cart_item.dart';
 import 'features/cart/domain/usecases/clear_cart.dart';
+import 'features/wishlist/data/repositories/wishlist_repository_impl.dart';
+import 'features/wishlist/domain/repositories/wishlist_repository.dart';
+
+import 'features/wishlist/domain/usecases/get_wishlist.dart';
+import 'features/wishlist/domain/usecases/add_to_wishlist.dart';
+import 'features/wishlist/domain/usecases/remove_from_wishlist.dart';
+import 'features/wishlist/domain/usecases/toggle_wishlist.dart';
 
 import 'features/cart/data/repositories/cart_store.dart';
 import 'features/product/presentation/controllers/product_search_controller.dart';
@@ -88,6 +95,18 @@ class MyApp extends StatelessWidget {
         Provider<AddProductReview>(
           create: (context) => AddProductReview(context.read<ReviewRepository>()),
         ),
+        Provider<WishlistRepository>(create: (_) => WishlistRepositoryImpl()),
+        Provider<GetWishlist>(create: (context) => GetWishlist(context.read<WishlistRepository>())),
+        Provider<AddToWishlist>(
+          create: (context) => AddToWishlist(context.read<WishlistRepository>()),
+        ),
+        Provider<RemoveFromWishlist>(
+          create: (context) => RemoveFromWishlist(context.read<WishlistRepository>()),
+        ),
+        Provider<ToggleWishlist>(
+          create: (context) => ToggleWishlist(context.read<WishlistRepository>()),
+        ),
+
         ChangeNotifierProvider<ProductController>(
           create: (context) => ProductController(
             getCategories: context.read<GetCategories>(),
