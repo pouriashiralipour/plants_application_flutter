@@ -4,6 +4,8 @@ import 'package:full_plants_ecommerce_app/core/utils/persian_number.dart';
 import 'package:full_plants_ecommerce_app/core/utils/price_formatter.dart';
 import 'package:provider/provider.dart';
 
+import '../../data/models/product_model.dart';
+import 'review_screen.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/size_config.dart';
 import '../../../../core/widgets/app_alert_dialog.dart';
@@ -12,13 +14,19 @@ import '../../../../core/widgets/gap.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/shimmer/product/product_card_shimmer.dart';
 import '../../../../core/widgets/shimmer/product/product_screen_shimmer.dart';
-import '../../../cart/data/repository/cart_repository.dart';
-import 'review_screen.dart';
-import '../../../wishlist/data/repositories/wishlist_repository.dart';
-import '../../data/repositories/product_repository.dart';
-
-import '../../data/models/product_model.dart';
 import '../../../../core/services/connectivity_service.dart';
+
+import '../controllers/product_details_controller.dart';
+
+import '../../domain/entities/product.dart';
+
+import '../../data/models/category_model.dart';
+import '../../data/models/product_images_model.dart';
+
+import '../../../cart/data/repository/cart_repository.dart';
+
+import '../../../wishlist/data/repositories/wishlist_repository.dart';
+
 import '../../../offline/presentation/screens/offline_screen.dart';
 
 class ProductScreen extends StatefulWidget {
@@ -39,20 +47,17 @@ class _ProductScreenState extends State<ProductScreen> {
   bool _isOnline = true;
   int _quantity = 1;
   int _selectedImage = 0;
-  bool _showShimmer = true;
 
   String? _cartMessage;
-  late Future<ProductModel?> _productFuture;
 
   @override
   void initState() {
     super.initState();
     _initializeApp();
-    _productFuture = _loadProduct();
   }
 
   Widget _buildDescriptionSection(
-    ProductModel product,
+    Product product,
     String shortDescription,
     bool hasLongDescription,
     bool isLightMode,
@@ -98,7 +103,7 @@ class _ProductScreenState extends State<ProductScreen> {
     );
   }
 
-  Widget _buildImageGallery(ProductModel product, bool isLightMode) {
+  Widget _buildImageGallery(Product product, bool isLightMode) {
     return Container(
       width: double.infinity,
       color: isLightMode ? AppColors.bgSilver1 : AppColors.dark1,
@@ -172,10 +177,10 @@ class _ProductScreenState extends State<ProductScreen> {
     );
   }
 
-  Widget _buildPriceAndButtonSection(ProductModel product, bool isLightMode) {
+  Widget _buildPriceAndButtonSection(Product product, bool isLightMode) {
     return Consumer<CartRepository>(
       builder: (context, cart, _) {
-        final totalPrice = _quantity * product.displayPrice;
+        final totalPrice = _quantity * _displayPrice(product);
         final isLoading = _isAddingToCart;
 
         return Column(
@@ -208,7 +213,7 @@ class _ProductScreenState extends State<ProductScreen> {
                           final startedAt = DateTime.now();
 
                           await context.read<CartRepository>().addToCart(
-                            product,
+                            _toLegacyModel(product),
                             quantity: _quantity,
                           );
 
@@ -271,7 +276,7 @@ class _ProductScreenState extends State<ProductScreen> {
   }
 
   Widget _buildProductInfo(
-    ProductModel product,
+    Product product,
     String shortDescription,
     bool hasLongDescription,
     bool isLightMode,
@@ -313,7 +318,7 @@ class _ProductScreenState extends State<ProductScreen> {
                       ),
                       IconButton(
                         onPressed: () {
-                          context.read<WishlistRepository>().toggle(product);
+                          context.read<WishlistRepository>().toggle(_toLegacyModel(product));
                         },
                         icon: SvgPicture.asset(
                           isFav
@@ -418,7 +423,7 @@ class _ProductScreenState extends State<ProductScreen> {
     );
   }
 
-  Widget _buildRatingAndSales(ProductModel product, bool isLightMode) {
+  Widget _buildRatingAndSales(Product product, bool isLightMode) {
     return Row(
       children: [
         Container(
@@ -499,8 +504,8 @@ class _ProductScreenState extends State<ProductScreen> {
         });
       }
 
-      if (isConnected) {
-        _loadProduct();
+      if (isConnected && mounted) {
+        context.read<ProductDetailsController>().load(widget.productId);
       }
     } catch (e) {
       if (mounted) {
@@ -519,6 +524,8 @@ class _ProductScreenState extends State<ProductScreen> {
       });
     }
   }
+
+  int _displayPrice(Product product) => product.price ~/ 10;
 
   String _getShortDescription(String description) {
     final words = description.split(' ');
@@ -540,26 +547,19 @@ class _ProductScreenState extends State<ProductScreen> {
 
   Future<void> _initializeApp() async {
     await Future.delayed(Duration(seconds: 1));
-    if (mounted) {
-      setState(() {
-        _showShimmer = false;
-      });
-      await _checkInternetConnection();
-    }
-  }
-
-  Future<ProductModel?> _loadProduct() async {
-    final shopRepository = context.read<ShopRepository>();
-    return await shopRepository.getProduct(widget.productId);
+    if (!mounted) return;
+    await _checkInternetConnection();
   }
 
   void _showCartMessage(String message, {bool isError = false}) {
+    if (!mounted) return;
+
     setState(() {
       _cartMessage = message;
       _cartIsError = isError;
     });
 
-    Future.delayed(const Duration(seconds: 5), () {
+    Future.delayed(const Duration(seconds: 3), () {
       if (!mounted) return;
       setState(() {
         _cartMessage = null;
@@ -635,6 +635,31 @@ class _ProductScreenState extends State<ProductScreen> {
     );
   }
 
+  ProductModel _toLegacyModel(Product product) {
+    return ProductModel(
+      id: product.id,
+      name: product.name,
+      description: product.description,
+      price: product.price,
+      inventory: product.inventory,
+      isActive: product.isActive,
+      averageRating: product.averageRating,
+      salesCount: product.salesCount,
+      totalReviews: product.totalReviews,
+      category: CategoryModel(
+        id: product.category.id,
+        name: product.category.name,
+        description: product.category.description,
+      ),
+      images: product.images
+          .map(
+            (img) => ProductImageModel(id: img.id, image: img.image, mainPicture: img.mainPicture),
+          )
+          .toList(),
+      mainImage: product.mainImage,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final bool isLightMode = Theme.of(context).brightness == Brightness.light;
@@ -659,20 +684,19 @@ class _ProductScreenState extends State<ProductScreen> {
         ),
       ),
       body: SafeArea(
-        child: FutureBuilder(
-          future: _productFuture,
-          builder: (context, asyncSnapshot) {
-            if (asyncSnapshot.connectionState == ConnectionState.waiting) {
+        child: Consumer<ProductDetailsController>(
+          builder: (context, details, _) {
+            if (details.isLoading && details.product == null) {
               return ProductScreenShimmer();
             }
 
-            if (asyncSnapshot.hasError || asyncSnapshot.data == null) {
+            if (details.error != null && details.product == null) {
               return Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Icon(Icons.error_outline, size: 64, color: AppColors.grey500),
-                    SizedBox(height: 16),
+                    const SizedBox(height: 16),
                     Text(
                       'خطا در دریافت اطلاعات محصول',
                       style: TextStyle(
@@ -680,26 +704,41 @@ class _ProductScreenState extends State<ProductScreen> {
                         color: isLightMode ? AppColors.grey700 : AppColors.grey300,
                       ),
                     ),
-                    SizedBox(height: 16),
+                    const SizedBox(height: 8),
+                    Padding(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: SizeConfig.getProportionateScreenWidth(24),
+                      ),
+                      child: Text(
+                        details.error!,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: SizeConfig.getProportionateFontSize(12),
+                          color: isLightMode ? AppColors.grey600 : AppColors.grey400,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
                     ElevatedButton(
                       onPressed: () {
-                        setState(() {
-                          _productFuture = _loadProduct();
-                        });
+                        context.read<ProductDetailsController>().load(widget.productId);
                       },
-                      child: Text('تلاش مجدد'),
+                      child: const Text('تلاش مجدد'),
                     ),
                   ],
                 ),
               );
             }
 
-            final product = asyncSnapshot.data!;
+            final product = details.product;
+            if (product == null) {
+              return ProductScreenShimmer();
+            }
+
             final shortDescription = _getShortDescription(product.description);
             final hasLongDescription = _hasLongDescription(product.description);
 
-            final wishlist = context.watch<WishlistRepository>();
-            final isFav = wishlist.isWishlisted(product.id);
+            final isFav = context.watch<WishlistRepository>().isWishlisted(product.id);
 
             return Column(
               children: [
