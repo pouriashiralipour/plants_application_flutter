@@ -7,10 +7,11 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/size_config.dart';
 import '../../../../core/widgets/app_progress_indicator.dart';
 import '../../../../core/widgets/gap.dart';
-import '../../data/models/cart_model.dart';
-import '../../data/repositories/cart_store.dart';
 import '../widgets/cart_empty.dart';
 import '../widgets/cart_summery_bar.dart';
+import '../controllers/cart_controller.dart';
+import '../../domain/entities/cart_item.dart';
+
 import '../widgets/remove_from_cart_sheet.dart';
 
 class CartScreen extends StatelessWidget {
@@ -19,7 +20,7 @@ class CartScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final bool isLightMode = Theme.of(context).brightness == Brightness.light;
-    final cart = context.watch<CartStore>();
+    final cart = context.watch<CartController>();
     final items = cart.items;
 
     if (cart.isLoading && items.isEmpty) {
@@ -88,24 +89,30 @@ class CartScreen extends StatelessWidget {
                     item: item,
                     isLightMode: isLightMode,
                     onIncrease: () {
-                      context.read<CartStore>().changeQuantity(item, item.quantity + 1);
+                      context.read<CartController>().increaseItemQuantity(
+                        currentQuantity: item.quantity,
+                        itemId: item.id,
+                      );
                     },
                     onDecrease: () {
-                      context.read<CartStore>().changeQuantity(item, item.quantity - 1);
+                      context.read<CartController>().decreaseItemQuantity(
+                        itemId: item.id,
+                        currentQuantity: item.quantity,
+                      );
                     },
                     onRemove: () => _showRemoveFromCartSheet(context, item, isLightMode),
                   );
                 },
               ),
             ),
-            CartSummaryBar(totalPrice: cart.displaytotalPrice, isLightMode: isLightMode),
+            CartSummaryBar(totalPrice: cart.displayTotalPrice, isLightMode: isLightMode),
           ],
         ),
       ),
     );
   }
 
-  void _showRemoveFromCartSheet(BuildContext context, CartItemModel item, bool isLightMode) {
+  void _showRemoveFromCartSheet(BuildContext context, CartItem item, bool isLightMode) {
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,

@@ -6,14 +6,14 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/size_config.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/gap.dart';
-import '../../data/models/cart_model.dart';
-import '../../data/repositories/cart_store.dart';
+import '../controllers/cart_controller.dart';
+import '../../domain/entities/cart_item.dart';
 import 'cart_item_card.dart';
 
 class RemoveFromCartSheet extends StatefulWidget {
   const RemoveFromCartSheet({required this.item, required this.isLightMode});
 
-  final CartItemModel item;
+  final CartItem item;
   final bool isLightMode;
 
   @override
@@ -104,7 +104,7 @@ class _RemoveFromCartSheetState extends State<RemoveFromCartSheet> {
 
                             final startedAt = DateTime.now();
 
-                            await context.read<CartStore>().removeItem(widget.item);
+                            await context.read<CartController>().removeItem(itemId: widget.item.id);
 
                             final elapsed = DateTime.now().difference(startedAt);
                             const minDuration = Duration(seconds: 1);

@@ -6,7 +6,8 @@ import '../../../../core/utils/persian_number.dart';
 import '../../../../core/utils/price_formatter.dart';
 import '../../../../core/utils/size_config.dart';
 import '../../../../core/widgets/gap.dart';
-import '../../data/models/cart_model.dart';
+import '../../domain/entities/cart_item.dart';
+
 import 'quantity_button.dart';
 
 class CartItemCard extends StatelessWidget {
@@ -19,17 +20,19 @@ class CartItemCard extends StatelessWidget {
     this.backgroundColor,
   });
 
-  final CartItemModel item;
-  final bool isLightMode;
-  final VoidCallback onIncrease;
-  final VoidCallback onDecrease;
-  final VoidCallback onRemove;
   final Color? backgroundColor;
+  final bool isLightMode;
+  final CartItem item;
+  final VoidCallback onDecrease;
+  final VoidCallback onIncrease;
+  final VoidCallback onRemove;
 
   @override
   Widget build(BuildContext context) {
     final product = item.product;
-    final totalPrice = item.quantity * product.displayPrice;
+    final unitPrice = product.price ~/ 10;
+    final totalPrice = item.quantity * unitPrice;
+
     return Container(
       padding: EdgeInsets.all(SizeConfig.getProportionateScreenWidth(15)),
       decoration: BoxDecoration(
