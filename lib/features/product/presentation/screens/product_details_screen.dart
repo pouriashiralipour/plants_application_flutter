@@ -327,7 +327,7 @@ class _ProductScreenState extends State<ProductScreen> {
                           isFav
                               ? 'assets/images/icons/HeartBold.svg'
                               : 'assets/images/icons/Heart_outline.svg',
-                          color: AppColors.primary,
+                          colorFilter: .mode(AppColors.primary, .srcIn),
                         ),
                       ),
                     ],
@@ -449,7 +449,7 @@ class _ProductScreenState extends State<ProductScreen> {
         SizedBox(width: SizeConfig.getProportionateScreenWidth(15)),
         SvgPicture.asset(
           'assets/images/icons/Star.svg',
-          color: AppColors.primary,
+          colorFilter: .mode(AppColors.primary, .srcIn),
           width: SizeConfig.getProportionateScreenWidth(20),
           height: SizeConfig.getProportionateScreenWidth(20),
         ),
