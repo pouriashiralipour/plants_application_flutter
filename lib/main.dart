@@ -31,6 +31,15 @@ import 'features/product/domain/usecases/get_product_by_id.dart';
 import 'features/product/domain/usecases/get_products.dart';
 import 'features/product/presentation/controllers/product_controller.dart';
 
+import 'features/cart/data/repositories/cart_repository_impl.dart';
+import 'features/cart/domain/repositories/cart_repository.dart';
+
+import 'features/cart/domain/usecases/get_cart.dart';
+import 'features/cart/domain/usecases/add_cart_item.dart';
+import 'features/cart/domain/usecases/update_cart_item_quantity.dart';
+import 'features/cart/domain/usecases/remove_cart_item.dart';
+import 'features/cart/domain/usecases/clear_cart.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await ThemeRepository.I.init();
@@ -71,6 +80,17 @@ class MyApp extends StatelessWidget {
             getProducts: context.read<GetProducts>(),
           ),
         ),
+        Provider<CartRepository>(create: (_) => CartRepositoryImpl()),
+        Provider<GetCart>(create: (context) => GetCart(context.read<CartRepository>())),
+        Provider<AddCartItem>(create: (context) => AddCartItem(context.read<CartRepository>())),
+        Provider<UpdateCartItemQuantity>(
+          create: (context) => UpdateCartItemQuantity(context.read<CartRepository>()),
+        ),
+        Provider<RemoveCartItem>(
+          create: (context) => RemoveCartItem(context.read<CartRepository>()),
+        ),
+        Provider<ClearCart>(create: (context) => ClearCart(context.read<CartRepository>())),
+
         Provider<ReviewRepository>(create: (_) => ReviewRepositoryImpl()),
         Provider<GetProductReviews>(
           create: (context) => GetProductReviews(context.read<ReviewRepository>()),
