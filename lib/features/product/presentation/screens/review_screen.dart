@@ -10,8 +10,13 @@ import '../../../../core/utils/size_config.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_progress_indicator.dart';
 import '../../../../core/widgets/gap.dart';
-import '../../data/repositories/product_repository.dart';
-import '../../data/models/review_model.dart';
+
+import '../controllers/review_controller.dart';
+
+import '../../domain/entities/review.dart';
+import '../../domain/usecases/get_product_reviews.dart';
+import '../../domain/usecases/toggle_review_like.dart';
+import '../../domain/usecases/add_product_review.dart';
 
 class ReviewScreen extends StatefulWidget {
   const ReviewScreen({
@@ -30,41 +35,29 @@ class ReviewScreen extends StatefulWidget {
 }
 
 class _ReviewScreenState extends State<ReviewScreen> {
-  bool _isAdding = false;
-  late Future<List<ReviewModel>> _reviewsFuture;
+  late final ReviewController _reviewController;
+
   bool _isTogglingLike = false;
-  String? _error;
+
   int? _ratingFilter;
+
+  @override
+  void dispose() {
+    _reviewController.dispose();
+    super.dispose();
+  }
 
   @override
   void initState() {
     super.initState();
-    _reviewsFuture = _loadReviews();
-  }
-
-  Future<void> _handleToggleLike(ReviewModel review) async {
-    if (_isTogglingLike) return;
-
-    setState(() {
-      _isTogglingLike = true;
+    _reviewController = ReviewController(
+      getProductReviews: context.read<GetProductReviews>(),
+      toggleReviewLike: context.read<ToggleReviewLike>(),
+      addProductReview: context.read<AddProductReview>(),
+    );
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _reviewController.load(widget.productId);
     });
-
-    final repo = context.read<ShopRepository>();
-    final updated = await repo.toggleReviewLike(productId: widget.productId, review: review);
-
-    if (!mounted) return;
-
-    setState(() {
-      _isTogglingLike = false;
-    });
-
-    if (updated != null) {
-      setState(() {
-        _reviewsFuture = _loadReviews();
-      });
-    } else if (repo.error != null) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(repo.error!)));
-    }
   }
 
   Widget _buildRatingFilterChips(bool isLightMode) {
@@ -124,11 +117,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
     );
   }
 
-  Widget _buildReviewItem(
-    ReviewModel review,
-    bool isLightMode, {
-    required VoidCallback onToggleLike,
-  }) {
+  Widget _buildReviewItem(Review review, bool isLightMode, {required VoidCallback onToggleLike}) {
     final name = review.user.fullName.isEmpty ? 'کاربر' : review.user.fullName;
     final likeText = review.likesCount.toString().priceFormatter.farsiNumber;
     final timeText = _formatRelativeTime(review.createdAt);
@@ -144,7 +133,6 @@ class _ReviewScreenState extends State<ReviewScreen> {
         avatarUrl = rawAvatar;
       } else {
         final cleanedPath = rawAvatar.startsWith('/') ? rawAvatar.substring(1) : rawAvatar;
-
         avatarUrl = '${UrlInfo.baseUrl}/$cleanedPath';
       }
     }
@@ -293,16 +281,28 @@ class _ReviewScreenState extends State<ReviewScreen> {
     }
   }
 
-  Future<List<ReviewModel>> _loadReviews() async {
-    final repository = context.read<ShopRepository>();
-    final reviews = await repository.getProductReviews(widget.productId);
-    if (repository.error != null) {
-      _error = repository.error;
+  Future<void> _handleToggleLike(Review review) async {
+    if (_isTogglingLike) return;
+
+    setState(() {
+      _isTogglingLike = true;
+    });
+
+    await _reviewController.toggleLike(productId: widget.productId, reviewId: review.id);
+
+    if (!mounted) return;
+
+    setState(() {
+      _isTogglingLike = false;
+    });
+
+    if (_reviewController.error != null) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(_reviewController.error!)));
     }
-    return reviews;
   }
 
   Future<void> _openAddReviewSheet() async {
+    bool isSubmitting = false;
     final bool? added = await showModalBottomSheet<bool>(
       context: context,
       isScrollControlled: true,
@@ -419,7 +419,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
                       ),
                       SizedBox(width: SizeConfig.getProportionateScreenWidth(12)),
                       Expanded(
-                        child: _isAdding
+                        child: isSubmitting
                             ? const AppProgressBarIndicator()
                             : AppButton(
                                 width: 50,
@@ -427,24 +427,29 @@ class _ReviewScreenState extends State<ReviewScreen> {
                                   if (rating == 0) return;
 
                                   setModalState(() {
-                                    _isAdding = true;
+                                    isSubmitting = true;
                                   });
 
-                                  final repo = ctx.read<ShopRepository>();
-                                  final success = await repo.addProductReview(
+                                  await ctx.read<ReviewController>().addReview(
                                     productId: widget.productId,
                                     rating: rating,
                                     comment: commentCtrl.text.trim(),
                                   );
 
                                   setModalState(() {
-                                    _isAdding = false;
+                                    isSubmitting = false;
                                   });
 
-                                  if (success) {
-                                    Navigator.pop(ctx, true);
+                                  final controller = ctx.read<ReviewController>();
+                                  if (controller.error != null) {
+                                    ScaffoldMessenger.of(
+                                      context,
+                                    ).showSnackBar(SnackBar(content: Text(controller.error!)));
+                                    return;
                                   }
+                                  Navigator.pop(ctx, true);
                                 },
+
                                 text: 'ثبت دیدگاه',
                                 color: AppColors.primary,
                                 fontSize: SizeConfig.getProportionateFontSize(13),
@@ -459,133 +464,124 @@ class _ReviewScreenState extends State<ReviewScreen> {
         );
       },
     );
-
-    if (added == true && mounted) {
-      setState(() {
-        _reviewsFuture = _loadReviews();
-      });
-    }
   }
 
   @override
   Widget build(BuildContext context) {
-    final bool isLightMode = Theme.of(context).brightness == Brightness.light;
+    return ChangeNotifierProvider<ReviewController>.value(
+      value: _reviewController,
+      child: Scaffold(
+        body: SafeArea(
+          child: Consumer<ReviewController>(
+            builder: (context, controller, _) {
+              final bool isLightMode = Theme.of(context).brightness == Brightness.light;
 
-    final ratingText = widget.averageRating.toStringAsFixed(1).farsiNumber;
-    final reviewsCountText = widget.totalReviews == 0
-        ? ''
-        : '(${widget.totalReviews.toString().priceFormatter.farsiNumber} نظر)';
+              final ratingText = widget.averageRating.toStringAsFixed(1).farsiNumber;
+              final reviewsCountText = widget.totalReviews == 0
+                  ? ''
+                  : '(${widget.totalReviews.toString().priceFormatter.farsiNumber} نظر)';
 
-    return Scaffold(
-      body: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Padding(
-              padding: EdgeInsets.symmetric(
-                horizontal: SizeConfig.getProportionateScreenWidth(24),
-                vertical: SizeConfig.getProportionateScreenHeight(16),
-              ),
-              child: Row(
+              final reviews = controller.reviews;
+              final filtered = _ratingFilter == null
+                  ? reviews
+                  : reviews.where((r) => r.rating == _ratingFilter).toList();
+
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  IconButton(
-                    onPressed: () => Navigator.pop(context),
-                    icon: Icon(
-                      Icons.arrow_back,
-                      color: isLightMode ? AppColors.grey900 : AppColors.white,
+                  Padding(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: SizeConfig.getProportionateScreenWidth(24),
+                      vertical: SizeConfig.getProportionateScreenHeight(16),
+                    ),
+                    child: Row(
+                      children: [
+                        IconButton(
+                          onPressed: () => Navigator.pop(context),
+                          icon: Icon(
+                            Icons.arrow_back,
+                            color: isLightMode ? AppColors.grey900 : AppColors.white,
+                          ),
+                        ),
+                        SizedBox(width: SizeConfig.getProportionateScreenWidth(8)),
+                        Expanded(
+                          child: Text(
+                            '$ratingText $reviewsCountText',
+                            style: TextStyle(
+                              fontSize: SizeConfig.getProportionateFontSize(18),
+                              fontWeight: FontWeight.w700,
+                              color: isLightMode ? AppColors.grey900 : AppColors.white,
+                            ),
+                          ),
+                        ),
+                        IconButton(
+                          onPressed: _openAddReviewSheet,
+                          icon: SvgPicture.asset(
+                            'assets/images/icons/PaperPlus.svg',
+                            height: SizeConfig.getProportionateScreenWidth(24),
+                            width: SizeConfig.getProportionateScreenWidth(24),
+                            color: isLightMode ? AppColors.grey900 : AppColors.white,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                  SizedBox(width: SizeConfig.getProportionateScreenWidth(8)),
+
+                  Gap(SizeConfig.getProportionateScreenHeight(16)),
+                  Padding(
+                    padding: EdgeInsets.only(right: SizeConfig.getProportionateScreenWidth(24)),
+                    child: _buildRatingFilterChips(isLightMode),
+                  ),
+                  Gap(SizeConfig.getProportionateScreenHeight(16)),
+
                   Expanded(
-                    child: Text(
-                      '$ratingText $reviewsCountText',
-                      style: TextStyle(
-                        fontSize: SizeConfig.getProportionateFontSize(18),
-                        fontWeight: FontWeight.w700,
-                        color: isLightMode ? AppColors.grey900 : AppColors.white,
-                      ),
-                    ),
-                  ),
-                  IconButton(
-                    onPressed: _openAddReviewSheet,
-                    icon: SvgPicture.asset(
-                      'assets/images/icons/PaperPlus.svg',
-                      height: SizeConfig.getProportionateScreenWidth(24),
-                      width: SizeConfig.getProportionateScreenWidth(24),
-                      color: isLightMode ? AppColors.grey900 : AppColors.white,
-                    ),
+                    child: controller.isLoading && controller.reviews.isEmpty
+                        ? const Center(child: AppProgressBarIndicator())
+                        : controller.error != null && controller.reviews.isEmpty
+                        ? Center(
+                            child: Text(
+                              controller.error!,
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                color: AppColors.error,
+                                fontSize: SizeConfig.getProportionateFontSize(13),
+                              ),
+                            ),
+                          )
+                        : filtered.isEmpty
+                        ? Center(
+                            child: Text(
+                              'برای این فیلتر، دیدگاهی پیدا نشد.',
+                              style: TextStyle(
+                                fontSize: SizeConfig.getProportionateFontSize(14),
+                                color: isLightMode ? AppColors.grey600 : AppColors.grey300,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          )
+                        : Padding(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: SizeConfig.getProportionateScreenWidth(12),
+                            ),
+                            child: ListView.separated(
+                              itemBuilder: (context, index) {
+                                final review = filtered[index];
+                                return _buildReviewItem(
+                                  review,
+                                  isLightMode,
+                                  onToggleLike: () => _handleToggleLike(review),
+                                );
+                              },
+                              separatorBuilder: (_, __) =>
+                                  Gap(SizeConfig.getProportionateScreenHeight(16)),
+                              itemCount: filtered.length,
+                            ),
+                          ),
                   ),
                 ],
-              ),
-            ),
-
-            Gap(SizeConfig.getProportionateScreenHeight(16)),
-            Padding(
-              padding: EdgeInsets.only(right: SizeConfig.getProportionateScreenWidth(24)),
-              child: _buildRatingFilterChips(isLightMode),
-            ),
-            Gap(SizeConfig.getProportionateScreenHeight(16)),
-
-            Expanded(
-              child: FutureBuilder<List<ReviewModel>>(
-                future: _reviewsFuture,
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(child: AppProgressBarIndicator());
-                  }
-
-                  if (snapshot.hasError || _error != null) {
-                    return Center(
-                      child: Text(
-                        _error ?? 'خطا در دریافت دیدگاه‌ها. لطفاً دوباره تلاش کنید.',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          color: AppColors.error,
-                          fontSize: SizeConfig.getProportionateFontSize(13),
-                        ),
-                      ),
-                    );
-                  }
-
-                  final reviews = snapshot.data ?? [];
-                  final filtered = _ratingFilter == null
-                      ? reviews
-                      : reviews.where((r) => r.rating == _ratingFilter).toList();
-
-                  if (filtered.isEmpty) {
-                    return Center(
-                      child: Text(
-                        'برای این فیلتر، دیدگاهی پیدا نشد.',
-                        style: TextStyle(
-                          fontSize: SizeConfig.getProportionateFontSize(14),
-                          color: isLightMode ? AppColors.grey600 : AppColors.grey300,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                    );
-                  }
-
-                  return Padding(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: SizeConfig.getProportionateScreenWidth(12),
-                    ),
-                    child: ListView.separated(
-                      itemCount: filtered.length,
-                      separatorBuilder: (_, __) => Gap(SizeConfig.getProportionateScreenHeight(16)),
-                      itemBuilder: (context, index) {
-                        final review = filtered[index];
-                        return _buildReviewItem(
-                          review,
-                          isLightMode,
-                          onToggleLike: () => _handleToggleLike(review),
-                        );
-                      },
-                    ),
-                  );
-                },
-              ),
-            ),
-          ],
+              );
+            },
+          ),
         ),
       ),
     );
