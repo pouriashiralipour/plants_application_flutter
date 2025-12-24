@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'features/product/presentation/controllers/product_details_controller.dart';
 import 'features/product/presentation/controllers/product_search_controller.dart';
 
 import 'package:persian_datetime_picker/persian_datetime_picker.dart';
@@ -49,9 +50,12 @@ class MyApp extends StatelessWidget {
         Provider<GetCategories>(
           create: (context) => GetCategories(context.read<ProductRepository>()),
         ),
-        Provider<GetProducts>(create: (context) => GetProducts(context.read<ProductRepository>())),
+        Provider<GetProducts>(
+          create: (context) => GetProducts(context.read<ProductRepository>()),
+        ),
         Provider<GetProductById>(
-          create: (context) => GetProductById(context.read<ProductRepository>()),
+          create: (context) =>
+              GetProductById(context.read<ProductRepository>()),
         ),
         ChangeNotifierProvider<ProductController>(
           create: (context) => ProductController(
@@ -66,12 +70,25 @@ class MyApp extends StatelessWidget {
             getProducts: context.read<GetProducts>(),
           ),
         ),
+        ChangeNotifierProvider<ProductDetailsController>(
+          create: (context) => ProductDetailsController(
+            getProductById: context.read<GetProductById>(),
+          ),
+        ),
 
-        ChangeNotifierProvider<WishlistRepository>.value(value: WishlistRepository.I),
+        ChangeNotifierProvider<WishlistRepository>.value(
+          value: WishlistRepository.I,
+        ),
         ChangeNotifierProvider<CartRepository>.value(value: CartRepository.I),
-        ChangeNotifierProvider<AddressRepository>.value(value: AddressRepository.I),
-        ChangeNotifierProvider<PasswordResetRepository>(create: (_) => PasswordResetRepository()),
-        ChangeNotifierProvider<AppMessageController>(create: (_) => AppMessageController()),
+        ChangeNotifierProvider<AddressRepository>.value(
+          value: AddressRepository.I,
+        ),
+        ChangeNotifierProvider<PasswordResetRepository>(
+          create: (_) => PasswordResetRepository(),
+        ),
+        ChangeNotifierProvider<AppMessageController>(
+          create: (_) => AppMessageController(),
+        ),
 
         Provider(create: (_) => ConnectivityService()),
       ],
@@ -84,7 +101,10 @@ class MyApp extends StatelessWidget {
                 title: 'Philoroupia Application',
                 debugShowCheckedModeBanner: false,
                 locale: const Locale("fa", "IR"),
-                supportedLocales: const [Locale("fa", "IR"), Locale("en", "US")],
+                supportedLocales: const [
+                  Locale("fa", "IR"),
+                  Locale("en", "US"),
+                ],
                 localizationsDelegates: [
                   PersianMaterialLocalizations.delegate,
                   PersianCupertinoLocalizations.delegate,
@@ -96,7 +116,9 @@ class MyApp extends StatelessWidget {
                 darkTheme: AppTheme.darkTheme,
                 themeMode: theme.themeMode,
                 builder: (context, child) {
-                  return Stack(children: [if (child != null) child, const AppToastLayer()]);
+                  return Stack(
+                    children: [if (child != null) child, const AppToastLayer()],
+                  );
                 },
                 home: SplashScreen(),
               );
