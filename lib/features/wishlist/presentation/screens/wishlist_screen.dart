@@ -11,10 +11,10 @@ import '../../../../core/utils/size_config.dart';
 import '../../../../core/widgets/shimmer/product/product_grid_shimmer.dart';
 import '../../../../core/widgets/shimmer/product/product_list_shimmer.dart';
 
-import '../../../home/presentation/widgets/custom_category_bar.dart';
+import '../../../home/presentation/widgets/category_bar_entity.dart';
 import '../../../offline/presentation/screens/offline_screen.dart';
 
-import '../../../product/data/repositories/product_repository.dart';
+import '../../../product/presentation/controllers/product_controller.dart';
 import '../../../product/presentation/screens/product_details_screen.dart';
 
 import '../../domain/entities/wishlist_product.dart';
@@ -74,13 +74,12 @@ class _WishlistScreenState extends State<WishlistScreen> {
 
   void _loadData() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final shopRepository = context.read<ShopRepository>();
+      final productController = context.read<ProductController>();
       final wishlist = context.read<WishlistController>();
 
-      if (!shopRepository.categoriesLoaded) {
-        shopRepository.loadCategories();
+      if (!productController.categoriesLoaded) {
+        productController.loadCategories();
       }
-
       wishlist.load();
     });
   }
@@ -98,10 +97,10 @@ class _WishlistScreenState extends State<WishlistScreen> {
   Widget build(BuildContext context) {
     final bool isLightMode = Theme.of(context).brightness == Brightness.light;
 
-    final shopRepository = context.watch<ShopRepository>();
+    final productController = context.watch<ProductController>();
     final wishlist = context.watch<WishlistController>();
 
-    final selectedCategoryName = shopRepository.selectedCategoryName;
+    final selectedCategoryName = productController.selectedCategoryName;
 
     final allWishlistProducts = wishlist.items.map((e) => e.product).toList();
 
@@ -149,7 +148,7 @@ class _WishlistScreenState extends State<WishlistScreen> {
           child: Column(
             children: [
               SizedBox(height: SizeConfig.getProportionateScreenHeight(20)),
-              CustomCategoryBar(indexCategory: -1, onCategoryChanged: _onCategoryChanged),
+              CategoryBarEntity(indexCategory: -1, onCategoryChanged: _onCategoryChanged),
               SizedBox(height: SizeConfig.getProportionateScreenHeight(20)),
 
               if (filteredWishlistProducts.isEmpty)
