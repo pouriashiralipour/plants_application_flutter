@@ -4,6 +4,7 @@ import 'package:full_plants_ecommerce_app/core/utils/persian_number.dart';
 import 'package:full_plants_ecommerce_app/core/utils/price_formatter.dart';
 import 'package:provider/provider.dart';
 
+import '../../../cart/presentation/controllers/cart_controller.dart';
 import '../../data/models/product_model.dart';
 import '../../domain/usecases/get_product_by_id.dart';
 import 'review_screen.dart';
@@ -23,8 +24,6 @@ import '../../domain/entities/product.dart';
 
 import '../../data/models/category_model.dart';
 import '../../data/models/product_images_model.dart';
-
-import '../../../cart/data/repositories/cart_store.dart';
 
 import '../../../wishlist/data/repositories/wishlist_store.dart';
 
@@ -189,7 +188,7 @@ class _ProductScreenState extends State<ProductScreen> {
   }
 
   Widget _buildPriceAndButtonSection(Product product, bool isLightMode) {
-    return Consumer<CartStore>(
+    return Consumer<CartController>(
       builder: (context, cart, _) {
         final totalPrice = _quantity * _displayPrice(product);
         final isLoading = _isAddingToCart;
@@ -223,14 +222,14 @@ class _ProductScreenState extends State<ProductScreen> {
 
                           final startedAt = DateTime.now();
 
-                          await context.read<CartStore>().addToCart(
-                            _toLegacyModel(product),
+                          await context.read<CartController>().addItem(
+                            productId: product.id,
                             quantity: _quantity,
                           );
 
                           if (!mounted) return;
 
-                          final cartRepo = context.read<CartStore>();
+                          final cartRepo = context.read<CartController>();
 
                           final elapsed = DateTime.now().difference(startedAt);
                           const minDuration = Duration(seconds: 1);
