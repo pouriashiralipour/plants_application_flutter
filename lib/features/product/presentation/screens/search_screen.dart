@@ -17,7 +17,7 @@ import '../widgets/search_filter_sheet.dart';
 enum SearchSortOption { popular, mostRecent, priceHigh, priceLow }
 
 class SearchScreen extends StatefulWidget {
-  const SearchScreen({super.key});
+  const SearchScreen({superkey});
 
   @override
   State<SearchScreen> createState() => _SearchScreenState();
