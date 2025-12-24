@@ -5,9 +5,7 @@ import 'package:full_plants_ecommerce_app/core/utils/price_formatter.dart';
 import 'package:provider/provider.dart';
 
 import '../../../cart/presentation/controllers/cart_controller.dart';
-import '../../data/models/product_model.dart';
 import '../../domain/usecases/get_product_by_id.dart';
-import 'review_screen.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/size_config.dart';
 import '../../../../core/widgets/app_alert_dialog.dart';
@@ -17,17 +15,12 @@ import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/shimmer/product/product_card_shimmer.dart';
 import '../../../../core/widgets/shimmer/product/product_screen_shimmer.dart';
 import '../../../../core/services/connectivity_service.dart';
-
+import '../../../wishlist/presentation/controllers/wishlist_controller.dart';
+import '../../../offline/presentation/screens/offline_screen.dart';
 import '../controllers/product_details_controller.dart';
-
 import '../../domain/entities/product.dart';
 
-import '../../data/models/category_model.dart';
-import '../../data/models/product_images_model.dart';
-
-import '../../../wishlist/data/repositories/wishlist_store.dart';
-
-import '../../../offline/presentation/screens/offline_screen.dart';
+import 'review_screen.dart';
 
 class ProductScreen extends StatefulWidget {
   const ProductScreen({super.key, required this.productId});
@@ -328,7 +321,7 @@ class _ProductScreenState extends State<ProductScreen> {
                       ),
                       IconButton(
                         onPressed: () {
-                          context.read<WishlistStore>().toggle(_toLegacyModel(product));
+                          context.read<WishlistController>().toggle(product.id);
                         },
                         icon: SvgPicture.asset(
                           isFav
@@ -645,31 +638,6 @@ class _ProductScreenState extends State<ProductScreen> {
     );
   }
 
-  ProductModel _toLegacyModel(Product product) {
-    return ProductModel(
-      id: product.id,
-      name: product.name,
-      description: product.description,
-      price: product.price,
-      inventory: product.inventory,
-      isActive: product.isActive,
-      averageRating: product.averageRating,
-      salesCount: product.salesCount,
-      totalReviews: product.totalReviews,
-      category: CategoryModel(
-        id: product.category.id,
-        name: product.category.name,
-        description: product.category.description,
-      ),
-      images: product.images
-          .map(
-            (img) => ProductImageModel(id: img.id, image: img.image, mainPicture: img.mainPicture),
-          )
-          .toList(),
-      mainImage: product.mainImage,
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final bool isLightMode = Theme.of(context).brightness == Brightness.light;
@@ -750,7 +718,7 @@ class _ProductScreenState extends State<ProductScreen> {
               final shortDescription = _getShortDescription(product.description);
               final hasLongDescription = _hasLongDescription(product.description);
 
-              final isFav = context.watch<WishlistStore>().isWishlisted(product.id);
+              final isFav = context.watch<WishlistController>().isWishlisted(product.id);
 
               return Column(
                 children: [
