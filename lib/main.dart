@@ -16,7 +16,7 @@ import 'core/services/connectivity_service.dart';
 import 'core/theme/theme_repository.dart';
 import 'core/theme/app_theme.dart';
 
-import 'features/cart/data/repository/cart_store.dart';
+import 'features/cart/data/repositories/cart_store.dart';
 import 'features/product/presentation/controllers/product_search_controller.dart';
 import 'features/profile/data/epositories/address_repository.dart';
 import 'features/splash/presentation/screens/splash_screen.dart';

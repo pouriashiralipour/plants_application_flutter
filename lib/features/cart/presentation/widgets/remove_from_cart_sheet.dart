@@ -7,7 +7,7 @@ import '../../../../core/utils/size_config.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/gap.dart';
 import '../../data/models/cart_model.dart';
-import '../../data/repository/cart_store.dart';
+import '../../data/repositories/cart_store.dart';
 import 'cart_item_card.dart';
 
 class RemoveFromCartSheet extends StatefulWidget {

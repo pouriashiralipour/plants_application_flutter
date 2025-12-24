@@ -8,7 +8,7 @@ import '../../../../core/utils/size_config.dart';
 import '../../../../core/widgets/app_progress_indicator.dart';
 import '../../../../core/widgets/gap.dart';
 import '../../data/models/cart_model.dart';
-import '../../data/repository/cart_store.dart';
+import '../../data/repositories/cart_store.dart';
 import '../widgets/cart_empty.dart';
 import '../widgets/cart_summery_bar.dart';
 import '../widgets/remove_from_cart_sheet.dart';

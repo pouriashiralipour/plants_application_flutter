@@ -24,7 +24,7 @@ import '../../domain/entities/product.dart';
 import '../../data/models/category_model.dart';
 import '../../data/models/product_images_model.dart';
 
-import '../../../cart/data/repository/cart_store.dart';
+import '../../../cart/data/repositories/cart_store.dart';
 
 import '../../../wishlist/data/repositories/wishlist_store.dart';
 

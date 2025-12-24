@@ -5,11 +5,9 @@ import 'package:provider/provider.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/size_config.dart';
 import '../../../../core/widgets/shimmer/special_offer_shimmer.dart';
-import '../../data/repositories/product_repository.dart';
 import '../../../product/presentation/controllers/product_controller.dart';
 import '../../../product/presentation/widgets/product_card_entity.dart';
 
-import 'product_card.dart';
 
 class SpecialOfferCard extends StatefulWidget {
   const SpecialOfferCard({super.key, required this.isLightMode});

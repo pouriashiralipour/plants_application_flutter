@@ -8,8 +8,6 @@ import '../../../product/presentation/controllers/product_controller.dart';
 import '../../../product/presentation/screens/search_screen.dart';
 import '../../../product/presentation/widgets/product_grid_entity.dart';
 import '../widgets/category_bar_entity.dart';
-import '../widgets/custom_category_bar.dart';
-import '../../../product/presentation/widgets/product_grid.dart';
 import '../widgets/home_app_bar.dart';
 import '../../../../core/widgets/app_search_bar.dart';
 import '../../../../core/widgets/app_title_bar.dart';
