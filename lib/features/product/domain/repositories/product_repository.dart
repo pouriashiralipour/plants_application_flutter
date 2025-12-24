@@ -6,5 +6,14 @@ abstract class ProductRepository {
 
   Future<Product> getProductById(String id);
 
-  Future<List<Product>> getProducts({String? categoryId, String? search, int? page});
+  Future<List<Product>> getProducts({
+    String? categoryId,
+    String? search,
+    String? ordering,
+    int? page,
+    int? priceMin,
+    int? priceMax,
+    int? rating,
+    bool forceRefresh = false,
+  });
 }

@@ -44,14 +44,23 @@ class ProductRepositoryImpl implements ProductRepository {
   Future<List<Product>> getProducts({
     String? categoryId,
     String? search,
+    String? ordering,
     int? page,
+    int? priceMin,
+    int? priceMax,
+    int? rating,
+    bool forceRefresh = false,
   }) async {
     final bool isDefaultQuery =
         (categoryId == null || categoryId.isEmpty) &&
         (search == null || search.isEmpty) &&
-        page == null;
+        (ordering == null || ordering.isEmpty) &&
+        page == null &&
+        priceMin == null &&
+        priceMax == null &&
+        rating == null;
 
-    if (isDefaultQuery) {
+    if (!forceRefresh && isDefaultQuery) {
       final cached = await _storage.getCachedProducts();
       if (cached != null) {
         return cached.map((m) => m.toEntity()).toList();
@@ -61,14 +70,18 @@ class ProductRepositoryImpl implements ProductRepository {
     final result = await _api.getProducts(
       search: search,
       category: categoryId,
+      ordering: ordering,
       page: page,
+      priceMin: priceMin,
+      priceMax: priceMax,
+      rating: rating,
     );
 
     if (!result.success || result.data == null) {
       throw Exception(result.error ?? 'خطا در دریافت محصولات');
     }
 
-    if (isDefaultQuery) {
+    if (!forceRefresh && isDefaultQuery) {
       await _storage.cacheProducts(result.data!);
     }
 

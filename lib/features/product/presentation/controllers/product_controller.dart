@@ -77,14 +77,32 @@ class ProductController extends ChangeNotifier {
     }
   }
 
-  Future<void> loadProducts({String? search, String? categoryName, int? page}) async {
+  Future<void> loadProducts({
+    String? search,
+    String? categoryName,
+    String? ordering,
+    int? page,
+    int? priceMin,
+    int? priceMax,
+    int? rating,
+    bool forceRefresh = false,
+  }) async {
     if (_isLoading) return;
 
     _setLoading(true);
     _error = null;
 
     try {
-      final result = await _getProducts(search: search, categoryId: categoryName, page: page);
+      final result = await _getProducts(
+        search: search,
+        categoryId: categoryName,
+        ordering: ordering,
+        page: page,
+        priceMin: priceMin,
+        priceMax: priceMax,
+        rating: rating,
+        forceRefresh: forceRefresh,
+      );
 
       _products
         ..clear()
@@ -93,7 +111,12 @@ class ProductController extends ChangeNotifier {
       final bool isDefaultQuery =
           (search == null || search.trim().isEmpty) &&
           (categoryName == null || categoryName.trim().isEmpty) &&
-          page == null;
+          (ordering == null || ordering.trim().isEmpty) &&
+          page == null &&
+          priceMin == null &&
+          priceMax == null &&
+          rating == null &&
+          !forceRefresh;
 
       if (isDefaultQuery) {
         _allProducts
