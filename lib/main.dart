@@ -15,6 +15,12 @@ import 'core/widgets/app_toast_layer.dart';
 import 'core/services/connectivity_service.dart';
 import 'core/theme/theme_repository.dart';
 import 'core/theme/app_theme.dart';
+import 'features/cart/presentation/controllers/cart_controller.dart';
+import 'features/cart/domain/usecases/get_cart.dart';
+import 'features/cart/domain/usecases/add_cart_item.dart';
+import 'features/cart/domain/usecases/update_cart_item_quantity.dart';
+import 'features/cart/domain/usecases/remove_cart_item.dart';
+import 'features/cart/domain/usecases/clear_cart.dart';
 
 import 'features/cart/data/repositories/cart_store.dart';
 import 'features/product/presentation/controllers/product_search_controller.dart';
@@ -33,12 +39,6 @@ import 'features/product/presentation/controllers/product_controller.dart';
 
 import 'features/cart/data/repositories/cart_repository_impl.dart';
 import 'features/cart/domain/repositories/cart_repository.dart';
-
-import 'features/cart/domain/usecases/get_cart.dart';
-import 'features/cart/domain/usecases/add_cart_item.dart';
-import 'features/cart/domain/usecases/update_cart_item_quantity.dart';
-import 'features/cart/domain/usecases/remove_cart_item.dart';
-import 'features/cart/domain/usecases/clear_cart.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -67,19 +67,6 @@ class MyApp extends StatelessWidget {
         Provider<GetProductById>(
           create: (context) => GetProductById(context.read<ProductRepository>()),
         ),
-        ChangeNotifierProvider<ProductController>(
-          create: (context) => ProductController(
-            getCategories: context.read<GetCategories>(),
-            getProducts: context.read<GetProducts>(),
-            getProductById: context.read<GetProductById>(),
-          ),
-        ),
-        ChangeNotifierProvider<ProductSearchController>(
-          create: (context) => ProductSearchController(
-            getCategories: context.read<GetCategories>(),
-            getProducts: context.read<GetProducts>(),
-          ),
-        ),
         Provider<CartRepository>(create: (_) => CartRepositoryImpl()),
         Provider<GetCart>(create: (context) => GetCart(context.read<CartRepository>())),
         Provider<AddCartItem>(create: (context) => AddCartItem(context.read<CartRepository>())),
@@ -100,6 +87,28 @@ class MyApp extends StatelessWidget {
         ),
         Provider<AddProductReview>(
           create: (context) => AddProductReview(context.read<ReviewRepository>()),
+        ),
+        ChangeNotifierProvider<ProductController>(
+          create: (context) => ProductController(
+            getCategories: context.read<GetCategories>(),
+            getProducts: context.read<GetProducts>(),
+            getProductById: context.read<GetProductById>(),
+          ),
+        ),
+        ChangeNotifierProvider<ProductSearchController>(
+          create: (context) => ProductSearchController(
+            getCategories: context.read<GetCategories>(),
+            getProducts: context.read<GetProducts>(),
+          ),
+        ),
+        ChangeNotifierProvider<CartController>(
+          create: (context) => CartController(
+            getCart: context.read<GetCart>(),
+            addCartItem: context.read<AddCartItem>(),
+            updateCartItemQuantity: context.read<UpdateCartItemQuantity>(),
+            removeCartItem: context.read<RemoveCartItem>(),
+            clearCart: context.read<ClearCart>(),
+          )..load(),
         ),
 
         ChangeNotifierProvider<WishlistStore>.value(value: WishlistStore.I),
