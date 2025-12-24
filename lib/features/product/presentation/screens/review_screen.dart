@@ -303,164 +303,165 @@ class _ReviewScreenState extends State<ReviewScreen> {
 
   Future<void> _openAddReviewSheet() async {
     bool isSubmitting = false;
-    final bool? added = await showModalBottomSheet<bool>(
+    await showModalBottomSheet<bool>(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (ctx) {
+      builder: (_) {
         final TextEditingController commentCtrl = TextEditingController();
         int rating = 5;
-
-        return StatefulBuilder(
-          builder: (ctx, setModalState) {
-            final isLightMode = Theme.of(ctx).brightness == Brightness.light;
-
-            return Container(
-              padding: EdgeInsets.only(
-                left: SizeConfig.getProportionateScreenWidth(20),
-                right: SizeConfig.getProportionateScreenWidth(20),
-                top: SizeConfig.getProportionateScreenHeight(16),
-                bottom:
-                    MediaQuery.of(ctx).viewInsets.bottom +
-                    SizeConfig.getProportionateScreenHeight(16),
-              ),
-              decoration: BoxDecoration(
-                color: isLightMode ? AppColors.white : AppColors.dark2,
-                borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(24),
-                  topRight: Radius.circular(24),
+        return ChangeNotifierProvider<ReviewController>.value(
+          value: _reviewController,
+          child: StatefulBuilder(
+            builder: (sheetContext, setModalState) {
+              final isLightMode = Theme.of(sheetContext).brightness == Brightness.light;
+              return Container(
+                padding: EdgeInsets.only(
+                  left: SizeConfig.getProportionateScreenWidth(20),
+                  right: SizeConfig.getProportionateScreenWidth(20),
+                  top: SizeConfig.getProportionateScreenHeight(16),
+                  bottom:
+                      MediaQuery.of(sheetContext).viewInsets.bottom +
+                      SizeConfig.getProportionateScreenHeight(16),
                 ),
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Center(
-                    child: Container(
-                      width: SizeConfig.getProportionateScreenWidth(40),
-                      height: 4,
-                      decoration: BoxDecoration(
-                        color: isLightMode ? AppColors.grey300 : AppColors.dark3,
-                        borderRadius: BorderRadius.circular(100),
-                      ),
-                    ),
+                decoration: BoxDecoration(
+                  color: isLightMode ? AppColors.white : AppColors.dark2,
+                  borderRadius: const BorderRadius.only(
+                    topLeft: Radius.circular(24),
+                    topRight: Radius.circular(24),
                   ),
-                  Gap(SizeConfig.getProportionateScreenHeight(16)),
-                  Text(
-                    'ثبت دیدگاه',
-                    style: TextStyle(
-                      fontSize: SizeConfig.getProportionateFontSize(16),
-                      fontWeight: FontWeight.w700,
-                      color: isLightMode ? AppColors.grey900 : AppColors.white,
-                    ),
-                  ),
-                  Gap(SizeConfig.getProportionateScreenHeight(12)),
-                  Text(
-                    'امتیاز شما',
-                    style: TextStyle(
-                      fontSize: SizeConfig.getProportionateFontSize(14),
-                      fontWeight: FontWeight.w600,
-                      color: isLightMode ? AppColors.grey800 : AppColors.grey200,
-                    ),
-                  ),
-                  Gap(SizeConfig.getProportionateScreenHeight(8)),
-                  Row(
-                    children: List.generate(5, (index) {
-                      final starIndex = index + 1;
-                      final filled = starIndex <= rating;
-                      return IconButton(
-                        padding: EdgeInsets.zero,
-                        constraints: const BoxConstraints(),
-                        onPressed: () {
-                          setModalState(() {
-                            rating = starIndex;
-                          });
-                        },
-                        icon: Icon(
-                          filled ? Icons.star : Icons.star_border,
-                          color: AppColors.primary,
-                          size: SizeConfig.getProportionateScreenWidth(24),
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Center(
+                      child: Container(
+                        width: SizeConfig.getProportionateScreenWidth(40),
+                        height: 4,
+                        decoration: BoxDecoration(
+                          color: isLightMode ? AppColors.grey300 : AppColors.dark3,
+                          borderRadius: BorderRadius.circular(100),
                         ),
-                      );
-                    }),
-                  ),
-                  Gap(SizeConfig.getProportionateScreenHeight(12)),
-                  TextField(
-                    controller: commentCtrl,
-                    maxLines: 4,
-                    textInputAction: TextInputAction.newline,
-                    decoration: InputDecoration(
-                      hintText: 'نظر خود را درباره این محصول بنویسید...',
-                      hintStyle: TextStyle(
-                        fontSize: SizeConfig.getProportionateFontSize(13),
-                        color: isLightMode ? AppColors.grey500 : AppColors.grey400,
-                      ),
-                      filled: true,
-                      fillColor: isLightMode ? AppColors.bgSilver1 : AppColors.dark3,
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(16),
-                        borderSide: BorderSide.none,
                       ),
                     ),
-                  ),
-                  Gap(SizeConfig.getProportionateScreenHeight(16)),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: AppButton(
-                          isShadow: false,
-                          width: 50,
-                          onTap: () => Navigator.pop(ctx, false),
-                          text: 'انصراف',
-                          color: isLightMode ? AppColors.bgSilver1 : AppColors.dark3,
-                          textColor: AppColors.primary,
+                    Gap(SizeConfig.getProportionateScreenHeight(16)),
+                    Text(
+                      'ثبت دیدگاه',
+                      style: TextStyle(
+                        fontSize: SizeConfig.getProportionateFontSize(16),
+                        fontWeight: FontWeight.w700,
+                        color: isLightMode ? AppColors.grey900 : AppColors.white,
+                      ),
+                    ),
+                    Gap(SizeConfig.getProportionateScreenHeight(12)),
+                    Text(
+                      'امتیاز شما',
+                      style: TextStyle(
+                        fontSize: SizeConfig.getProportionateFontSize(14),
+                        fontWeight: FontWeight.w600,
+                        color: isLightMode ? AppColors.grey800 : AppColors.grey200,
+                      ),
+                    ),
+                    Gap(SizeConfig.getProportionateScreenHeight(8)),
+                    Row(
+                      children: List.generate(5, (index) {
+                        final starIndex = index + 1;
+                        final filled = starIndex <= rating;
+                        return IconButton(
+                          padding: EdgeInsets.zero,
+                          constraints: const BoxConstraints(),
+                          onPressed: () {
+                            setModalState(() {
+                              rating = starIndex;
+                            });
+                          },
+                          icon: Icon(
+                            filled ? Icons.star : Icons.star_border,
+                            color: AppColors.primary,
+                            size: SizeConfig.getProportionateScreenWidth(24),
+                          ),
+                        );
+                      }),
+                    ),
+                    Gap(SizeConfig.getProportionateScreenHeight(12)),
+                    TextField(
+                      controller: commentCtrl,
+                      maxLines: 4,
+                      textInputAction: TextInputAction.newline,
+                      decoration: InputDecoration(
+                        hintText: 'نظر خود را درباره این محصول بنویسید...',
+                        hintStyle: TextStyle(
                           fontSize: SizeConfig.getProportionateFontSize(13),
+                          color: isLightMode ? AppColors.grey500 : AppColors.grey400,
+                        ),
+                        filled: true,
+                        fillColor: isLightMode ? AppColors.bgSilver1 : AppColors.dark3,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(16),
+                          borderSide: BorderSide.none,
                         ),
                       ),
-                      SizedBox(width: SizeConfig.getProportionateScreenWidth(12)),
-                      Expanded(
-                        child: isSubmitting
-                            ? const AppProgressBarIndicator()
-                            : AppButton(
-                                width: 50,
-                                onTap: () async {
-                                  if (rating == 0) return;
+                    ),
+                    Gap(SizeConfig.getProportionateScreenHeight(16)),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: AppButton(
+                            isShadow: false,
+                            width: 50,
+                            onTap: () => Navigator.pop(sheetContext, false),
+                            text: 'انصراف',
+                            color: isLightMode ? AppColors.bgSilver1 : AppColors.dark3,
+                            textColor: AppColors.primary,
+                            fontSize: SizeConfig.getProportionateFontSize(13),
+                          ),
+                        ),
+                        SizedBox(width: SizeConfig.getProportionateScreenWidth(12)),
+                        Expanded(
+                          child: isSubmitting
+                              ? const AppProgressBarIndicator()
+                              : AppButton(
+                                  width: 50,
+                                  onTap: () async {
+                                    if (rating == 0) return;
 
-                                  setModalState(() {
-                                    isSubmitting = true;
-                                  });
+                                    setModalState(() {
+                                      isSubmitting = true;
+                                    });
 
-                                  await ctx.read<ReviewController>().addReview(
-                                    productId: widget.productId,
-                                    rating: rating,
-                                    comment: commentCtrl.text.trim(),
-                                  );
+                                    await sheetContext.read<ReviewController>().addReview(
+                                      productId: widget.productId,
+                                      rating: rating,
+                                      comment: commentCtrl.text.trim(),
+                                    );
 
-                                  setModalState(() {
-                                    isSubmitting = false;
-                                  });
+                                    setModalState(() {
+                                      isSubmitting = false;
+                                    });
 
-                                  final controller = ctx.read<ReviewController>();
-                                  if (controller.error != null) {
-                                    ScaffoldMessenger.of(
-                                      context,
-                                    ).showSnackBar(SnackBar(content: Text(controller.error!)));
-                                    return;
-                                  }
-                                  Navigator.pop(ctx, true);
-                                },
+                                    final controller = sheetContext.read<ReviewController>();
+                                    if (controller.error != null) {
+                                      ScaffoldMessenger.of(
+                                        context,
+                                      ).showSnackBar(SnackBar(content: Text(controller.error!)));
+                                      return;
+                                    }
+                                    Navigator.pop(sheetContext, true);
+                                  },
 
-                                text: 'ثبت دیدگاه',
-                                color: AppColors.primary,
-                                fontSize: SizeConfig.getProportionateFontSize(13),
-                              ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            );
-          },
+                                  text: 'ثبت دیدگاه',
+                                  color: AppColors.primary,
+                                  fontSize: SizeConfig.getProportionateFontSize(13),
+                                ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
         );
       },
     );
