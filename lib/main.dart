@@ -46,6 +46,7 @@ import 'features/product/presentation/controllers/product_controller.dart';
 
 import 'features/cart/data/repositories/cart_repository_impl.dart';
 import 'features/cart/domain/repositories/cart_repository.dart';
+import 'features/wishlist/presentation/controllers/wishlist_controller.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -127,6 +128,12 @@ class MyApp extends StatelessWidget {
             updateCartItemQuantity: context.read<UpdateCartItemQuantity>(),
             removeCartItem: context.read<RemoveCartItem>(),
             clearCart: context.read<ClearCart>(),
+          )..load(),
+        ),
+        ChangeNotifierProvider<WishlistController>(
+          create: (context) => WishlistController(
+            getWishlist: context.read<GetWishlist>(),
+            toggleWishlist: context.read<ToggleWishlist>(),
           )..load(),
         ),
 
