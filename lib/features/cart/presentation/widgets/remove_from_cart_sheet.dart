@@ -7,7 +7,7 @@ import '../../../../core/utils/size_config.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/gap.dart';
 import '../../data/models/cart_model.dart';
-import '../../data/repository/cart_repository.dart';
+import '../../data/repository/cart_store.dart';
 import 'cart_item_card.dart';
 
 class RemoveFromCartSheet extends StatefulWidget {
@@ -104,7 +104,7 @@ class _RemoveFromCartSheetState extends State<RemoveFromCartSheet> {
 
                             final startedAt = DateTime.now();
 
-                            await context.read<CartRepository>().removeItem(widget.item);
+                            await context.read<CartStore>().removeItem(widget.item);
 
                             final elapsed = DateTime.now().difference(startedAt);
                             const minDuration = Duration(seconds: 1);

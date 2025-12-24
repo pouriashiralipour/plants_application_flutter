@@ -11,7 +11,7 @@ import '../../../home/presentation/widgets/custom_category_bar.dart';
 import '../../../offline/presentation/screens/offline_screen.dart';
 import '../../../product/data/repositories/product_repository.dart';
 import '../../../product/presentation/widgets/product_grid.dart';
-import '../../data/repositories/wishlist_repository.dart';
+import '../../data/repositories/wishlist_store.dart';
 
 class WishlistScreen extends StatefulWidget {
   const WishlistScreen({super.key});
@@ -77,7 +77,7 @@ class _WishlistScreenState extends State<WishlistScreen> {
   void _loadData() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final shopRepository = context.read<ShopRepository>();
-      final wishlistRepository = context.read<WishlistRepository>();
+      final wishlistRepository = context.read<WishlistStore>();
 
       if (!shopRepository.categoriesLoaded) {
         shopRepository.loadCategories();
@@ -105,7 +105,7 @@ class _WishlistScreenState extends State<WishlistScreen> {
   Widget build(BuildContext context) {
     final bool isLightMode = Theme.of(context).brightness == Brightness.light;
     final shopRepository = context.watch<ShopRepository>();
-    final wishlistRepository = context.watch<WishlistRepository>();
+    final wishlistRepository = context.watch<WishlistStore>();
 
     final allWishlistProducts = wishlistRepository.products;
 

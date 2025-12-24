@@ -8,7 +8,7 @@ import '../../../../core/utils/size_config.dart';
 import '../../../../core/widgets/app_progress_indicator.dart';
 import '../../../../core/widgets/gap.dart';
 import '../../data/models/cart_model.dart';
-import '../../data/repository/cart_repository.dart';
+import '../../data/repository/cart_store.dart';
 import '../widgets/cart_empty.dart';
 import '../widgets/cart_summery_bar.dart';
 import '../widgets/remove_from_cart_sheet.dart';
@@ -19,7 +19,7 @@ class CartScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final bool isLightMode = Theme.of(context).brightness == Brightness.light;
-    final cart = context.watch<CartRepository>();
+    final cart = context.watch<CartStore>();
     final items = cart.items;
 
     if (cart.isLoading && items.isEmpty) {
@@ -88,10 +88,10 @@ class CartScreen extends StatelessWidget {
                     item: item,
                     isLightMode: isLightMode,
                     onIncrease: () {
-                      context.read<CartRepository>().changeQuantity(item, item.quantity + 1);
+                      context.read<CartStore>().changeQuantity(item, item.quantity + 1);
                     },
                     onDecrease: () {
-                      context.read<CartRepository>().changeQuantity(item, item.quantity - 1);
+                      context.read<CartStore>().changeQuantity(item, item.quantity - 1);
                     },
                     onRemove: () => _showRemoveFromCartSheet(context, item, isLightMode),
                   );

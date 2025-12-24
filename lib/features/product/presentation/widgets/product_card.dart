@@ -5,7 +5,7 @@ import 'package:full_plants_ecommerce_app/core/utils/price_formatter.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../core/theme/app_colors.dart';
-import '../../../wishlist/data/repositories/wishlist_repository.dart';
+import '../../../wishlist/data/repositories/wishlist_store.dart';
 import '../../data/models/product_model.dart';
 import '../../../product/presentation/screens/product_details_screen.dart';
 import '../../../../core/utils/size_config.dart';
@@ -28,7 +28,7 @@ class ProductCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final wishlist = context.watch<WishlistRepository>();
+    final wishlist = context.watch<WishlistStore>();
     final isFav = wishlist.isWishlisted(product.id);
 
     final mainImage =
@@ -74,7 +74,7 @@ class ProductCard extends StatelessWidget {
                       child: InkWell(
                         borderRadius: BorderRadius.circular(20),
                         onTap: () {
-                          context.read<WishlistRepository>().toggle(product);
+                          context.read<WishlistStore>().toggle(product);
                         },
                         child: SvgPicture.asset(
                           isFav

@@ -24,9 +24,9 @@ import '../../domain/entities/product.dart';
 import '../../data/models/category_model.dart';
 import '../../data/models/product_images_model.dart';
 
-import '../../../cart/data/repository/cart_repository.dart';
+import '../../../cart/data/repository/cart_store.dart';
 
-import '../../../wishlist/data/repositories/wishlist_repository.dart';
+import '../../../wishlist/data/repositories/wishlist_store.dart';
 
 import '../../../offline/presentation/screens/offline_screen.dart';
 
@@ -189,7 +189,7 @@ class _ProductScreenState extends State<ProductScreen> {
   }
 
   Widget _buildPriceAndButtonSection(Product product, bool isLightMode) {
-    return Consumer<CartRepository>(
+    return Consumer<CartStore>(
       builder: (context, cart, _) {
         final totalPrice = _quantity * _displayPrice(product);
         final isLoading = _isAddingToCart;
@@ -223,14 +223,14 @@ class _ProductScreenState extends State<ProductScreen> {
 
                           final startedAt = DateTime.now();
 
-                          await context.read<CartRepository>().addToCart(
+                          await context.read<CartStore>().addToCart(
                             _toLegacyModel(product),
                             quantity: _quantity,
                           );
 
                           if (!mounted) return;
 
-                          final cartRepo = context.read<CartRepository>();
+                          final cartRepo = context.read<CartStore>();
 
                           final elapsed = DateTime.now().difference(startedAt);
                           const minDuration = Duration(seconds: 1);
@@ -329,7 +329,7 @@ class _ProductScreenState extends State<ProductScreen> {
                       ),
                       IconButton(
                         onPressed: () {
-                          context.read<WishlistRepository>().toggle(_toLegacyModel(product));
+                          context.read<WishlistStore>().toggle(_toLegacyModel(product));
                         },
                         icon: SvgPicture.asset(
                           isFav
@@ -751,7 +751,7 @@ class _ProductScreenState extends State<ProductScreen> {
               final shortDescription = _getShortDescription(product.description);
               final hasLongDescription = _hasLongDescription(product.description);
 
-              final isFav = context.watch<WishlistRepository>().isWishlisted(product.id);
+              final isFav = context.watch<WishlistStore>().isWishlisted(product.id);
 
               return Column(
                 children: [

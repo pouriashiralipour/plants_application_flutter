@@ -6,7 +6,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/persian_number.dart';
 import '../../../../core/utils/price_formatter.dart';
 import '../../../../core/utils/size_config.dart';
-import '../../../wishlist/data/repositories/wishlist_repository.dart';
+import '../../../wishlist/data/repositories/wishlist_store.dart';
 import '../../domain/entities/product.dart';
 import '../../data/models/category_model.dart';
 import '../../data/models/product_images_model.dart';
@@ -62,11 +62,7 @@ class ProductCardEntity extends StatelessWidget {
       ),
       images: product.images
           .map(
-            (img) => ProductImageModel(
-              id: img.id,
-              image: img.image,
-              mainPicture: img.mainPicture,
-            ),
+            (img) => ProductImageModel(id: img.id, image: img.image, mainPicture: img.mainPicture),
           )
           .toList(),
       mainImage: product.mainImage,
@@ -75,7 +71,7 @@ class ProductCardEntity extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final wishlist = context.watch<WishlistRepository>();
+    final wishlist = context.watch<WishlistStore>();
     final isFav = wishlist.isWishlisted(product.id);
 
     final mainImage = _mainImage;
@@ -87,9 +83,7 @@ class ProductCardEntity extends StatelessWidget {
       child: GestureDetector(
         onTap: () => Navigator.push(
           context,
-          MaterialPageRoute(
-            builder: (context) => ProductScreen(productId: product.id),
-          ),
+          MaterialPageRoute(builder: (context) => ProductScreen(productId: product.id)),
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -112,28 +106,18 @@ class ProductCardEntity extends StatelessWidget {
                       ),
                     ),
                   Positioned(
-                    top: isGrid
-                        ? 0
-                        : SizeConfig.getProportionateScreenWidth(10),
-                    right: isGrid
-                        ? 0
-                        : SizeConfig.getProportionateScreenWidth(10),
+                    top: isGrid ? 0 : SizeConfig.getProportionateScreenWidth(10),
+                    right: isGrid ? 0 : SizeConfig.getProportionateScreenWidth(10),
                     child: Container(
-                      padding: EdgeInsets.all(
-                        SizeConfig.getProportionateScreenWidth(5),
-                      ),
+                      padding: EdgeInsets.all(SizeConfig.getProportionateScreenWidth(5)),
                       decoration: BoxDecoration(
-                        color: isLightMode
-                            ? AppColors.grey200
-                            : AppColors.dark3,
+                        color: isLightMode ? AppColors.grey200 : AppColors.dark3,
                         shape: BoxShape.circle,
                       ),
                       child: InkWell(
                         borderRadius: BorderRadius.circular(20),
                         onTap: () {
-                          context.read<WishlistRepository>().toggle(
-                            _toLegacyModel(),
-                          );
+                          context.read<WishlistStore>().toggle(_toLegacyModel());
                         },
                         child: SvgPicture.asset(
                           isFav
@@ -187,9 +171,7 @@ class ProductCardEntity extends StatelessWidget {
                   Text(
                     product.averageRating.toString().farsiNumber,
                     style: TextStyle(
-                      color: isLightMode
-                          ? AppColors.grey700
-                          : AppColors.grey300,
+                      color: isLightMode ? AppColors.grey700 : AppColors.grey300,
                       fontSize: SizeConfig.getProportionateFontSize(14),
                       fontWeight: FontWeight.w500,
                     ),
@@ -198,9 +180,7 @@ class ProductCardEntity extends StatelessWidget {
                   Text(
                     '|',
                     style: TextStyle(
-                      color: isLightMode
-                          ? AppColors.grey700
-                          : AppColors.grey300,
+                      color: isLightMode ? AppColors.grey700 : AppColors.grey300,
                       fontWeight: FontWeight.w700,
                       fontSize: SizeConfig.getProportionateFontSize(14),
                     ),
@@ -219,8 +199,7 @@ class ProductCardEntity extends StatelessWidget {
                       ),
                     ),
                     child: Text(
-                      '${product.salesCount.toString().priceFormatter} فروش'
-                          .farsiNumber,
+                      '${product.salesCount.toString().priceFormatter} فروش'.farsiNumber,
                       style: TextStyle(
                         color: AppColors.primary,
                         fontSize: SizeConfig.getProportionateFontSize(10),

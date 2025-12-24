@@ -16,14 +16,14 @@ import 'core/services/connectivity_service.dart';
 import 'core/theme/theme_repository.dart';
 import 'core/theme/app_theme.dart';
 
-import 'features/cart/data/repository/cart_repository.dart';
+import 'features/cart/data/repository/cart_store.dart';
 import 'features/product/presentation/controllers/product_search_controller.dart';
 import 'features/profile/data/epositories/address_repository.dart';
 import 'features/splash/presentation/screens/splash_screen.dart';
 import 'features/auth/data/repositories/auth_repository.dart';
 import 'features/auth/data/repositories/password_reset_repository.dart';
 import 'features/product/data/repositories/product_repository.dart';
-import 'features/wishlist/data/repositories/wishlist_repository.dart';
+import 'features/wishlist/data/repositories/wishlist_store.dart';
 import 'features/product/data/repositories/product_repository_impl.dart';
 import 'features/product/domain/repositories/product_repository.dart';
 import 'features/product/domain/usecases/get_categories.dart';
@@ -35,7 +35,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await ThemeRepository.I.init();
   await AuthRepository.I.init();
-  await CartRepository.I.init();
+  await CartStore.I.init();
 
   runApp(MyApp());
 }
@@ -82,8 +82,8 @@ class MyApp extends StatelessWidget {
           create: (context) => AddProductReview(context.read<ReviewRepository>()),
         ),
 
-        ChangeNotifierProvider<WishlistRepository>.value(value: WishlistRepository.I),
-        ChangeNotifierProvider<CartRepository>.value(value: CartRepository.I),
+        ChangeNotifierProvider<WishlistStore>.value(value: WishlistStore.I),
+        ChangeNotifierProvider<CartStore>.value(value: CartStore.I),
         ChangeNotifierProvider<AddressRepository>.value(value: AddressRepository.I),
         ChangeNotifierProvider<PasswordResetRepository>(create: (_) => PasswordResetRepository()),
         ChangeNotifierProvider<AppMessageController>(create: (_) => AppMessageController()),

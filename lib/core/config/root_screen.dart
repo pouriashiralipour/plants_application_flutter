@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 
 import '../../features/auth/data/repositories/auth_repository.dart';
 
-import '../../features/wishlist/data/repositories/wishlist_repository.dart';
+import '../../features/wishlist/data/repositories/wishlist_store.dart';
 import '../theme/app_colors.dart';
 import '../../features/auth/presentation/screens/login_screen.dart';
 import '../../features/cart/presentation/screens/cart_screen.dart';
@@ -64,7 +64,7 @@ class _RootScreenState extends State<RootScreen> {
     Future.microtask(() {
       final auth = context.read<AuthRepository>();
       if (auth.isAuthed) {
-        context.read<WishlistRepository>().load();
+        context.read<WishlistStore>().load();
       }
     });
   }

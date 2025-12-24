@@ -5,10 +5,10 @@ import '../../../product/data/models/product_model.dart';
 import '../datasources/cart_remote_data_sourced.dart';
 import '../models/cart_model.dart';
 
-class CartRepository extends ChangeNotifier {
-  CartRepository._();
+class CartStore extends ChangeNotifier {
+  CartStore._();
 
-  static final CartRepository I = CartRepository._();
+  static final CartStore I = CartStore._();
 
   static const _cartIdKey = 'cart_id';
 

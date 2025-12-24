@@ -4,9 +4,9 @@ import '../../../product/data/models/product_model.dart';
 import '../datasources/wishlist_remote_data_source.dart';
 import '../models/wishlist_item_model.dart';
 
-class WishlistRepository extends ChangeNotifier {
-  WishlistRepository._();
-  static final WishlistRepository I = WishlistRepository._();
+class WishlistStore extends ChangeNotifier {
+  WishlistStore._();
+  static final WishlistStore I = WishlistStore._();
 
   final WishlistApi _api = WishlistApi.I;
 
