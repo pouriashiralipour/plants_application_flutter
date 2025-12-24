@@ -68,10 +68,14 @@ class _ReviewScreenState extends State<ReviewScreen> {
       child: Row(
         children: items.map((value) {
           final selected = _ratingFilter == value;
-          final label = value == null ? 'همه' : '${value.toString().farsiNumber}';
+          final label = value == null
+              ? 'همه'
+              : '${value.toString().farsiNumber}';
           return Padding(
             padding: EdgeInsets.only(
-              right: value == items.first ? 0 : SizeConfig.getProportionateScreenWidth(8),
+              right: value == items.first
+                  ? 0
+                  : SizeConfig.getProportionateScreenWidth(8),
             ),
             child: InkWell(
               onTap: () {
@@ -117,7 +121,11 @@ class _ReviewScreenState extends State<ReviewScreen> {
     );
   }
 
-  Widget _buildReviewItem(Review review, bool isLightMode, {required VoidCallback onToggleLike}) {
+  Widget _buildReviewItem(
+    Review review,
+    bool isLightMode, {
+    required VoidCallback onToggleLike,
+  }) {
     final name = review.user.fullName.isEmpty ? 'کاربر' : review.user.fullName;
     final likeText = review.likesCount.toString().priceFormatter.farsiNumber;
     final timeText = _formatRelativeTime(review.createdAt);
@@ -132,7 +140,9 @@ class _ReviewScreenState extends State<ReviewScreen> {
       if (rawAvatar.startsWith('http')) {
         avatarUrl = rawAvatar;
       } else {
-        final cleanedPath = rawAvatar.startsWith('/') ? rawAvatar.substring(1) : rawAvatar;
+        final cleanedPath = rawAvatar.startsWith('/')
+            ? rawAvatar.substring(1)
+            : rawAvatar;
         avatarUrl = '${UrlInfo.baseUrl}/$cleanedPath';
       }
     }
@@ -148,7 +158,9 @@ class _ReviewScreenState extends State<ReviewScreen> {
             children: [
               CircleAvatar(
                 radius: SizeConfig.getProportionateScreenWidth(20),
-                backgroundColor: isLightMode ? AppColors.bgSilver1 : AppColors.dark3,
+                backgroundColor: isLightMode
+                    ? AppColors.bgSilver1
+                    : AppColors.dark3,
                 backgroundImage: hasAvatar ? NetworkImage(avatarUrl) : null,
                 child: !hasAvatar
                     ? Text(
@@ -288,7 +300,10 @@ class _ReviewScreenState extends State<ReviewScreen> {
       _isTogglingLike = true;
     });
 
-    await _reviewController.toggleLike(productId: widget.productId, reviewId: review.id);
+    await _reviewController.toggleLike(
+      productId: widget.productId,
+      reviewId: review.id,
+    );
 
     if (!mounted) return;
 
@@ -297,24 +312,28 @@ class _ReviewScreenState extends State<ReviewScreen> {
     });
 
     if (_reviewController.error != null) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(_reviewController.error!)));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(_reviewController.error!)));
     }
   }
 
   Future<void> _openAddReviewSheet() async {
-    bool isSubmitting = false;
     await showModalBottomSheet<bool>(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (_) {
+        bool isSubmitting = false;
         final TextEditingController commentCtrl = TextEditingController();
+        String? commentError;
         int rating = 5;
         return ChangeNotifierProvider<ReviewController>.value(
           value: _reviewController,
           child: StatefulBuilder(
             builder: (sheetContext, setModalState) {
-              final isLightMode = Theme.of(sheetContext).brightness == Brightness.light;
+              final isLightMode =
+                  Theme.of(sheetContext).brightness == Brightness.light;
               return Container(
                 padding: EdgeInsets.only(
                   left: SizeConfig.getProportionateScreenWidth(20),
@@ -340,7 +359,9 @@ class _ReviewScreenState extends State<ReviewScreen> {
                         width: SizeConfig.getProportionateScreenWidth(40),
                         height: 4,
                         decoration: BoxDecoration(
-                          color: isLightMode ? AppColors.grey300 : AppColors.dark3,
+                          color: isLightMode
+                              ? AppColors.grey300
+                              : AppColors.dark3,
                           borderRadius: BorderRadius.circular(100),
                         ),
                       ),
@@ -351,7 +372,9 @@ class _ReviewScreenState extends State<ReviewScreen> {
                       style: TextStyle(
                         fontSize: SizeConfig.getProportionateFontSize(16),
                         fontWeight: FontWeight.w700,
-                        color: isLightMode ? AppColors.grey900 : AppColors.white,
+                        color: isLightMode
+                            ? AppColors.grey900
+                            : AppColors.white,
                       ),
                     ),
                     Gap(SizeConfig.getProportionateScreenHeight(12)),
@@ -360,7 +383,9 @@ class _ReviewScreenState extends State<ReviewScreen> {
                       style: TextStyle(
                         fontSize: SizeConfig.getProportionateFontSize(14),
                         fontWeight: FontWeight.w600,
-                        color: isLightMode ? AppColors.grey800 : AppColors.grey200,
+                        color: isLightMode
+                            ? AppColors.grey800
+                            : AppColors.grey200,
                       ),
                     ),
                     Gap(SizeConfig.getProportionateScreenHeight(8)),
@@ -386,17 +411,27 @@ class _ReviewScreenState extends State<ReviewScreen> {
                     ),
                     Gap(SizeConfig.getProportionateScreenHeight(12)),
                     TextField(
+                      onChanged: (v) {
+                        if (commentError != null && v.trim().isNotEmpty) {
+                          setModalState(() => commentError = null);
+                        }
+                      },
                       controller: commentCtrl,
                       maxLines: 4,
                       textInputAction: TextInputAction.newline,
                       decoration: InputDecoration(
+                        errorText: commentError,
                         hintText: 'نظر خود را درباره این محصول بنویسید...',
                         hintStyle: TextStyle(
                           fontSize: SizeConfig.getProportionateFontSize(13),
-                          color: isLightMode ? AppColors.grey500 : AppColors.grey400,
+                          color: isLightMode
+                              ? AppColors.grey500
+                              : AppColors.grey400,
                         ),
                         filled: true,
-                        fillColor: isLightMode ? AppColors.bgSilver1 : AppColors.dark3,
+                        fillColor: isLightMode
+                            ? AppColors.bgSilver1
+                            : AppColors.dark3,
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(16),
                           borderSide: BorderSide.none,
@@ -412,12 +447,16 @@ class _ReviewScreenState extends State<ReviewScreen> {
                             width: 50,
                             onTap: () => Navigator.pop(sheetContext, false),
                             text: 'انصراف',
-                            color: isLightMode ? AppColors.bgSilver1 : AppColors.dark3,
+                            color: isLightMode
+                                ? AppColors.bgSilver1
+                                : AppColors.dark3,
                             textColor: AppColors.primary,
                             fontSize: SizeConfig.getProportionateFontSize(13),
                           ),
                         ),
-                        SizedBox(width: SizeConfig.getProportionateScreenWidth(12)),
+                        SizedBox(
+                          width: SizeConfig.getProportionateScreenWidth(12),
+                        ),
                         Expanded(
                           child: isSubmitting
                               ? const AppProgressBarIndicator()
@@ -425,26 +464,39 @@ class _ReviewScreenState extends State<ReviewScreen> {
                                   width: 50,
                                   onTap: () async {
                                     if (rating == 0) return;
-
+                                    final comment = commentCtrl.text.trim();
+                                    if (comment.isEmpty) {
+                                      setModalState(() {
+                                        commentError = 'متن دیدگاه الزامی است.';
+                                      });
+                                      return;
+                                    }
                                     setModalState(() {
                                       isSubmitting = true;
                                     });
 
-                                    await sheetContext.read<ReviewController>().addReview(
-                                      productId: widget.productId,
-                                      rating: rating,
-                                      comment: commentCtrl.text.trim(),
-                                    );
+                                    await sheetContext
+                                        .read<ReviewController>()
+                                        .addReview(
+                                          productId: widget.productId,
+                                          rating: rating,
+                                          comment: commentCtrl.text.trim(),
+                                        );
 
                                     setModalState(() {
                                       isSubmitting = false;
                                     });
 
-                                    final controller = sheetContext.read<ReviewController>();
+                                    final controller = sheetContext
+                                        .read<ReviewController>();
                                     if (controller.error != null) {
                                       ScaffoldMessenger.of(
                                         context,
-                                      ).showSnackBar(SnackBar(content: Text(controller.error!)));
+                                      ).showSnackBar(
+                                        SnackBar(
+                                          content: Text(controller.error!),
+                                        ),
+                                      );
                                       return;
                                     }
                                     Navigator.pop(sheetContext, true);
@@ -452,7 +504,9 @@ class _ReviewScreenState extends State<ReviewScreen> {
 
                                   text: 'ثبت دیدگاه',
                                   color: AppColors.primary,
-                                  fontSize: SizeConfig.getProportionateFontSize(13),
+                                  fontSize: SizeConfig.getProportionateFontSize(
+                                    13,
+                                  ),
                                 ),
                         ),
                       ],
@@ -475,9 +529,12 @@ class _ReviewScreenState extends State<ReviewScreen> {
         body: SafeArea(
           child: Consumer<ReviewController>(
             builder: (context, controller, _) {
-              final bool isLightMode = Theme.of(context).brightness == Brightness.light;
+              final bool isLightMode =
+                  Theme.of(context).brightness == Brightness.light;
 
-              final ratingText = widget.averageRating.toStringAsFixed(1).farsiNumber;
+              final ratingText = widget.averageRating
+                  .toStringAsFixed(1)
+                  .farsiNumber;
               final reviewsCountText = widget.totalReviews == 0
                   ? ''
                   : '(${widget.totalReviews.toString().priceFormatter.farsiNumber} نظر)';
@@ -501,17 +558,23 @@ class _ReviewScreenState extends State<ReviewScreen> {
                           onPressed: () => Navigator.pop(context),
                           icon: Icon(
                             Icons.arrow_back,
-                            color: isLightMode ? AppColors.grey900 : AppColors.white,
+                            color: isLightMode
+                                ? AppColors.grey900
+                                : AppColors.white,
                           ),
                         ),
-                        SizedBox(width: SizeConfig.getProportionateScreenWidth(8)),
+                        SizedBox(
+                          width: SizeConfig.getProportionateScreenWidth(8),
+                        ),
                         Expanded(
                           child: Text(
                             '$ratingText $reviewsCountText',
                             style: TextStyle(
                               fontSize: SizeConfig.getProportionateFontSize(18),
                               fontWeight: FontWeight.w700,
-                              color: isLightMode ? AppColors.grey900 : AppColors.white,
+                              color: isLightMode
+                                  ? AppColors.grey900
+                                  : AppColors.white,
                             ),
                           ),
                         ),
@@ -521,7 +584,9 @@ class _ReviewScreenState extends State<ReviewScreen> {
                             'assets/images/icons/PaperPlus.svg',
                             height: SizeConfig.getProportionateScreenWidth(24),
                             width: SizeConfig.getProportionateScreenWidth(24),
-                            color: isLightMode ? AppColors.grey900 : AppColors.white,
+                            color: isLightMode
+                                ? AppColors.grey900
+                                : AppColors.white,
                           ),
                         ),
                       ],
@@ -530,7 +595,9 @@ class _ReviewScreenState extends State<ReviewScreen> {
 
                   Gap(SizeConfig.getProportionateScreenHeight(16)),
                   Padding(
-                    padding: EdgeInsets.only(right: SizeConfig.getProportionateScreenWidth(24)),
+                    padding: EdgeInsets.only(
+                      right: SizeConfig.getProportionateScreenWidth(24),
+                    ),
                     child: _buildRatingFilterChips(isLightMode),
                   ),
                   Gap(SizeConfig.getProportionateScreenHeight(16)),
@@ -545,7 +612,9 @@ class _ReviewScreenState extends State<ReviewScreen> {
                               textAlign: TextAlign.center,
                               style: TextStyle(
                                 color: AppColors.error,
-                                fontSize: SizeConfig.getProportionateFontSize(13),
+                                fontSize: SizeConfig.getProportionateFontSize(
+                                  13,
+                                ),
                               ),
                             ),
                           )
@@ -554,15 +623,20 @@ class _ReviewScreenState extends State<ReviewScreen> {
                             child: Text(
                               'برای این فیلتر، دیدگاهی پیدا نشد.',
                               style: TextStyle(
-                                fontSize: SizeConfig.getProportionateFontSize(14),
-                                color: isLightMode ? AppColors.grey600 : AppColors.grey300,
+                                fontSize: SizeConfig.getProportionateFontSize(
+                                  14,
+                                ),
+                                color: isLightMode
+                                    ? AppColors.grey600
+                                    : AppColors.grey300,
                               ),
                               textAlign: TextAlign.center,
                             ),
                           )
                         : Padding(
                             padding: EdgeInsets.symmetric(
-                              horizontal: SizeConfig.getProportionateScreenWidth(12),
+                              horizontal:
+                                  SizeConfig.getProportionateScreenWidth(12),
                             ),
                             child: ListView.separated(
                               itemBuilder: (context, index) {
@@ -573,8 +647,9 @@ class _ReviewScreenState extends State<ReviewScreen> {
                                   onToggleLike: () => _handleToggleLike(review),
                                 );
                               },
-                              separatorBuilder: (_, __) =>
-                                  Gap(SizeConfig.getProportionateScreenHeight(16)),
+                              separatorBuilder: (_, __) => Gap(
+                                SizeConfig.getProportionateScreenHeight(16),
+                              ),
                               itemCount: filtered.length,
                             ),
                           ),

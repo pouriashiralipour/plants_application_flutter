@@ -27,12 +27,22 @@ class ReviewController extends ChangeNotifier {
   bool get isLoading => _isLoading;
   List<Review> get reviews => List.unmodifiable(_reviews);
 
-  Future<void> addReview({required String productId, required int rating, String? comment}) async {
+  Future<void> addReview({
+    required String productId,
+    required int rating,
+    String? comment,
+  }) async {
     _setLoading(true);
     _error = null;
+    final c = comment?.trim() ?? '';
+    if (c.isEmpty) {
+      _error = 'متن دیدگاه الزامی است.';
+      notifyListeners();
+      return;
+    }
 
     try {
-      await _addProductReview(productId: productId, rating: rating, comment: comment);
+      await _addProductReview(productId: productId, rating: rating, comment: c);
 
       final result = await _getProductReviews(productId);
       _reviews
@@ -62,9 +72,15 @@ class ReviewController extends ChangeNotifier {
     }
   }
 
-  Future<void> toggleLike({required String productId, required String reviewId}) async {
+  Future<void> toggleLike({
+    required String productId,
+    required String reviewId,
+  }) async {
     try {
-      final updated = await _toggleReviewLike(productId: productId, reviewId: reviewId);
+      final updated = await _toggleReviewLike(
+        productId: productId,
+        reviewId: reviewId,
+      );
 
       final index = _reviews.indexWhere((r) => r.id == updated.id);
       if (index != -1) {
