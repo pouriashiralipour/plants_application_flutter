@@ -5,6 +5,7 @@ import 'package:full_plants_ecommerce_app/core/utils/price_formatter.dart';
 import 'package:provider/provider.dart';
 
 import '../../data/models/product_model.dart';
+import '../../domain/usecases/get_product_by_id.dart';
 import 'review_screen.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/size_config.dart';
@@ -41,6 +42,8 @@ class ProductScreen extends StatefulWidget {
 class _ProductScreenState extends State<ProductScreen> {
   PageController pageController = PageController(initialPage: 0);
 
+  late final ProductDetailsController _detailsController;
+
   bool _cartIsError = false;
   bool _isAddingToCart = false;
   bool _isCheckingInternet = true;
@@ -51,8 +54,16 @@ class _ProductScreenState extends State<ProductScreen> {
   String? _cartMessage;
 
   @override
+  void dispose() {
+    pageController.dispose();
+    _detailsController.dispose();
+    super.dispose();
+  }
+
+  @override
   void initState() {
     super.initState();
+    _detailsController = ProductDetailsController(getProductById: context.read<GetProductById>());
     _initializeApp();
   }
 
@@ -505,7 +516,7 @@ class _ProductScreenState extends State<ProductScreen> {
       }
 
       if (isConnected && mounted) {
-        context.read<ProductDetailsController>().load(widget.productId);
+        _detailsController.load(widget.productId);
       }
     } catch (e) {
       if (mounted) {
@@ -674,93 +685,96 @@ class _ProductScreenState extends State<ProductScreen> {
       return ProductScreenShimmer();
     }
 
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: isLightMode ? AppColors.bgSilver1 : AppColors.dark1,
-        elevation: 0,
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: isLightMode ? AppColors.grey900 : AppColors.white),
-          onPressed: () => Navigator.pop(context),
+    return ChangeNotifierProvider<ProductDetailsController>.value(
+      value: _detailsController,
+      child: Scaffold(
+        appBar: AppBar(
+          backgroundColor: isLightMode ? AppColors.bgSilver1 : AppColors.dark1,
+          elevation: 0,
+          leading: IconButton(
+            icon: Icon(Icons.arrow_back, color: isLightMode ? AppColors.grey900 : AppColors.white),
+            onPressed: () => Navigator.pop(context),
+          ),
         ),
-      ),
-      body: SafeArea(
-        child: Consumer<ProductDetailsController>(
-          builder: (context, details, _) {
-            if (details.isLoading && details.product == null) {
-              return ProductScreenShimmer();
-            }
+        body: SafeArea(
+          child: Consumer<ProductDetailsController>(
+            builder: (context, details, _) {
+              if (details.isLoading && details.product == null) {
+                return ProductScreenShimmer();
+              }
 
-            if (details.error != null && details.product == null) {
-              return Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(Icons.error_outline, size: 64, color: AppColors.grey500),
-                    const SizedBox(height: 16),
-                    Text(
-                      'خطا در دریافت اطلاعات محصول',
-                      style: TextStyle(
-                        fontSize: SizeConfig.getProportionateFontSize(16),
-                        color: isLightMode ? AppColors.grey700 : AppColors.grey300,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Padding(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: SizeConfig.getProportionateScreenWidth(24),
-                      ),
-                      child: Text(
-                        details.error!,
-                        textAlign: TextAlign.center,
+              if (details.error != null && details.product == null) {
+                return Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.error_outline, size: 64, color: AppColors.grey500),
+                      const SizedBox(height: 16),
+                      Text(
+                        'خطا در دریافت اطلاعات محصول',
                         style: TextStyle(
-                          fontSize: SizeConfig.getProportionateFontSize(12),
-                          color: isLightMode ? AppColors.grey600 : AppColors.grey400,
+                          fontSize: SizeConfig.getProportionateFontSize(16),
+                          color: isLightMode ? AppColors.grey700 : AppColors.grey300,
                         ),
                       ),
-                    ),
-                    const SizedBox(height: 16),
-                    ElevatedButton(
-                      onPressed: () {
-                        context.read<ProductDetailsController>().load(widget.productId);
-                      },
-                      child: const Text('تلاش مجدد'),
-                    ),
-                  ],
-                ),
-              );
-            }
-
-            final product = details.product;
-            if (product == null) {
-              return ProductScreenShimmer();
-            }
-
-            final shortDescription = _getShortDescription(product.description);
-            final hasLongDescription = _hasLongDescription(product.description);
-
-            final isFav = context.watch<WishlistRepository>().isWishlisted(product.id);
-
-            return Column(
-              children: [
-                if (product.images.isEmpty) ProductCardShimmer(isLightMode: isLightMode),
-
-                SizedBox(
-                  height: SizeConfig.screenHeight * 0.4,
-                  child: _buildImageGallery(product, isLightMode),
-                ),
-
-                Expanded(
-                  child: _buildProductInfo(
-                    product,
-                    shortDescription,
-                    hasLongDescription,
-                    isLightMode,
-                    isFav,
+                      const SizedBox(height: 8),
+                      Padding(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: SizeConfig.getProportionateScreenWidth(24),
+                        ),
+                        child: Text(
+                          details.error!,
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: SizeConfig.getProportionateFontSize(12),
+                            color: isLightMode ? AppColors.grey600 : AppColors.grey400,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      ElevatedButton(
+                        onPressed: () {
+                          _detailsController.load(widget.productId);
+                        },
+                        child: const Text('تلاش مجدد'),
+                      ),
+                    ],
                   ),
-                ),
-              ],
-            );
-          },
+                );
+              }
+
+              final product = details.product;
+              if (product == null) {
+                return ProductScreenShimmer();
+              }
+
+              final shortDescription = _getShortDescription(product.description);
+              final hasLongDescription = _hasLongDescription(product.description);
+
+              final isFav = context.watch<WishlistRepository>().isWishlisted(product.id);
+
+              return Column(
+                children: [
+                  if (product.images.isEmpty) ProductCardShimmer(isLightMode: isLightMode),
+
+                  SizedBox(
+                    height: SizeConfig.screenHeight * 0.4,
+                    child: _buildImageGallery(product, isLightMode),
+                  ),
+
+                  Expanded(
+                    child: _buildProductInfo(
+                      product,
+                      shortDescription,
+                      hasLongDescription,
+                      isLightMode,
+                      isFav,
+                    ),
+                  ),
+                ],
+              );
+            },
+          ),
         ),
       ),
     );

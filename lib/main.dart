@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
-import 'features/product/presentation/controllers/product_details_controller.dart';
-import 'features/product/presentation/controllers/product_search_controller.dart';
 
 import 'package:persian_datetime_picker/persian_datetime_picker.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
+import 'features/product/data/repositories/review_repository_impl.dart';
+import 'features/product/domain/repositories/review_repository.dart';
+import 'features/product/domain/usecases/get_product_reviews.dart';
+import 'features/product/domain/usecases/toggle_review_like.dart';
+import 'features/product/domain/usecases/add_product_review.dart';
 
 import 'core/services/app_message_controller.dart';
 import 'core/utils/size_config.dart';
@@ -14,6 +17,7 @@ import 'core/theme/theme_repository.dart';
 import 'core/theme/app_theme.dart';
 
 import 'features/cart/data/repository/cart_repository.dart';
+import 'features/product/presentation/controllers/product_search_controller.dart';
 import 'features/profile/data/epositories/address_repository.dart';
 import 'features/splash/presentation/screens/splash_screen.dart';
 import 'features/auth/data/repositories/auth_repository.dart';
@@ -50,12 +54,9 @@ class MyApp extends StatelessWidget {
         Provider<GetCategories>(
           create: (context) => GetCategories(context.read<ProductRepository>()),
         ),
-        Provider<GetProducts>(
-          create: (context) => GetProducts(context.read<ProductRepository>()),
-        ),
+        Provider<GetProducts>(create: (context) => GetProducts(context.read<ProductRepository>())),
         Provider<GetProductById>(
-          create: (context) =>
-              GetProductById(context.read<ProductRepository>()),
+          create: (context) => GetProductById(context.read<ProductRepository>()),
         ),
         ChangeNotifierProvider<ProductController>(
           create: (context) => ProductController(
@@ -70,25 +71,22 @@ class MyApp extends StatelessWidget {
             getProducts: context.read<GetProducts>(),
           ),
         ),
-        ChangeNotifierProvider<ProductDetailsController>(
-          create: (context) => ProductDetailsController(
-            getProductById: context.read<GetProductById>(),
-          ),
+        Provider<ReviewRepository>(create: (_) => ReviewRepositoryImpl()),
+        Provider<GetProductReviews>(
+          create: (context) => GetProductReviews(context.read<ReviewRepository>()),
+        ),
+        Provider<ToggleReviewLike>(
+          create: (context) => ToggleReviewLike(context.read<ReviewRepository>()),
+        ),
+        Provider<AddProductReview>(
+          create: (context) => AddProductReview(context.read<ReviewRepository>()),
         ),
 
-        ChangeNotifierProvider<WishlistRepository>.value(
-          value: WishlistRepository.I,
-        ),
+        ChangeNotifierProvider<WishlistRepository>.value(value: WishlistRepository.I),
         ChangeNotifierProvider<CartRepository>.value(value: CartRepository.I),
-        ChangeNotifierProvider<AddressRepository>.value(
-          value: AddressRepository.I,
-        ),
-        ChangeNotifierProvider<PasswordResetRepository>(
-          create: (_) => PasswordResetRepository(),
-        ),
-        ChangeNotifierProvider<AppMessageController>(
-          create: (_) => AppMessageController(),
-        ),
+        ChangeNotifierProvider<AddressRepository>.value(value: AddressRepository.I),
+        ChangeNotifierProvider<PasswordResetRepository>(create: (_) => PasswordResetRepository()),
+        ChangeNotifierProvider<AppMessageController>(create: (_) => AppMessageController()),
 
         Provider(create: (_) => ConnectivityService()),
       ],
@@ -101,10 +99,7 @@ class MyApp extends StatelessWidget {
                 title: 'Philoroupia Application',
                 debugShowCheckedModeBanner: false,
                 locale: const Locale("fa", "IR"),
-                supportedLocales: const [
-                  Locale("fa", "IR"),
-                  Locale("en", "US"),
-                ],
+                supportedLocales: const [Locale("fa", "IR"), Locale("en", "US")],
                 localizationsDelegates: [
                   PersianMaterialLocalizations.delegate,
                   PersianCupertinoLocalizations.delegate,
@@ -116,9 +111,7 @@ class MyApp extends StatelessWidget {
                 darkTheme: AppTheme.darkTheme,
                 themeMode: theme.themeMode,
                 builder: (context, child) {
-                  return Stack(
-                    children: [if (child != null) child, const AppToastLayer()],
-                  );
+                  return Stack(children: [if (child != null) child, const AppToastLayer()]);
                 },
                 home: SplashScreen(),
               );
