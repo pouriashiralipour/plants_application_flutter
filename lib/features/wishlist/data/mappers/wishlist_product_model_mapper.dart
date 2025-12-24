@@ -7,6 +7,14 @@ extension WishlistProductModelMapper on ProductModel {
         ? mainImage!.trim()
         : (images.isNotEmpty ? images.first.image : '');
 
-    return WishlistProduct(id: id, name: name, price: price, image: image);
+    return WishlistProduct(
+      id: id,
+      name: name,
+      price: price,
+      image: image,
+      categoryName: category.name,
+      averageRating: averageRating,
+      salesCount: salesCount,
+    );
   }
 }
