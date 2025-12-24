@@ -2,16 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 
+import '../screens/product_details_screen.dart';
+import '../../domain/entities/product.dart';
+import '../../../wishlist/presentation/controllers/wishlist_controller.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/persian_number.dart';
 import '../../../../core/utils/price_formatter.dart';
 import '../../../../core/utils/size_config.dart';
-import '../../../wishlist/data/repositories/wishlist_store.dart';
-import '../../domain/entities/product.dart';
-import '../../data/models/category_model.dart';
-import '../../data/models/product_images_model.dart';
-import '../../data/models/product_model.dart';
-import '../screens/product_details_screen.dart';
 
 class ProductCardEntity extends StatelessWidget {
   const ProductCardEntity({
@@ -44,34 +41,9 @@ class ProductCardEntity extends StatelessWidget {
     return '';
   }
 
-  ProductModel _toLegacyModel() {
-    return ProductModel(
-      id: product.id,
-      name: product.name,
-      description: product.description,
-      price: product.price,
-      inventory: product.inventory,
-      isActive: product.isActive,
-      averageRating: product.averageRating,
-      salesCount: product.salesCount,
-      totalReviews: product.totalReviews,
-      category: CategoryModel(
-        id: product.category.id,
-        name: product.category.name,
-        description: product.category.description,
-      ),
-      images: product.images
-          .map(
-            (img) => ProductImageModel(id: img.id, image: img.image, mainPicture: img.mainPicture),
-          )
-          .toList(),
-      mainImage: product.mainImage,
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
-    final wishlist = context.watch<WishlistStore>();
+    final wishlist = context.watch<WishlistController>();
     final isFav = wishlist.isWishlisted(product.id);
 
     final mainImage = _mainImage;
@@ -117,7 +89,7 @@ class ProductCardEntity extends StatelessWidget {
                       child: InkWell(
                         borderRadius: BorderRadius.circular(20),
                         onTap: () {
-                          context.read<WishlistStore>().toggle(_toLegacyModel());
+                          context.read<WishlistController>().toggle(product.id);
                         },
                         child: SvgPicture.asset(
                           isFav

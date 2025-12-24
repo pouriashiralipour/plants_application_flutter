@@ -29,14 +29,11 @@ import 'features/wishlist/domain/usecases/add_to_wishlist.dart';
 import 'features/wishlist/domain/usecases/remove_from_wishlist.dart';
 import 'features/wishlist/domain/usecases/toggle_wishlist.dart';
 
-import 'features/cart/data/repositories/cart_store.dart';
 import 'features/product/presentation/controllers/product_search_controller.dart';
 import 'features/profile/data/epositories/address_repository.dart';
 import 'features/splash/presentation/screens/splash_screen.dart';
 import 'features/auth/data/repositories/auth_repository.dart';
 import 'features/auth/data/repositories/password_reset_repository.dart';
-import 'features/product/data/repositories/product_repository.dart';
-import 'features/wishlist/data/repositories/wishlist_store.dart';
 import 'features/product/data/repositories/product_repository_impl.dart';
 import 'features/product/domain/repositories/product_repository.dart';
 import 'features/product/domain/usecases/get_categories.dart';
@@ -52,7 +49,6 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await ThemeRepository.I.init();
   await AuthRepository.I.init();
-  await CartStore.I.init();
 
   runApp(MyApp());
 }
@@ -66,7 +62,6 @@ class MyApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider<ThemeRepository>.value(value: ThemeRepository.I),
         ChangeNotifierProvider<AuthRepository>.value(value: AuthRepository.I),
-        ChangeNotifierProvider<ShopRepository>.value(value: ShopRepository.I),
         Provider<ProductRepository>(create: (_) => ProductRepositoryImpl()),
         Provider<GetCategories>(
           create: (context) => GetCategories(context.read<ProductRepository>()),
@@ -136,9 +131,6 @@ class MyApp extends StatelessWidget {
             toggleWishlist: context.read<ToggleWishlist>(),
           )..load(),
         ),
-
-        ChangeNotifierProvider<WishlistStore>.value(value: WishlistStore.I),
-        ChangeNotifierProvider<CartStore>.value(value: CartStore.I),
         ChangeNotifierProvider<AddressRepository>.value(value: AddressRepository.I),
         ChangeNotifierProvider<PasswordResetRepository>(create: (_) => PasswordResetRepository()),
         ChangeNotifierProvider<AppMessageController>(create: (_) => AppMessageController()),
