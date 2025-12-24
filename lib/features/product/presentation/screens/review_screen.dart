@@ -10,6 +10,8 @@ import '../../../../core/utils/size_config.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_progress_indicator.dart';
 import '../../../../core/widgets/gap.dart';
+import '../../../../core/widgets/app_alert_dialog.dart';
+import '../../../auth/data/datasources/auth_local_data_source.dart';
 
 import '../controllers/review_controller.dart';
 
@@ -301,6 +303,11 @@ class _ReviewScreenState extends State<ReviewScreen> {
     }
   }
 
+  Future<bool> _isLoggedIn() async {
+    final (access, _) = await AuthStorage.I.readTokens();
+    return access != null && access.trim().isNotEmpty;
+  }
+
   Future<void> _openAddReviewSheet() async {
     await showModalBottomSheet<bool>(
       context: context,
@@ -308,8 +315,9 @@ class _ReviewScreenState extends State<ReviewScreen> {
       backgroundColor: Colors.transparent,
       builder: (_) {
         bool isSubmitting = false;
+        String? sheetMessage;
+        bool sheetIsError = true;
         final TextEditingController commentCtrl = TextEditingController();
-        String? commentError;
         int rating = 5;
         return ChangeNotifierProvider<ReviewController>.value(
           value: _reviewController,
@@ -347,6 +355,12 @@ class _ReviewScreenState extends State<ReviewScreen> {
                       ),
                     ),
                     Gap(SizeConfig.getProportionateScreenHeight(16)),
+                    if (sheetMessage != null) ...[
+                      Gap(SizeConfig.getProportionateScreenHeight(12)),
+                      AppAlertDialog(text: sheetMessage!, isError: sheetIsError),
+                    ],
+                    Gap(SizeConfig.getProportionateScreenHeight(16)),
+
                     Text(
                       'ثبت دیدگاه',
                       style: TextStyle(
@@ -387,16 +401,16 @@ class _ReviewScreenState extends State<ReviewScreen> {
                     ),
                     Gap(SizeConfig.getProportionateScreenHeight(12)),
                     TextField(
-                      onChanged: (v) {
-                        if (commentError != null && v.trim().isNotEmpty) {
-                          setModalState(() => commentError = null);
-                        }
-                      },
+                      // onChanged: (v) {
+                      //   if (commentError != null && v.trim().isNotEmpty) {
+                      //     setModalState(() => commentError = null);
+                      //   }
+                      // },
                       controller: commentCtrl,
                       maxLines: 4,
                       textInputAction: TextInputAction.newline,
                       decoration: InputDecoration(
-                        errorText: commentError,
+                        // errorText: commentError,
                         hintText: 'نظر خود را درباره این محصول بنویسید...',
                         hintStyle: TextStyle(
                           fontSize: SizeConfig.getProportionateFontSize(13),
@@ -435,10 +449,12 @@ class _ReviewScreenState extends State<ReviewScreen> {
                                     final comment = commentCtrl.text.trim();
                                     if (comment.isEmpty) {
                                       setModalState(() {
-                                        commentError = 'متن دیدگاه الزامی است.';
+                                        sheetMessage = 'متن دیدگاه الزامی است.';
+                                        sheetIsError = true;
                                       });
                                       return;
                                     }
+
                                     setModalState(() {
                                       isSubmitting = true;
                                     });
@@ -482,6 +498,20 @@ class _ReviewScreenState extends State<ReviewScreen> {
 
   @override
   Widget build(BuildContext context) {
+    void _showLoginRequiredDialog() {
+      showDialog(
+        context: context,
+        builder: (ctx) {
+          final isLightMode = Theme.of(ctx).brightness == Brightness.light;
+          return AlertDialog(
+            backgroundColor: isLightMode ? AppColors.white : AppColors.dark2,
+            content: const AppAlertDialog(text: 'برای ثبت دیدگاه ابتدا وارد شوید', isWarning: true),
+            actions: [TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('باشه'))],
+          );
+        },
+      );
+    }
+
     return ChangeNotifierProvider<ReviewController>.value(
       value: _reviewController,
       child: Scaffold(
@@ -529,7 +559,15 @@ class _ReviewScreenState extends State<ReviewScreen> {
                           ),
                         ),
                         IconButton(
-                          onPressed: _openAddReviewSheet,
+                          onPressed: () async {
+                            final ok = await _isLoggedIn();
+                            if (!ok) {
+                              _showLoginRequiredDialog();
+                              return;
+                            }
+                            await _openAddReviewSheet();
+                          },
+
                           icon: SvgPicture.asset(
                             'assets/images/icons/PaperPlus.svg',
                             height: SizeConfig.getProportionateScreenWidth(24),
