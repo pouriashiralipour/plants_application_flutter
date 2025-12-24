@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:full_plants_ecommerce_app/core/utils/persian_number.dart';
-import 'package:full_plants_ecommerce_app/core/widgets/app_search_bar.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../core/services/connectivity_service.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/utils/persian_number.dart';
 import '../../../../core/utils/size_config.dart';
 import '../../../../core/widgets/app_progress_indicator.dart';
+import '../../../../core/widgets/app_search_bar.dart';
 import '../../../../core/widgets/gap.dart';
 import '../../../offline/presentation/screens/offline_screen.dart';
-import '../../data/repositories/product_repository.dart';
-import '../widgets/product_grid.dart';
 import '../widgets/search_filter_sheet.dart';
+import '../controllers/product_search_controller.dart';
+import '../widgets/product_grid_entity.dart';
 
 enum SearchSortOption { popular, mostRecent, priceHigh, priceLow }
 
@@ -27,23 +27,26 @@ class _SearchScreenState extends State<SearchScreen> {
   final _searchCtrl = TextEditingController();
   final _searchFocus = FocusNode();
 
-  bool _isCheckingInternet = true;
-  bool _isOnline = true;
-  bool _isSearching = false;
   bool _hasSearched = false;
+  bool _isCheckingInternet = true;
   bool _isFocused = false;
-
+  bool _isOnline = true;
   String _query = '';
-  String? _error;
-  String? _ordering;
-
-  String? _selectedCategory;
-  int? _priceMin;
-  int? _priceMax;
-  int? _rating;
+  List<String> _recentSearches = [];
   SearchSortOption _sortOption = SearchSortOption.popular;
 
-  List<String> _recentSearches = [];
+  String? _ordering;
+  int? _priceMax;
+  int? _priceMin;
+  int? _rating;
+  String? _selectedCategory;
+
+  @override
+  void dispose() {
+    _searchCtrl.dispose();
+    _searchFocus.dispose();
+    super.dispose();
+  }
 
   @override
   void initState() {
@@ -61,156 +64,41 @@ class _SearchScreenState extends State<SearchScreen> {
     });
   }
 
-  @override
-  void dispose() {
-    _searchCtrl.dispose();
-    _searchFocus.dispose();
-    super.dispose();
-  }
-
-  Future<void> _initializeApp() async {
-    await Future.delayed(const Duration(milliseconds: 300));
-    await _checkInternetConnection();
-
-    if (!mounted) return;
-
-    final shopRepository = context.read<ShopRepository>();
-    if (shopRepository.categories.isEmpty) {
-      await shopRepository.loadCategories();
-    }
-  }
-
-  Future<void> _checkInternetConnection() async {
-    if (mounted) {
-      setState(() {
-        _isCheckingInternet = true;
-      });
-    }
-
-    try {
-      final connectivityService = context.read<ConnectivityService>();
-      final isConnected = await connectivityService.checkInternetConnection();
-
-      if (mounted) {
-        setState(() {
-          _isOnline = isConnected;
-          _isCheckingInternet = false;
-        });
-      }
-    } catch (_) {
-      if (mounted) {
-        setState(() {
-          _isOnline = false;
-          _isCheckingInternet = false;
-        });
-      }
-    }
-  }
-
-  String? _mapOrdering(SearchSortOption option) {
-    switch (option) {
-      case SearchSortOption.popular:
-        return '-sales_count';
-      case SearchSortOption.mostRecent:
-        return '-created_at';
-      case SearchSortOption.priceHigh:
-        return '-price';
-      case SearchSortOption.priceLow:
-        return 'price';
-    }
-  }
-
-  Future<void> _openFilterSheet(bool isLightMode) async {
-    final shopRepository = context.read<ShopRepository>();
-    final categories = shopRepository.categories.map((c) => c.name).toList();
-
-    final result = await showModalBottomSheet<SearchFilterResult>(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) {
-        return SearchFilterSheet(
-          isLightMode: isLightMode,
-          categories: categories,
-          initialCategory: _selectedCategory,
-          initialMinPrice: _priceMin,
-          initialMaxPrice: _priceMax,
-          initialRating: _rating,
-          initialSortOption: _sortOption,
-        );
-      },
+  Widget _buildNotFound(bool isLightMode) {
+    return Center(
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: SizeConfig.getProportionateScreenWidth(32)),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            SvgPicture.asset(
+              isLightMode
+                  ? 'assets/images/cart_empty_light.svg'
+                  : 'assets/images/cart_empty_dark.svg',
+            ),
+            Gap(SizeConfig.getProportionateScreenHeight(24)),
+            Text(
+              'نتیجه‌ای برای "${_query}" پیدا نشد',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: SizeConfig.getProportionateFontSize(16),
+                fontWeight: FontWeight.w700,
+                color: isLightMode ? AppColors.grey900 : AppColors.white,
+              ),
+            ),
+            Gap(SizeConfig.getProportionateScreenHeight(8)),
+            Text(
+              'لطفاً عبارت دیگری را امتحان کن یا فیلترها را تغییر بده.',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: SizeConfig.getProportionateFontSize(13),
+                color: isLightMode ? AppColors.grey600 : AppColors.grey300,
+              ),
+            ),
+          ],
+        ),
+      ),
     );
-
-    if (result != null) {
-      setState(() {
-        _selectedCategory = result.category;
-        _priceMin = result.minPrice;
-        _priceMax = result.maxPrice;
-        _rating = result.rating;
-        _sortOption = result.sortOption;
-        _ordering = _mapOrdering(result.sortOption);
-      });
-
-      await _performSearch(triggeredByFilter: true);
-    }
-  }
-
-  Future<void> _performSearch({bool triggeredByFilter = false}) async {
-    final shopRepository = context.read<ShopRepository>();
-    final q = _searchCtrl.text.trim();
-
-    final hasAnyFilter =
-        _selectedCategory != null || _priceMin != null || _priceMax != null || _rating != null;
-
-    if (q.isEmpty && !hasAnyFilter && !triggeredByFilter) {
-      return;
-    }
-
-    setState(() {
-      _isSearching = true;
-      _hasSearched = true;
-      _error = null;
-      _query = q;
-    });
-
-    try {
-      await shopRepository.loadProducts(
-        search: q.isEmpty ? null : q,
-        category: _selectedCategory,
-        priceMin: _priceMin,
-        priceMax: _priceMax,
-        rating: _rating,
-        ordering: _ordering,
-        forceRefresh: true,
-      );
-
-      if (q.isNotEmpty) {
-        _recentSearches.remove(q);
-        _recentSearches.insert(0, q);
-        if (_recentSearches.length > 10) {
-          _recentSearches = _recentSearches.sublist(0, 10);
-        }
-      }
-
-      if (!mounted) return;
-
-      if (shopRepository.error != null) {
-        setState(() {
-          _error = shopRepository.error;
-        });
-      }
-    } catch (_) {
-      if (!mounted) return;
-      setState(() {
-        _error = 'خطا در جستجو. لطفاً دوباره تلاش کنید.';
-      });
-    } finally {
-      if (mounted) {
-        setState(() {
-          _isSearching = false;
-        });
-      }
-    }
   }
 
   Widget _buildRecentSearches(bool isLightMode) {
@@ -268,48 +156,136 @@ class _SearchScreenState extends State<SearchScreen> {
     );
   }
 
-  Widget _buildNotFound(bool isLightMode) {
-    return Center(
-      child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: SizeConfig.getProportionateScreenWidth(32)),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            SvgPicture.asset(
-              isLightMode
-                  ? 'assets/images/cart_empty_light.svg'
-                  : 'assets/images/cart_empty_dark.svg',
-            ),
-            Gap(SizeConfig.getProportionateScreenHeight(24)),
-            Text(
-              'نتیجه‌ای برای "${_query}" پیدا نشد',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: SizeConfig.getProportionateFontSize(16),
-                fontWeight: FontWeight.w700,
-                color: isLightMode ? AppColors.grey900 : AppColors.white,
-              ),
-            ),
-            Gap(SizeConfig.getProportionateScreenHeight(8)),
-            Text(
-              'لطفاً عبارت دیگری را امتحان کن یا فیلترها را تغییر بده.',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: SizeConfig.getProportionateFontSize(13),
-                color: isLightMode ? AppColors.grey600 : AppColors.grey300,
-              ),
-            ),
-          ],
-        ),
-      ),
+  Future<void> _checkInternetConnection() async {
+    if (mounted) {
+      setState(() {
+        _isCheckingInternet = true;
+      });
+    }
+
+    try {
+      final connectivityService = context.read<ConnectivityService>();
+      final isConnected = await connectivityService.checkInternetConnection();
+
+      if (mounted) {
+        setState(() {
+          _isOnline = isConnected;
+          _isCheckingInternet = false;
+        });
+      }
+    } catch (_) {
+      if (mounted) {
+        setState(() {
+          _isOnline = false;
+          _isCheckingInternet = false;
+        });
+      }
+    }
+  }
+
+  Future<void> _initializeApp() async {
+    await Future.delayed(const Duration(milliseconds: 300));
+    await _checkInternetConnection();
+
+    if (!mounted) return;
+
+    final controller = context.read<ProductSearchController>();
+    if (controller.categories.isEmpty) {
+      await controller.loadCategories();
+    }
+  }
+
+  String? _mapOrdering(SearchSortOption option) {
+    switch (option) {
+      case SearchSortOption.popular:
+        return '-sales_count';
+      case SearchSortOption.mostRecent:
+        return '-created_at';
+      case SearchSortOption.priceHigh:
+        return '-price';
+      case SearchSortOption.priceLow:
+        return 'price';
+    }
+  }
+
+  Future<void> _openFilterSheet(bool isLightMode) async {
+    final controller = context.read<ProductSearchController>();
+    if (controller.categories.isEmpty) {
+      await controller.loadCategories();
+    }
+    final categories = controller.categories.map((c) => c.name).toList();
+
+    final result = await showModalBottomSheet<SearchFilterResult>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) {
+        return SearchFilterSheet(
+          isLightMode: isLightMode,
+          categories: categories,
+          initialCategory: _selectedCategory,
+          initialMinPrice: _priceMin,
+          initialMaxPrice: _priceMax,
+          initialRating: _rating,
+          initialSortOption: _sortOption,
+        );
+      },
     );
+
+    if (result != null) {
+      setState(() {
+        _selectedCategory = result.category;
+        _priceMin = result.minPrice;
+        _priceMax = result.maxPrice;
+        _rating = result.rating;
+        _sortOption = result.sortOption;
+        _ordering = _mapOrdering(result.sortOption);
+      });
+
+      await _performSearch(triggeredByFilter: true);
+    }
+  }
+
+  Future<void> _performSearch({bool triggeredByFilter = false}) async {
+    final controller = context.read<ProductSearchController>();
+    final q = _searchCtrl.text.trim();
+
+    final hasAnyFilter =
+        _selectedCategory != null || _priceMin != null || _priceMax != null || _rating != null;
+
+    if (q.isEmpty && !hasAnyFilter && !triggeredByFilter) {
+      return;
+    }
+
+    setState(() {
+      _hasSearched = true;
+      _query = q;
+    });
+
+    await controller.search(
+      search: q.isEmpty ? null : q,
+      categoryName: _selectedCategory,
+      priceMin: _priceMin,
+      priceMax: _priceMax,
+      rating: _rating,
+      ordering: _ordering,
+      forceRefresh: true,
+    );
+
+    if (q.isNotEmpty) {
+      _recentSearches.remove(q);
+      _recentSearches.insert(0, q);
+      if (_recentSearches.length > 10) {
+        _recentSearches = _recentSearches.sublist(0, 10);
+      }
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     final isLightMode = Theme.of(context).brightness == Brightness.light;
-    final shopRepository = context.watch<ShopRepository>();
-    final products = shopRepository.products;
+    final controller = context.watch<ProductSearchController>();
+    final products = controller.products;
 
     if (!_isOnline) {
       return OfflineScreen(onRetry: _checkInternetConnection);
@@ -376,7 +352,7 @@ class _SearchScreenState extends State<SearchScreen> {
                             ),
                           ),
                         ),
-                        if (!_isSearching)
+                        if (!controller.isLoading)
                           Text(
                             '${products.length} مورد'.farsiNumber,
                             style: TextStyle(
@@ -390,14 +366,14 @@ class _SearchScreenState extends State<SearchScreen> {
                   ),
 
                 Expanded(
-                  child: _isSearching
+                  child: controller.isLoading
                       ? const Center(child: AppProgressBarIndicator())
                       : !_hasSearched
                       ? _buildRecentSearches(isLightMode)
-                      : _error != null
+                      : controller.error != null
                       ? Center(
                           child: Text(
-                            _error!,
+                            controller.error!,
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               color: AppColors.error,
@@ -408,10 +384,7 @@ class _SearchScreenState extends State<SearchScreen> {
                       : products.isEmpty
                       ? _buildNotFound(isLightMode)
                       : SingleChildScrollView(
-                          child: ProductGrid(
-                            shopRepository: shopRepository,
-                            isLightMode: isLightMode,
-                          ),
+                          child: ProductGridEntity(products: products, isLightMode: isLightMode),
                         ),
                 ),
               ],
