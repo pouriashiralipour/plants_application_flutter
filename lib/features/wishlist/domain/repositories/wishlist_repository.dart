@@ -1,7 +1,9 @@
 import '../entities/wishlist_item.dart';
 
 abstract class WishlistRepository {
-  Future<List<WishlistItem>> add({required String productId});
+  Future<WishlistItem> add({required String productId});
+
+  Future<List<WishlistItem>> getWishlist();
 
   Future<void> remove({required String wishlistItemId});
 
