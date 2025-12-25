@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 import 'package:provider/provider.dart';
 
-import '../../../../core/config/root_screen.dart';
 import '../../../../core/services/app_message_controller.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/iran_contact_validator.dart';
@@ -98,12 +97,7 @@ class _LoginScreenState extends State<LoginScreen> {
       await Future.delayed(const Duration(seconds: 2));
       setState(() => _isLoading = false);
 
-      Navigator.pushAndRemoveUntil(
-        context,
-        MaterialPageRoute(builder: (_) => RootScreen()),
-        (route) => false,
-      );
-      return;
+      Navigator.pop(context, true);
     } else {
       setState(() => _serverErrorMessage = response.error ?? 'ورود ناموفق بود');
       _showServerError(_serverErrorMessage!);

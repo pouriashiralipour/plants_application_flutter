@@ -547,19 +547,23 @@ class _ReviewScreenState extends State<ReviewScreen> {
                                 context: context,
                                 title: 'ثبت دیدگاه',
                                 message: 'برای ثبت دیدگاه ابتدا وارد حساب کاربری شوید.',
-                                icon: Icons.rate_review_rounded,
+                                icon: 'assets/images/icons/Document.svg',
                                 loginText: 'ورود / ثبت‌نام',
                                 cancelText: 'باشه',
                               );
 
                               if (goLogin == true && context.mounted) {
-                                await Navigator.push(
+                                final result = await Navigator.push<bool>(
                                   context,
                                   MaterialPageRoute(
                                     fullscreenDialog: true,
                                     builder: (_) => const LoginScreen(),
                                   ),
                                 );
+
+                                if (result == true) {
+                                  await _openAddReviewSheet();
+                                }
                               }
                               return;
                             }

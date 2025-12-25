@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 
 import '../theme/app_colors.dart';
 import '../utils/size_config.dart';
@@ -9,7 +10,7 @@ Future<bool?> showLoginRequiredSheet({
   required BuildContext context,
   required String message,
   String title = 'نیاز به ورود',
-  IconData icon = Icons.lock_rounded,
+  String icon = '',
   String loginText = 'ورود / ثبت‌نام',
   String cancelText = 'بعداً',
 }) {
@@ -55,14 +56,16 @@ Future<bool?> showLoginRequiredSheet({
               Container(
                 width: SizeConfig.getProportionateScreenWidth(56),
                 height: SizeConfig.getProportionateScreenWidth(56),
+                padding: EdgeInsets.all(10),
                 decoration: BoxDecoration(
                   color: AppColors.primary.withValues(alpha: 0.12),
                   shape: BoxShape.circle,
                 ),
-                child: Icon(
+                child: SvgPicture.asset(
                   icon,
-                  color: AppColors.primary,
-                  size: SizeConfig.getProportionateScreenWidth(28),
+                  colorFilter: .mode(AppColors.primary, .srcIn),
+                  width: SizeConfig.getProportionateScreenWidth(28),
+                  height: SizeConfig.getProportionateScreenWidth(28),
                 ),
               ),
 

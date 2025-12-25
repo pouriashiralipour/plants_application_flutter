@@ -99,7 +99,7 @@ class ProductCardEntity extends StatelessWidget {
                               title: 'علاقه‌مندی‌ها',
                               message:
                                   'برای افزودن یا حذف از علاقه‌مندی‌ها ابتدا وارد حساب کاربری شوید.',
-                              icon: Icons.favorite_rounded,
+                              icon: "assets/images/icons/HeartBold.svg",
                               loginText: 'ورود / ثبت‌نام',
                               cancelText: 'بعداً',
                             );
