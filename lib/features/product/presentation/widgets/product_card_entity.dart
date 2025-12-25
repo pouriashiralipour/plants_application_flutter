@@ -9,6 +9,9 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/persian_number.dart';
 import '../../../../core/utils/price_formatter.dart';
 import '../../../../core/utils/size_config.dart';
+import '../../../../core/widgets/login_required_sheet.dart';
+import '../../../auth/data/repositories/auth_repository.dart';
+import '../../../auth/presentation/screens/login_screen.dart';
 
 class ProductCardEntity extends StatelessWidget {
   const ProductCardEntity({
@@ -88,7 +91,35 @@ class ProductCardEntity extends StatelessWidget {
                       ),
                       child: InkWell(
                         borderRadius: BorderRadius.circular(20),
-                        onTap: () {
+                        onTap: () async {
+                          final isAuthed = context.read<AuthRepository>().isAuthed;
+                          if (!isAuthed) {
+                            final goLogin = await showLoginRequiredSheet(
+                              context: context,
+                              title: 'علاقه‌مندی‌ها',
+                              message:
+                                  'برای افزودن یا حذف از علاقه‌مندی‌ها ابتدا وارد حساب کاربری شوید.',
+                              icon: Icons.favorite_rounded,
+                              loginText: 'ورود / ثبت‌نام',
+                              cancelText: 'بعداً',
+                            );
+                            if (goLogin == true && context.mounted) {
+                              await Navigator.push<bool>(
+                                context,
+                                MaterialPageRoute(
+                                  fullscreenDialog: true,
+                                  builder: (_) => const LoginScreen(),
+                                ),
+                              );
+
+                              if (!context.mounted) return;
+
+                              if (context.read<AuthRepository>().isAuthed) {
+                                context.read<WishlistController>().toggle(product.id);
+                              }
+                            }
+                            return;
+                          }
                           context.read<WishlistController>().toggle(product.id);
                         },
                         child: SvgPicture.asset(

@@ -107,7 +107,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
                     SizedBox(width: SizeConfig.getProportionateScreenWidth(8)),
                     SvgPicture.asset(
                       'assets/images/icons/StarBold.svg',
-                      color: selected ? Colors.white : AppColors.primary,
+                      colorFilter: .mode(selected ? Colors.white : AppColors.primary, .srcIn),
                       width: SizeConfig.getProportionateScreenWidth(16),
                       height: SizeConfig.getProportionateScreenWidth(16),
                     ),
@@ -200,7 +200,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
                     SizedBox(width: SizeConfig.getProportionateScreenWidth(4)),
                     SvgPicture.asset(
                       'assets/images/icons/StarBold.svg',
-                      color: AppColors.primary,
+                      colorFilter: .mode(AppColors.primary, .srcIn),
                       width: SizeConfig.getProportionateScreenWidth(16),
                       height: SizeConfig.getProportionateScreenWidth(16),
                     ),
@@ -243,7 +243,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
                     SizedBox(width: SizeConfig.getProportionateScreenWidth(6)),
                     SvgPicture.asset(
                       'assets/images/icons/HeartBold.svg',
-                      color: likeColor,
+                      colorFilter: .mode(likeColor, .srcIn),
                       width: SizeConfig.getProportionateScreenWidth(18),
                       height: SizeConfig.getProportionateScreenWidth(18),
                     ),
@@ -402,16 +402,10 @@ class _ReviewScreenState extends State<ReviewScreen> {
                     ),
                     Gap(SizeConfig.getProportionateScreenHeight(12)),
                     TextField(
-                      // onChanged: (v) {
-                      //   if (commentError != null && v.trim().isNotEmpty) {
-                      //     setModalState(() => commentError = null);
-                      //   }
-                      // },
                       controller: commentCtrl,
                       maxLines: 4,
                       textInputAction: TextInputAction.newline,
                       decoration: InputDecoration(
-                        // errorText: commentError,
                         hintText: 'نظر خود را درباره این محصول بنویسید...',
                         hintStyle: TextStyle(
                           fontSize: SizeConfig.getProportionateFontSize(13),
@@ -577,7 +571,10 @@ class _ReviewScreenState extends State<ReviewScreen> {
                             'assets/images/icons/PaperPlus.svg',
                             height: SizeConfig.getProportionateScreenWidth(24),
                             width: SizeConfig.getProportionateScreenWidth(24),
-                            color: isLightMode ? AppColors.grey900 : AppColors.white,
+                            colorFilter: .mode(
+                              isLightMode ? AppColors.grey900 : AppColors.white,
+                              .srcIn,
+                            ),
                           ),
                         ),
                       ],

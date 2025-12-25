@@ -19,6 +19,9 @@ import '../../../wishlist/presentation/controllers/wishlist_controller.dart';
 import '../../../offline/presentation/screens/offline_screen.dart';
 import '../controllers/product_details_controller.dart';
 import '../../domain/entities/product.dart';
+import '../../../../core/widgets/login_required_sheet.dart';
+import '../../../auth/data/repositories/auth_repository.dart';
+import '../../../auth/presentation/screens/login_screen.dart';
 
 import 'review_screen.dart';
 
@@ -320,9 +323,41 @@ class _ProductScreenState extends State<ProductScreen> {
                         ),
                       ),
                       IconButton(
-                        onPressed: () {
+                        onPressed: () async {
+                          final isAuthed = context.read<AuthRepository>().isAuthed;
+
+                          if (!isAuthed) {
+                            final goLogin = await showLoginRequiredSheet(
+                              context: context,
+                              title: 'علاقه‌مندی‌ها',
+                              message:
+                                  'برای افزودن یا حذف از علاقه‌مندی‌ها ابتدا وارد حساب کاربری شوید.',
+                              icon: Icons.favorite_rounded,
+                              loginText: 'ورود / ثبت‌نام',
+                              cancelText: 'بعداً',
+                            );
+
+                            if (goLogin == true && mounted) {
+                              await Navigator.push<bool>(
+                                context,
+                                MaterialPageRoute(
+                                  fullscreenDialog: true,
+                                  builder: (_) => const LoginScreen(),
+                                ),
+                              );
+
+                              if (!mounted) return;
+
+                              if (context.read<AuthRepository>().isAuthed) {
+                                context.read<WishlistController>().toggle(product.id);
+                              }
+                            }
+                            return;
+                          }
+
                           context.read<WishlistController>().toggle(product.id);
                         },
+
                         icon: SvgPicture.asset(
                           isFav
                               ? 'assets/images/icons/HeartBold.svg'
