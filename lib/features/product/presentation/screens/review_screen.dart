@@ -11,7 +11,9 @@ import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_progress_indicator.dart';
 import '../../../../core/widgets/gap.dart';
 import '../../../../core/widgets/app_alert_dialog.dart';
-import '../../../auth/data/datasources/auth_local_data_source.dart';
+import '../../../../core/widgets/login_required_sheet.dart';
+import '../../../auth/data/repositories/auth_repository.dart';
+import '../../../auth/presentation/screens/login_screen.dart';
 
 import '../controllers/review_controller.dart';
 
@@ -303,9 +305,8 @@ class _ReviewScreenState extends State<ReviewScreen> {
     }
   }
 
-  Future<bool> _isLoggedIn() async {
-    final (access, _) = await AuthStorage.I.readTokens();
-    return access != null && access.trim().isNotEmpty;
+  bool _isLoggedIn() {
+    return context.read<AuthRepository>().isAuthed;
   }
 
   Future<void> _openAddReviewSheet() async {
@@ -498,20 +499,6 @@ class _ReviewScreenState extends State<ReviewScreen> {
 
   @override
   Widget build(BuildContext context) {
-    void _showLoginRequiredDialog() {
-      showDialog(
-        context: context,
-        builder: (ctx) {
-          final isLightMode = Theme.of(ctx).brightness == Brightness.light;
-          return AlertDialog(
-            backgroundColor: isLightMode ? AppColors.white : AppColors.dark2,
-            content: const AppAlertDialog(text: 'برای ثبت دیدگاه ابتدا وارد شوید', isWarning: true),
-            actions: [TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('باشه'))],
-          );
-        },
-      );
-    }
-
     return ChangeNotifierProvider<ReviewController>.value(
       value: _reviewController,
       child: Scaffold(
@@ -560,11 +547,29 @@ class _ReviewScreenState extends State<ReviewScreen> {
                         ),
                         IconButton(
                           onPressed: () async {
-                            final ok = await _isLoggedIn();
+                            final ok = _isLoggedIn();
                             if (!ok) {
-                              _showLoginRequiredDialog();
+                              final goLogin = await showLoginRequiredSheet(
+                                context: context,
+                                title: 'ثبت دیدگاه',
+                                message: 'برای ثبت دیدگاه ابتدا وارد حساب کاربری شوید.',
+                                icon: Icons.rate_review_rounded,
+                                loginText: 'ورود / ثبت‌نام',
+                                cancelText: 'باشه',
+                              );
+
+                              if (goLogin == true && context.mounted) {
+                                await Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    fullscreenDialog: true,
+                                    builder: (_) => const LoginScreen(),
+                                  ),
+                                );
+                              }
                               return;
                             }
+
                             await _openAddReviewSheet();
                           },
 
