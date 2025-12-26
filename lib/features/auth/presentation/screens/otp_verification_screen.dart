@@ -6,7 +6,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:full_plants_ecommerce_app/core/utils/persian_number.dart';
 import 'package:provider/provider.dart';
 
-import ' complete_profile_screen.dart';
+import 'complete_profile_screen.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/size_config.dart';
 import '../../../../core/widgets/gap.dart';
