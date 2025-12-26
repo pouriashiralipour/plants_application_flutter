@@ -22,7 +22,6 @@ import 'features/wishlist/domain/usecases/add_to_wishlist.dart';
 import 'features/wishlist/domain/usecases/remove_from_wishlist.dart';
 import 'features/wishlist/domain/usecases/toggle_wishlist.dart';
 import 'features/product/presentation/controllers/product_search_controller.dart';
-import 'features/profile/data/repositories/address_repository.dart';
 import 'features/splash/presentation/screens/splash_screen.dart';
 import 'features/auth/data/repositories/auth_repository.dart';
 import 'features/auth/data/repositories/password_reset_repository.dart';
@@ -35,6 +34,11 @@ import 'features/product/presentation/controllers/product_controller.dart';
 import 'features/cart/data/repositories/cart_repository_impl.dart';
 import 'features/cart/domain/repositories/cart_repository.dart';
 import 'features/wishlist/presentation/controllers/wishlist_controller.dart';
+import 'features/profile/data/repositories/address_repository_impl.dart';
+import 'features/profile/domain/repositories/address_repository.dart';
+import 'features/profile/domain/usecases/add_address.dart';
+import 'features/profile/domain/usecases/get_addresses.dart';
+import 'features/profile/presentation/controllers/address_controller.dart';
 
 import 'core/services/app_message_controller.dart';
 import 'core/utils/size_config.dart';
@@ -100,6 +104,17 @@ class MyApp extends StatelessWidget {
         Provider<ToggleWishlist>(
           create: (context) => ToggleWishlist(context.read<WishlistRepository>()),
         ),
+        Provider<AddressRepository>(create: (_) => AddressRepositoryImpl()),
+        Provider<GetAddresses>(
+          create: (context) => GetAddresses(context.read<AddressRepository>()),
+        ),
+        Provider<AddAddress>(create: (context) => AddAddress(context.read<AddressRepository>())),
+        ChangeNotifierProvider<AddressController>(
+          create: (context) => AddressController(
+            getAddresses: context.read<GetAddresses>(),
+            addAddress: context.read<AddAddress>(),
+          )..load(),
+        ),
 
         ChangeNotifierProvider<ProductController>(
           create: (context) => ProductController(
@@ -129,7 +144,6 @@ class MyApp extends StatelessWidget {
             toggleWishlist: context.read<ToggleWishlist>(),
           )..load(),
         ),
-        ChangeNotifierProvider<AddressRepository>.value(value: AddressRepository.I),
         ChangeNotifierProvider<PasswordResetRepository>(create: (_) => PasswordResetRepository()),
         ChangeNotifierProvider<AppMessageController>(create: (_) => AppMessageController()),
 

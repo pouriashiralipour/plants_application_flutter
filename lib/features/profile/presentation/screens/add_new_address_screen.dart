@@ -8,7 +8,7 @@ import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_progress_indicator.dart';
 import '../../../../core/widgets/app_text_field.dart';
 import '../../../../core/widgets/gap.dart';
-import '../../data/repositories/address_repository.dart';
+import '../controllers/address_controller.dart';
 
 class AddNewAddressScreen extends StatefulWidget {
   const AddNewAddressScreen({super.key});
@@ -40,9 +40,9 @@ class _AddNewAddressScreenState extends State<AddNewAddressScreen> {
     if (!_formKey.currentState!.validate()) return;
 
     setState(() => _submitting = true);
-    final repo = context.read<AddressRepository>();
+    final controller = context.read<AddressController>();
 
-    final ok = await repo.add(
+    final ok = await controller.add(
       name: _nameCtrl.text.trim(),
       address: _addressCtrl.text.trim(),
       postalCode: _postalCtrl.text.trim().isEmpty ? null : _postalCtrl.text.trim(),
@@ -60,7 +60,7 @@ class _AddNewAddressScreenState extends State<AddNewAddressScreen> {
   @override
   Widget build(BuildContext context) {
     final bool isLightMode = Theme.of(context).brightness == Brightness.light;
-    final repo = context.watch<AddressRepository>();
+    final controller = context.watch<AddressController>();
 
     return Directionality(
       textDirection: TextDirection.ltr,
@@ -154,9 +154,9 @@ class _AddNewAddressScreenState extends State<AddNewAddressScreen> {
                             alpha: 0.08,
                           ),
                         ),
-                        if (repo.error != null) ...[
+                        if (controller.error != null) ...[
                           Gap(SizeConfig.getProportionateScreenHeight(10)),
-                          AppAlertDialog(text: repo.error!, isError: true),
+                          AppAlertDialog(text: controller.error!, isError: true),
                         ],
                         Gap(SizeConfig.getProportionateScreenHeight(12)),
 
