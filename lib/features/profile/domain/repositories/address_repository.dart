@@ -10,5 +10,5 @@ abstract class AddressRepository {
 
   Future<void> deleteAddress({required String id});
 
-  Future<List<Address>> getAddress();
+  Future<List<Address>> getAddresses();
 }
