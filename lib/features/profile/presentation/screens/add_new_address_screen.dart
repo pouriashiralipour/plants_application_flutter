@@ -8,7 +8,7 @@ import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_progress_indicator.dart';
 import '../../../../core/widgets/app_text_field.dart';
 import '../../../../core/widgets/gap.dart';
-import '../../data/epositories/address_repository.dart';
+import '../../data/repositories/address_repository.dart';
 
 class AddNewAddressScreen extends StatefulWidget {
   const AddNewAddressScreen({super.key});

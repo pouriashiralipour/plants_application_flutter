@@ -1,36 +1,28 @@
 import 'package:flutter/material.dart';
-
-import 'package:persian_datetime_picker/persian_datetime_picker.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:persian_datetime_picker/persian_datetime_picker.dart';
+
+import 'features/cart/domain/usecases/get_cart.dart';
+import 'features/cart/domain/usecases/clear_cart.dart';
 import 'features/product/data/repositories/review_repository_impl.dart';
 import 'features/product/domain/repositories/review_repository.dart';
 import 'features/product/domain/usecases/get_product_reviews.dart';
 import 'features/product/domain/usecases/toggle_review_like.dart';
 import 'features/product/domain/usecases/add_product_review.dart';
-
-import 'core/services/app_message_controller.dart';
-import 'core/utils/size_config.dart';
-import 'core/widgets/app_toast_layer.dart';
-import 'core/services/connectivity_service.dart';
-import 'core/theme/theme_repository.dart';
-import 'core/theme/app_theme.dart';
 import 'features/cart/presentation/controllers/cart_controller.dart';
-import 'features/cart/domain/usecases/get_cart.dart';
+
 import 'features/cart/domain/usecases/add_cart_item.dart';
 import 'features/cart/domain/usecases/update_cart_item_quantity.dart';
 import 'features/cart/domain/usecases/remove_cart_item.dart';
-import 'features/cart/domain/usecases/clear_cart.dart';
 import 'features/wishlist/data/repositories/wishlist_repository_impl.dart';
 import 'features/wishlist/domain/repositories/wishlist_repository.dart';
-
 import 'features/wishlist/domain/usecases/get_wishlist.dart';
 import 'features/wishlist/domain/usecases/add_to_wishlist.dart';
 import 'features/wishlist/domain/usecases/remove_from_wishlist.dart';
 import 'features/wishlist/domain/usecases/toggle_wishlist.dart';
-
 import 'features/product/presentation/controllers/product_search_controller.dart';
-import 'features/profile/data/epositories/address_repository.dart';
+import 'features/profile/data/repositories/address_repository.dart';
 import 'features/splash/presentation/screens/splash_screen.dart';
 import 'features/auth/data/repositories/auth_repository.dart';
 import 'features/auth/data/repositories/password_reset_repository.dart';
@@ -40,10 +32,16 @@ import 'features/product/domain/usecases/get_categories.dart';
 import 'features/product/domain/usecases/get_product_by_id.dart';
 import 'features/product/domain/usecases/get_products.dart';
 import 'features/product/presentation/controllers/product_controller.dart';
-
 import 'features/cart/data/repositories/cart_repository_impl.dart';
 import 'features/cart/domain/repositories/cart_repository.dart';
 import 'features/wishlist/presentation/controllers/wishlist_controller.dart';
+
+import 'core/services/app_message_controller.dart';
+import 'core/utils/size_config.dart';
+import 'core/widgets/app_toast_layer.dart';
+import 'core/services/connectivity_service.dart';
+import 'core/theme/theme_repository.dart';
+import 'core/theme/app_theme.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
