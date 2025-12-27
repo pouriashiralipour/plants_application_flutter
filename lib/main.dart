@@ -47,6 +47,9 @@ import 'features/auth/domain/usecases/refresh_tokens_if_needed.dart';
 import 'features/auth/domain/usecases/get_current_user.dart';
 import 'features/auth/data/repositories/auth_repository_impl.dart';
 import 'features/auth/presentation/controllers/auth_controller.dart';
+import 'features/auth/domain/usecases/login_with_password.dart';
+import 'features/auth/domain/usecases/login_with_otp.dart';
+import 'features/auth/domain/usecases/logout.dart';
 
 import 'core/services/app_message_controller.dart';
 import 'core/utils/size_config.dart';
@@ -121,6 +124,14 @@ class MyApp extends StatelessWidget {
         Provider<LoginWithPassword>(
           create: (c) => LoginWithPassword(c.read<auth_domain_repo.AuthRepository>()),
         ),
+        Provider<LoginWithPassword>(
+          create: (c) => LoginWithPassword(c.read<auth_domain_repo.AuthRepository>()),
+        ),
+        Provider<LoginWithOtp>(
+          create: (c) => LoginWithOtp(c.read<auth_domain_repo.AuthRepository>()),
+        ),
+        Provider<Logout>(create: (c) => Logout(c.read<auth_domain_repo.AuthRepository>())),
+
         Provider<Logout>(create: (c) => Logout(c.read<auth_domain_repo.AuthRepository>())),
         Provider<LoadSavedSession>(
           create: (c) => LoadSavedSession(c.read<auth_domain_repo.AuthRepository>()),
@@ -134,6 +145,16 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider<AuthController>(
           create: (c) => AuthController(
             loginWithPassword: c.read<LoginWithPassword>(),
+            logout: c.read<Logout>(),
+            loadSavedSession: c.read<LoadSavedSession>(),
+            refreshTokensIfNeeded: c.read<RefreshTokensIfNeeded>(),
+            getCurrentUser: c.read<GetCurrentUser>(),
+          ),
+        ),
+        ChangeNotifierProvider<AuthController>(
+          create: (c) => AuthController(
+            loginWithPassword: c.read<LoginWithPassword>(),
+            loginWithOtp: c.read<LoginWithOtp>(),
             logout: c.read<Logout>(),
             loadSavedSession: c.read<LoadSavedSession>(),
             refreshTokensIfNeeded: c.read<RefreshTokensIfNeeded>(),

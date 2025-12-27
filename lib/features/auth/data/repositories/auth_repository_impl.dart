@@ -78,6 +78,19 @@ class AuthRepositoryImpl implements domain_auth_repo.AuthRepository {
     return _storage.saveTokens(access: tokens.access, refresh: tokens.refresh);
   }
 
+  @override
+  Future<domain_auth.AuthTokens> verifyLoginOtp(String code) async {
+    final result = await _authApi.verifyOtp(code);
+
+    if (!result.success || result.data == null) {
+      throw Exception(result.error ?? 'تایید کد ناموفق بود');
+    }
+
+    final model_auth.AuthTokens tokens = result.data!.tokens;
+
+    return domain_auth.AuthTokens(access: tokens.access, refresh: tokens.refresh);
+  }
+
   domain_profile.UserProfile _mapProfileModelToDomain(model_profile.UserProfile m) {
     return domain_profile.UserProfile(
       userId: m.userId,

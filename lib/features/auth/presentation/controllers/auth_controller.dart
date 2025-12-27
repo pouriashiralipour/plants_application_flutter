@@ -7,25 +7,29 @@ import '../../domain/usecases/logout.dart';
 import '../../domain/usecases/load_saved_session.dart';
 import '../../domain/usecases/refresh_tokens_if_needed.dart';
 import '../../domain/usecases/get_current_user.dart';
+import '../../domain/usecases/login_with_otp.dart';
 
 class AuthController extends ChangeNotifier {
   AuthController({
     required LoginWithPassword loginWithPassword,
+    required LoginWithOtp loginWithOtp,
     required Logout logout,
     required LoadSavedSession loadSavedSession,
     required RefreshTokensIfNeeded refreshTokensIfNeeded,
     required GetCurrentUser getCurrentUser,
   }) : _loginWithPassword = loginWithPassword,
+       _loginWithOtp = loginWithOtp,
        _logoutUseCase = logout,
        _loadSavedSession = loadSavedSession,
        _refreshTokensIfNeeded = refreshTokensIfNeeded,
        _getCurrentUser = getCurrentUser;
 
-  final GetCurrentUser _getCurrentUser;
-  final LoadSavedSession _loadSavedSession;
   final LoginWithPassword _loginWithPassword;
+  final LoginWithOtp _loginWithOtp;
   final Logout _logoutUseCase;
+  final LoadSavedSession _loadSavedSession;
   final RefreshTokensIfNeeded _refreshTokensIfNeeded;
+  final GetCurrentUser _getCurrentUser;
 
   bool _isLoading = false;
 
@@ -68,6 +72,22 @@ class AuthController extends ChangeNotifier {
       final raw = e.toString();
       final cleaned = raw.replaceFirst(RegExp(r'^Exception:\s*'), '');
       _error = cleaned.isEmpty ? 'ورود ناموفق بود' : 'خطا در ورود: $cleaned';
+    } finally {
+      _setLoading(false);
+    }
+  }
+
+  Future<void> loginWithOtp({required String code}) async {
+    _setLoading(true);
+    _error = null;
+
+    try {
+      final loggedInUser = await _loginWithOtp(code: code);
+      _user = loggedInUser;
+    } catch (e) {
+      final raw = e.toString();
+      final cleaned = raw.replaceFirst(RegExp(r'^Exception:\s*'), '');
+      _error = cleaned.isEmpty ? 'ورود با کد یکبارمصرف ناموفق بود' : 'خطا در ورود: $cleaned';
     } finally {
       _setLoading(false);
     }

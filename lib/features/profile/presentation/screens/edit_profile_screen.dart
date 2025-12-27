@@ -22,7 +22,7 @@ import '../../../../core/widgets/gap.dart';
 import '../../../auth/data/datasources/auth_remote_data_source.dart';
 import '../../../auth/data/datasources/profile_remote_data_source.dart';
 import '../../../auth/presentation/controllers/auth_controller.dart';
-import '../../data/models/profile_models.dart';
+import '../../domain/entities/user_profile.dart';
 
 enum _ChangeIdMode { email, phone }
 
@@ -157,12 +157,13 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   }
 
   Future<void> _openChangeIdentifierModal({required _ChangeIdMode mode}) async {
-    final me = context.read<AuthController>().user;
+    final auth = context.read<AuthController>();
+    final me = auth.user;
     if (me == null) return;
 
     final currentValue = mode == _ChangeIdMode.email ? me.email : me.phoneNumber;
 
-    final result = await showModalBottomSheet<UserProfile>(
+    final changed = await showModalBottomSheet<bool>(
       context: context,
       isScrollControlled: true,
       useSafeArea: true,
@@ -170,11 +171,14 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       builder: (_) => _ChangeIdentifierOtpSheet(mode: mode, currentValue: currentValue),
     );
 
-    if (result == null || !mounted) return;
+    if (changed != true || !mounted) return;
 
-    await context.read<AuthController>().setMe(result);
+    await auth.reloadProfile();
+    final updated = auth.user;
+    if (updated == null) return;
+
     _prefilled = false;
-    _applyProfileToForm(result);
+    _applyProfileToForm(updated);
 
     _showMsg(
       mode == _ChangeIdMode.email ? 'ایمیل بروزرسانی شد' : 'شماره موبایل بروزرسانی شد',
@@ -233,7 +237,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       return _showMsg('هیچ تغییری ثبت نشده است', isError: true);
     }
 
-    final authRepo = context.read<AuthRepository>();
+    final auth = context.read<AuthController>();
 
     setState(() => _loading = true);
 
@@ -254,10 +258,14 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     setState(() => _loading = false);
 
     if (res.success && res.data != null) {
-      await authRepo.setMe(res.data!);
+      await auth.reloadProfile();
+      final me = auth.user;
 
+      if (me != null) {
+        _prefilled = false;
+        _applyProfileToForm(me);
+      }
       _prefilled = false;
-      _applyProfileToForm(res.data!);
 
       _avatarFile = null;
       _showMsg('اطلاعات بروزرسانی شد', isError: false);
@@ -279,7 +287,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   Widget build(BuildContext context) {
     final isLightMode = Theme.of(context).brightness == Brightness.light;
 
-    final me = context.watch<AuthRepository>().me;
+    final auth = context.watch<AuthController>();
+    final me = auth.user;
     final avatarUrl = buildAvatarUrl(me?.profilePic, UrlInfo.baseUrl);
 
     final ImageProvider? avatarProvider = _avatarFile != null
@@ -345,7 +354,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                                 height: SizeConfig.getProportionateScreenWidth(30),
                                 child: SvgPicture.asset(
                                   'assets/images/icons/Edit_squre.svg',
-                                  color: AppColors.primary,
+                                  colorFilter: .mode(AppColors.primary, .srcIn),
                                 ),
                               ),
                             ),
@@ -635,7 +644,7 @@ class _ChangeIdentifierOtpSheetState extends State<_ChangeIdentifierOtpSheet> {
     setState(() => _verifyLoading = false);
 
     if (res.success && res.data != null) {
-      Navigator.pop(context, res.data!);
+      Navigator.pop<bool>(context, true);
     } else {
       _setMsg(res.error ?? 'کد نامعتبر است', isError: true);
     }

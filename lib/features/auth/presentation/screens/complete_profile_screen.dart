@@ -3,7 +3,6 @@ import 'package:flutter_svg/svg.dart';
 import 'package:image_cropper/image_cropper.dart';
 
 import 'package:image_picker/image_picker.dart';
-import 'package:provider/provider.dart';
 import 'dart:io';
 
 import '../../../../core/config/root_screen.dart';
@@ -21,20 +20,13 @@ import '../../../../core/widgets/app_text_field.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../profile/data/models/profile_form_models.dart';
 import '../../data/datasources/profile_remote_data_source.dart';
-import '../../data/models/auth_tokens_model.dart';
 import '../widgets/auth_scaffold.dart';
 
 class ProfileFormScreen extends StatefulWidget {
-  const ProfileFormScreen({
-    super.key,
-    required this.token,
-    required this.purpose,
-    required this.target,
-  });
+  const ProfileFormScreen({super.key, required this.purpose, required this.target});
 
   final String purpose;
   final String target;
-  final AuthTokens token;
 
   @override
   State<ProfileFormScreen> createState() => _ProfileFormScreenState();

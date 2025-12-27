@@ -212,43 +212,47 @@ class _OTPScreenState extends State<OTPScreen> {
     });
   }
 
-  void _verify() async {
+  Future<void> _verify() async {
     setState(() {
       _serverErrorMessage = null;
+      _isLoading = true;
     });
 
     final raw = _controllers.map((c) => c.text).join();
     final cleaned = normalizeDigits(raw).replaceAll(RegExp(r'\s+'), '');
-    debugPrint(cleaned);
     final expectedLen = _controllers.length;
 
     if (cleaned.length != expectedLen || !RegExp(r'^[0-9]+$').hasMatch(cleaned)) {
+      setState(() => _isLoading = false);
       _showServerError('کد ۶ رقمی را کامل و صحیح وارد کنید');
       return;
     }
 
-    final response = await AuthApi().veriftOtp(cleaned);
+    final auth = context.read<AuthController>();
+
+    await auth.loginWithOtp(code: cleaned);
 
     if (!mounted) return;
+    setState(() => _isLoading = false);
 
-    if (response.success && response.data != null) {
-      // await context.read<AuthController>().setTokens(response.data!.tokens);
-      setState(() => _isLoading = true);
-      await Future.delayed(const Duration(seconds: 2));
-      setState(() => _isLoading = false);
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => ProfileFormScreen(
-            target: widget.target,
-            token: response.data!.tokens,
-            purpose: widget.purpose,
-          ),
-        ),
-      );
-    } else {
-      _showServerError(response.error ?? 'تایید کد با خطا مواجه شد');
+    if (auth.error != null) {
+      _showServerError(auth.error!);
+      auth.clearError();
+      return;
     }
+
+    // در این نقطه: OTP درست بوده، توکن‌ها در AuthStorage ذخیره شده‌اند
+    // و AuthController.user مقدار دارد.
+    // برای ثبت‌نام، کاربر را به فرم تکمیل پروفایل می‌بریم.
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ProfileFormScreen(
+          target: widget.target,
+          purpose: widget.purpose,
+        ),
+      ),
+    );
   }
 
   @override

@@ -172,7 +172,7 @@ class AuthApi {
     }
   }
 
-  Future<ApiResult<AuthPayload>> veriftOtp(String code) async {
+  Future<ApiResult<AuthPayload>> verifyOtp(String code) async {
     try {
       final response = await _dio.post(UrlInfo.otpVerifyUrl, data: {'code': code});
       if (response.statusCode == 200 || response.statusCode == 201) {
