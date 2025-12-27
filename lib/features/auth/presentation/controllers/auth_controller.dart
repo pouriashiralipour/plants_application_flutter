@@ -65,7 +65,9 @@ class AuthController extends ChangeNotifier {
       final loggedInUser = await _loginWithPassword(login: login, password: password);
       _user = loggedInUser;
     } catch (e) {
-      _error = 'خطا در ورود: $e';
+      final raw = e.toString();
+      final cleaned = raw.replaceFirst(RegExp(r'^Exception:\s*'), '');
+      _error = cleaned.isEmpty ? 'ورود ناموفق بود' : 'خطا در ورود: $cleaned';
     } finally {
       _setLoading(false);
     }
