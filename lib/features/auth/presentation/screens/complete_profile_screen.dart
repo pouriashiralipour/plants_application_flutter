@@ -3,6 +3,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:image_cropper/image_cropper.dart';
 
 import 'package:image_picker/image_picker.dart';
+import 'package:provider/provider.dart';
 import 'dart:io';
 
 import '../../../../core/config/root_screen.dart';
@@ -20,6 +21,8 @@ import '../../../../core/widgets/app_text_field.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../profile/data/models/profile_form_models.dart';
 import '../../data/datasources/profile_remote_data_source.dart';
+import '../../../auth/presentation/controllers/auth_controller.dart';
+import '../../../profile/domain/entities/user_profile.dart';
 import '../widgets/auth_scaffold.dart';
 
 class ProfileFormScreen extends StatefulWidget {
@@ -147,19 +150,22 @@ class _ProfileFormScreenState extends State<ProfileFormScreen> {
       phoneNumber: phone.isEmpty ? null : phone,
     );
 
-    final response = await ProfileApi().complete(model, avatarFile: _imageFile);
+    setState(() => _isLoading = true);
+
+    final res = await ProfileApi().complete(model, avatarFile: _imageFile);
 
     if (!mounted) return;
+    setState(() => _isLoading = false);
 
-    if (response.success && response.data != null) {
-      // await context.read<AuthRepository>().loadMe();
+    if (res.success) {
+      final auth = context.read<AuthController>();
+      await auth.reloadProfile();
 
-      setState(() => _isLoading = true);
       await Future.delayed(const Duration(seconds: 1));
       setState(() => _isLoading = false);
       await customSuccessShowDialog(context);
     } else {
-      _showServerError(response.error ?? 'خطا');
+      _showServerError(res.error ?? 'خطا');
     }
   }
 
@@ -215,7 +221,7 @@ class _ProfileFormScreenState extends State<ProfileFormScreen> {
                 height: SizeConfig.getProportionateScreenWidth(35),
                 child: SvgPicture.asset(
                   'assets/images/icons/Edit_squre.svg',
-                  color: AppColors.primary,
+                  colorFilter: .mode(AppColors.primary, .srcIn),
                 ),
               ),
             ),

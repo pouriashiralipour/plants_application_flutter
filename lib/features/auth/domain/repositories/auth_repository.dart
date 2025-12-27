@@ -11,7 +11,18 @@ abstract class AuthRepository {
   Future<AuthTokens> loginWithPassword({required String login, required String password});
 
   Future<AuthTokens> refreshTokens(String refreshToken);
-  Future<AuthTokens> verifyLoginOtp(String code);
+
+  Future<void> requestPasswordResetOtp({required String target});
 
   Future<void> saveTokens(AuthTokens tokens);
+
+  Future<void> setNewPassword({
+    required String resetToken,
+    required String newPassword,
+    String? confirmNewPassword,
+  });
+
+  Future<AuthTokens> verifyLoginOtp(String code);
+
+  Future<String> verifyPasswordResetOtp({required String code});
 }

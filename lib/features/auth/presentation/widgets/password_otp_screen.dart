@@ -7,6 +7,9 @@ import 'package:full_plants_ecommerce_app/features/auth/data/repositories/passwo
 import 'package:full_plants_ecommerce_app/core/utils/persian_number.dart';
 import 'package:provider/provider.dart';
 
+import '../controllers/auth_controller.dart';
+import '../screens/change_password_screen.dart';
+
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/gap.dart';
 import '../../../../core/widgets/app_alert_dialog.dart';
@@ -227,20 +230,26 @@ class _OtpPasswordScreenState extends State<OtpPasswordScreen> {
       return;
     }
 
-    final response = await AuthApi().verifyPasswordOtp(code: cleaned);
+    final auth = context.read<AuthController>();
+
+    final resetToken = await auth.verifyPasswordResetCode(cleaned);
 
     if (!mounted) return;
 
-    if (response.success && response.data != null) {
-      final token = response.data!.resetToken;
-      await context.read<PasswordResetRepository>().setToken(token);
-      setState(() => _isLoading = true);
-      await Future.delayed(const Duration(seconds: 2));
-      setState(() => _isLoading = false);
-      Navigator.push(context, MaterialPageRoute(builder: (context) => ChangePasswordScreen()));
-    } else {
-      _showServerError(response.error ?? 'تایید کد با خطا مواجه شد');
+    if (auth.error != null || resetToken == null) {
+      _showServerError(auth.error ?? 'تایید کد با خطا مواجه شد');
+      auth.clearError();
+      return;
     }
+
+    await context.read<PasswordResetRepository>().setToken(resetToken);
+
+    setState(() => _isLoading = true);
+    await Future.delayed(const Duration(seconds: 2));
+    if (!mounted) return;
+    setState(() => _isLoading = false);
+
+    Navigator.push(context, MaterialPageRoute(builder: (context) => const ChangePasswordScreen()));
   }
 
   @override

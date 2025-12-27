@@ -74,8 +74,34 @@ class AuthRepositoryImpl implements domain_auth_repo.AuthRepository {
   }
 
   @override
+  Future<void> requestPasswordResetOtp({required String target}) async {
+    final result = await _authApi.requestPasswordOtp(target: target);
+
+    if (!result.success) {
+      throw Exception(result.error ?? 'درخواست کد بازیابی رمز عبور ناموفق بود');
+    }
+  }
+
+  @override
   Future<void> saveTokens(domain_auth.AuthTokens tokens) {
     return _storage.saveTokens(access: tokens.access, refresh: tokens.refresh);
+  }
+
+  @override
+  Future<void> setNewPassword({
+    required String resetToken,
+    required String newPassword,
+    String? confirmNewPassword,
+  }) async {
+    final result = await _authApi.setNewPassword(
+      resetToken: resetToken,
+      newPassword: newPassword,
+      confirmNewPassword: confirmNewPassword,
+    );
+
+    if (!result.success) {
+      throw Exception(result.error ?? 'تنظیم رمز جدید ناموفق بود');
+    }
   }
 
   @override
@@ -89,6 +115,24 @@ class AuthRepositoryImpl implements domain_auth_repo.AuthRepository {
     final model_auth.AuthTokens tokens = result.data!.tokens;
 
     return domain_auth.AuthTokens(access: tokens.access, refresh: tokens.refresh);
+  }
+
+  @override
+  Future<String> verifyPasswordResetOtp({required String code}) async {
+    final result = await _authApi.verifyPasswordOtp(code: code);
+
+    if (!result.success || result.data == null) {
+      throw Exception(result.error ?? 'کد بازیابی نامعتبر است');
+    }
+
+    final resetPayload = result.data!;
+    final resetToken = resetPayload.resetToken;
+
+    if (resetToken.isEmpty) {
+      throw Exception('توکِن بازیابی از سرور دریافت نشد');
+    }
+
+    return resetToken;
   }
 
   domain_profile.UserProfile _mapProfileModelToDomain(model_profile.UserProfile m) {

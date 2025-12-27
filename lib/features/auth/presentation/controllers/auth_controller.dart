@@ -8,6 +8,9 @@ import '../../domain/usecases/load_saved_session.dart';
 import '../../domain/usecases/refresh_tokens_if_needed.dart';
 import '../../domain/usecases/get_current_user.dart';
 import '../../domain/usecases/login_with_otp.dart';
+import '../../domain/usecases/request_password_reset_otp.dart';
+import '../../domain/usecases/verify_password_reset_otp.dart';
+import '../../domain/usecases/set_new_password.dart';
 
 class AuthController extends ChangeNotifier {
   AuthController({
@@ -17,19 +20,28 @@ class AuthController extends ChangeNotifier {
     required LoadSavedSession loadSavedSession,
     required RefreshTokensIfNeeded refreshTokensIfNeeded,
     required GetCurrentUser getCurrentUser,
+    required RequestPasswordResetOtp requestPasswordResetOtp,
+    required VerifyPasswordResetOtp verifyPasswordResetOtp,
+    required SetNewPassword setNewPassword,
   }) : _loginWithPassword = loginWithPassword,
        _loginWithOtp = loginWithOtp,
        _logoutUseCase = logout,
        _loadSavedSession = loadSavedSession,
        _refreshTokensIfNeeded = refreshTokensIfNeeded,
-       _getCurrentUser = getCurrentUser;
+       _getCurrentUser = getCurrentUser,
+       _requestPasswordResetOtp = requestPasswordResetOtp,
+       _verifyPasswordResetOtp = verifyPasswordResetOtp,
+       _setNewPassword = setNewPassword;
 
-  final LoginWithPassword _loginWithPassword;
-  final LoginWithOtp _loginWithOtp;
-  final Logout _logoutUseCase;
-  final LoadSavedSession _loadSavedSession;
-  final RefreshTokensIfNeeded _refreshTokensIfNeeded;
   final GetCurrentUser _getCurrentUser;
+  final LoadSavedSession _loadSavedSession;
+  final LoginWithOtp _loginWithOtp;
+  final LoginWithPassword _loginWithPassword;
+  final Logout _logoutUseCase;
+  final RefreshTokensIfNeeded _refreshTokensIfNeeded;
+  final RequestPasswordResetOtp _requestPasswordResetOtp;
+  final SetNewPassword _setNewPassword;
+  final VerifyPasswordResetOtp _verifyPasswordResetOtp;
 
   bool _isLoading = false;
 
@@ -128,6 +140,61 @@ class AuthController extends ChangeNotifier {
       _error = null;
     } catch (e) {
       _error = 'خطا در دریافت پروفایل: $e';
+    } finally {
+      _setLoading(false);
+    }
+  }
+
+  Future<void> requestPasswordResetCode(String target) async {
+    _setLoading(true);
+    _error = null;
+
+    try {
+      await _requestPasswordResetOtp(target: target);
+    } catch (e) {
+      final raw = e.toString();
+      final cleaned = raw.replaceFirst(RegExp(r'^Exception:\s*'), '');
+      _error = cleaned.isEmpty ? 'درخواست کد بازیابی ناموفق بود' : cleaned;
+    } finally {
+      _setLoading(false);
+    }
+  }
+
+  Future<String?> verifyPasswordResetCode(String code) async {
+    _setLoading(true);
+    _error = null;
+
+    try {
+      final resetToken = await _verifyPasswordResetOtp(code: code);
+      return resetToken;
+    } catch (e) {
+      final raw = e.toString();
+      final cleaned = raw.replaceFirst(RegExp(r'^Exception:\s*'), '');
+      _error = cleaned.isEmpty ? 'کد بازیابی نامعتبر است' : cleaned;
+      return null;
+    } finally {
+      _setLoading(false);
+    }
+  }
+
+  Future<void> setNewPasswordWithToken({
+    required String resetToken,
+    required String newPassword,
+    String? confirmNewPassword,
+  }) async {
+    _setLoading(true);
+    _error = null;
+
+    try {
+      await _setNewPassword(
+        resetToken: resetToken,
+        newPassword: newPassword,
+        confirmNewPassword: confirmNewPassword,
+      );
+    } catch (e) {
+      final raw = e.toString();
+      final cleaned = raw.replaceFirst(RegExp(r'^Exception:\s*'), '');
+      _error = cleaned.isEmpty ? 'تنظیم رمز جدید ناموفق بود' : cleaned;
     } finally {
       _setLoading(false);
     }

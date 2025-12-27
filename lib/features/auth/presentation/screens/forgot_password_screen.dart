@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/persian_digits_input_formatter.dart';
@@ -7,7 +8,8 @@ import '../../../../core/widgets/gap.dart';
 import '../../../../core/widgets/app_alert_dialog.dart';
 import '../../../../core/widgets/app_progress_indicator.dart';
 import '../../../../core/widgets/app_button.dart';
-import '../../data/datasources/auth_remote_data_source.dart';
+import '../controllers/auth_controller.dart';
+import '../widgets/password_otp_screen.dart';
 
 import '../../../../core/widgets/app_text_field.dart';
 
@@ -17,7 +19,6 @@ import '../../../../core/utils/validators.dart';
 import '../widgets/auth_illustration.dart';
 import '../widgets/auth_header.dart';
 import '../widgets/auth_scaffold.dart';
-import '../widgets/password_otp_screen.dart';
 
 class ForgotPasswordScreen extends StatefulWidget {
   const ForgotPasswordScreen({super.key});
@@ -78,25 +79,27 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
 
     final prepared = raw.contains('@') ? raw : toEnglishDigits(raw);
     final normalized = prepared.contains('@') ? prepared : normalizeIranPhone(prepared);
-    debugPrint(normalized);
 
-    final response = await AuthApi().requestPasswordOtp(target: normalized);
+    final auth = context.read<AuthController>();
+
+    await auth.requestPasswordResetCode(normalized);
 
     if (!mounted) return;
 
-    if (response.success) {
-      setState(() => _isLoading = true);
-      await Future.delayed(const Duration(seconds: 2));
-      setState(() {
-        _isLoading = false;
-      });
-      Navigator.of(
-        context,
-      ).push(MaterialPageRoute(builder: (_) => OtpPasswordScreen(target: normalized)));
-    } else {
-      setState(() => _serverErrorMessage = response.error ?? 'ارسال کد ناموفق بود');
-      _showServerError(_serverErrorMessage!);
+    if (auth.error != null) {
+      _showServerError(auth.error!);
+      auth.clearError();
+      return;
     }
+
+    setState(() => _isLoading = true);
+    await Future.delayed(const Duration(seconds: 2));
+    if (!mounted) return;
+    setState(() => _isLoading = false);
+
+    Navigator.of(
+      context,
+    ).push(MaterialPageRoute(builder: (_) => OtpPasswordScreen(target: normalized)));
   }
 
   @override

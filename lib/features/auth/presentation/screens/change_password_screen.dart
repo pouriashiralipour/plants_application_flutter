@@ -8,8 +8,9 @@ import '../../../../core/widgets/gap.dart';
 import '../../../../core/widgets/app_alert_dialog.dart';
 import '../../../../core/widgets/app_progress_indicator.dart';
 import '../../../../core/widgets/app_button.dart';
-import '../../data/datasources/auth_remote_data_source.dart';
 import '../../data/repositories/password_reset_repository.dart';
+
+import '../controllers/auth_controller.dart';
 
 import '../../../../core/widgets/app_dialog.dart';
 
@@ -106,7 +107,9 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
 
     setState(() => _isLoading = true);
 
-    final response = await AuthApi().setNewPassword(
+    final auth = context.read<AuthController>();
+
+    await auth.setNewPasswordWithToken(
       resetToken: token,
       newPassword: _passCtrl.text,
       confirmNewPassword: _confirmCtrl.text,
@@ -114,14 +117,16 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
 
     if (!mounted) return;
 
-    if (response.success) {
-      passwordRepostory.clear();
-      customSuccessShowDialog(context);
+    if (auth.error != null) {
       setState(() => _isLoading = false);
-    } else {
-      setState(() => _isLoading = false);
-      setState(() => _showServerError(response.error ?? 'تغییر پسورد ناموفق بود'));
+      setState(() => _showServerError(auth.error!));
+      auth.clearError();
+      return;
     }
+
+    await passwordRepostory.clear();
+    customSuccessShowDialog(context);
+    setState(() => _isLoading = false);
   }
 
   @override
