@@ -39,6 +39,14 @@ import 'features/profile/domain/repositories/address_repository.dart';
 import 'features/profile/domain/usecases/add_address.dart';
 import 'features/profile/domain/usecases/get_addresses.dart';
 import 'features/profile/presentation/controllers/address_controller.dart';
+import 'features/auth/domain/repositories/auth_repository.dart' as auth_domain_repo;
+import 'features/auth/domain/usecases/login_with_password.dart';
+import 'features/auth/domain/usecases/logout.dart';
+import 'features/auth/domain/usecases/load_saved_session.dart';
+import 'features/auth/domain/usecases/refresh_tokens_if_needed.dart';
+import 'features/auth/domain/usecases/get_current_user.dart';
+import 'features/auth/data/repositories/auth_repository_impl.dart';
+import 'features/auth/presentation/controllers/auth_controller.dart';
 
 import 'core/services/app_message_controller.dart';
 import 'core/utils/size_config.dart';
@@ -109,6 +117,31 @@ class MyApp extends StatelessWidget {
           create: (context) => GetAddresses(context.read<AddressRepository>()),
         ),
         Provider<AddAddress>(create: (context) => AddAddress(context.read<AddressRepository>())),
+        // --- Auth (مسیر جدید سه‌لایه) ---
+        Provider<auth_domain_repo.AuthRepository>(create: (_) => AuthRepositoryImpl()),
+        Provider<LoginWithPassword>(
+          create: (c) => LoginWithPassword(c.read<auth_domain_repo.AuthRepository>()),
+        ),
+        Provider<Logout>(create: (c) => Logout(c.read<auth_domain_repo.AuthRepository>())),
+        Provider<LoadSavedSession>(
+          create: (c) => LoadSavedSession(c.read<auth_domain_repo.AuthRepository>()),
+        ),
+        Provider<RefreshTokensIfNeeded>(
+          create: (c) => RefreshTokensIfNeeded(c.read<auth_domain_repo.AuthRepository>()),
+        ),
+        Provider<GetCurrentUser>(
+          create: (c) => GetCurrentUser(c.read<auth_domain_repo.AuthRepository>()),
+        ),
+        ChangeNotifierProvider<AuthController>(
+          create: (c) => AuthController(
+            loginWithPassword: c.read<LoginWithPassword>(),
+            logout: c.read<Logout>(),
+            loadSavedSession: c.read<LoadSavedSession>(),
+            refreshTokensIfNeeded: c.read<RefreshTokensIfNeeded>(),
+            getCurrentUser: c.read<GetCurrentUser>(),
+          ),
+        ),
+
         ChangeNotifierProvider<AddressController>(
           create: (context) => AddressController(
             getAddresses: context.read<GetAddresses>(),
