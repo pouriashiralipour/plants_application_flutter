@@ -6,6 +6,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:full_plants_ecommerce_app/core/utils/persian_number.dart';
 import 'package:provider/provider.dart';
 
+import '../controllers/auth_controller.dart';
 import 'complete_profile_screen.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/size_config.dart';
@@ -14,7 +15,6 @@ import '../../../../core/widgets/app_alert_dialog.dart';
 import '../../../../core/widgets/app_progress_indicator.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../data/datasources/auth_remote_data_source.dart';
-import '../../data/repositories/auth_repository.dart';
 import '../widgets/auth_scaffold.dart';
 
 class OTPScreen extends StatefulWidget {
@@ -232,7 +232,7 @@ class _OTPScreenState extends State<OTPScreen> {
     if (!mounted) return;
 
     if (response.success && response.data != null) {
-      await context.read<AuthRepository>().setTokens(response.data!.tokens);
+      // await context.read<AuthController>().setTokens(response.data!.tokens);
       setState(() => _isLoading = true);
       await Future.delayed(const Duration(seconds: 2));
       setState(() => _isLoading = false);

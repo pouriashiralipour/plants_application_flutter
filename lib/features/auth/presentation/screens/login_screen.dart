@@ -14,8 +14,7 @@ import '../../../../core/widgets/app_logo.dart';
 import '../../../../core/widgets/app_progress_indicator.dart';
 import '../../../../core/widgets/app_text_field.dart';
 import '../../../../core/widgets/app_button.dart';
-import '../../data/datasources/auth_remote_data_source.dart';
-import '../../data/repositories/auth_repository.dart';
+import '../controllers/auth_controller.dart';
 
 import '../widgets/auth_bottom_action.dart';
 import '../widgets/auth_header.dart';
@@ -81,26 +80,27 @@ class _LoginScreenState extends State<LoginScreen> {
     final login = prepared.contains('@') ? prepared : normalizeIranPhone(prepared);
     final password = _passCtrl.text;
 
-    debugPrint(login);
+    final auth = context.read<AuthController>();
 
-    final response = await AuthApi().login(login: login, password: password);
-    if (!mounted) return;
+    setState(() => _isLoading = true);
 
-    if (response.success && response.data != null) {
-      await context.read<AuthRepository>().setTokens(response.data!.tokens);
-
+    try {
+      await auth.login(login: login, password: password);
       if (!mounted) return;
 
-      context.read<AppMessageController>().showSuccess(response.message ?? 'خوش برگشتی');
+      if (auth.error != null) {
+        setState(() => _serverErrorMessage = auth.error);
+        _showServerError(_serverErrorMessage!);
+        auth.clearError();
+        return;
+      }
 
-      setState(() => _isLoading = true);
-      await Future.delayed(const Duration(seconds: 2));
-      setState(() => _isLoading = false);
-
-      Navigator.pop(context, true);
-    } else {
-      setState(() => _serverErrorMessage = response.error ?? 'ورود ناموفق بود');
-      _showServerError(_serverErrorMessage!);
+      context.read<AppMessageController>().showSuccess('خوش برگشتی');
+      Navigator.pop<bool>(context, true);
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
     }
   }
 

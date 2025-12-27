@@ -20,8 +20,8 @@ import '../../../../core/widgets/app_progress_indicator.dart';
 import '../../../../core/widgets/app_text_field.dart';
 import '../../../../core/widgets/gap.dart';
 import '../../../auth/data/datasources/auth_remote_data_source.dart';
-import '../../../auth/data/repositories/auth_repository.dart';
 import '../../../auth/data/datasources/profile_remote_data_source.dart';
+import '../../../auth/presentation/controllers/auth_controller.dart';
 import '../../data/models/profile_models.dart';
 
 enum _ChangeIdMode { email, phone }
@@ -63,10 +63,12 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     super.didChangeDependencies();
     if (_prefilled) return;
 
-    final me = context.read<AuthRepository>().me;
-    if (me == null) return;
+    final me = context.read<AuthController>().user;
+    if (me != null) {
+      _applyProfileToForm(me);
+    }
 
-    _applyProfileToForm(me);
+    _prefilled = true;
   }
 
   @override
@@ -155,7 +157,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   }
 
   Future<void> _openChangeIdentifierModal({required _ChangeIdMode mode}) async {
-    final me = context.read<AuthRepository>().me;
+    final me = context.read<AuthController>().user;
     if (me == null) return;
 
     final currentValue = mode == _ChangeIdMode.email ? me.email : me.phoneNumber;
@@ -170,8 +172,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
     if (result == null || !mounted) return;
 
-    // ✅ Sync UI
-    await context.read<AuthRepository>().setMe(result);
+    await context.read<AuthController>().setMe(result);
     _prefilled = false;
     _applyProfileToForm(result);
 

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:provider/provider.dart';
 
-import '../../features/auth/data/repositories/auth_repository.dart';
+import '../../features/auth/presentation/controllers/auth_controller.dart';
 import '../../features/wishlist/presentation/controllers/wishlist_controller.dart';
 import '../theme/app_colors.dart';
 import '../../features/auth/presentation/screens/login_screen.dart';
@@ -61,7 +61,7 @@ class _RootScreenState extends State<RootScreen> {
   void initState() {
     super.initState();
     Future.microtask(() {
-      final auth = context.read<AuthRepository>();
+      final auth = context.read<AuthController>();
       if (auth.isAuthed) {
         context.read<WishlistController>().load();
       }
@@ -83,7 +83,7 @@ class _RootScreenState extends State<RootScreen> {
               GestureDetector(
                 onTap: () async {
                   if (index == 4) {
-                    final isAuthed = context.read<AuthRepository>().isAuthed;
+                    final isAuthed = context.read<AuthController>().isAuthed;
                     if (!isAuthed) {
                       await Navigator.push(
                         context,
@@ -94,7 +94,7 @@ class _RootScreenState extends State<RootScreen> {
                           },
                         ),
                       );
-                      if (context.mounted && context.read<AuthRepository>().isAuthed) {
+                      if (context.mounted && context.read<AuthController>().isAuthed) {
                         setState(() => bottonIndex = 4);
                       }
                       return;
@@ -119,7 +119,10 @@ class _RootScreenState extends State<RootScreen> {
                   transform: Matrix4.identity()..scale(bottonIndex == index ? 1.1 : 1.0),
                   child: SvgPicture.asset(
                     bottonIndex == index ? item['fill_icon'] : item['icon'],
-                    color: bottonIndex == index ? AppColors.primary : AppColors.grey500,
+                    colorFilter: .mode(
+                      bottonIndex == index ? AppColors.primary : AppColors.grey500,
+                      .srcIn,
+                    ),
                     height: SizeConfig.getProportionateScreenWidth(22),
                     width: SizeConfig.getProportionateScreenWidth(22),
                   ),
@@ -145,7 +148,7 @@ class _RootScreenState extends State<RootScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final authed = context.watch<AuthRepository>().isAuthed;
+    final authed = context.watch<AuthController>().isAuthed;
     final screens = [
       const HomeScreen(),
       const CartScreen(),

@@ -4,6 +4,7 @@ import 'package:full_plants_ecommerce_app/core/utils/persian_number.dart';
 import 'package:full_plants_ecommerce_app/core/utils/price_formatter.dart';
 import 'package:provider/provider.dart';
 
+import '../../../auth/presentation/controllers/auth_controller.dart';
 import '../../../cart/presentation/controllers/cart_controller.dart';
 import '../../domain/usecases/get_product_by_id.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -20,7 +21,6 @@ import '../../../offline/presentation/screens/offline_screen.dart';
 import '../controllers/product_details_controller.dart';
 import '../../domain/entities/product.dart';
 import '../../../../core/widgets/login_required_sheet.dart';
-import '../../../auth/data/repositories/auth_repository.dart';
 import '../../../auth/presentation/screens/login_screen.dart';
 
 import 'review_screen.dart';
@@ -324,7 +324,7 @@ class _ProductScreenState extends State<ProductScreen> {
                       ),
                       IconButton(
                         onPressed: () async {
-                          final isAuthed = context.read<AuthRepository>().isAuthed;
+                          final isAuthed = context.read<AuthController>().isAuthed;
 
                           if (!isAuthed) {
                             final goLogin = await showLoginRequiredSheet(
@@ -348,7 +348,7 @@ class _ProductScreenState extends State<ProductScreen> {
 
                               if (!mounted) return;
 
-                              if (context.read<AuthRepository>().isAuthed) {
+                              if (context.read<AuthController>().isAuthed) {
                                 context.read<WishlistController>().toggle(product.id);
                               }
                             }

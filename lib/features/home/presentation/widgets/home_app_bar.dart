@@ -4,8 +4,8 @@ import 'package:provider/provider.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/size_config.dart';
-import '../../../auth/data/repositories/auth_repository.dart';
 import '../../../../core/config/app_constants.dart';
+import '../../../auth/presentation/controllers/auth_controller.dart';
 
 import '../../../../core/widgets/app_logo.dart';
 import '../../../wishlist/presentation/screens/wishlist_screen.dart';
@@ -22,8 +22,8 @@ class CustomAppBar extends StatefulWidget {
 class _CustomAppBarState extends State<CustomAppBar> {
   @override
   Widget build(BuildContext context) {
-    final auth = context.watch<AuthRepository>();
-    final me = auth.me;
+    final auth = context.watch<AuthController>();
+    final me = auth.user;
     final avatarUrl = buildAvatarUrl(me?.profilePic);
     ;
 

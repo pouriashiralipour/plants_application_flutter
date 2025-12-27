@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 
+import '../../../auth/presentation/controllers/auth_controller.dart';
 import '../screens/product_details_screen.dart';
 import '../../domain/entities/product.dart';
 import '../../../wishlist/presentation/controllers/wishlist_controller.dart';
@@ -10,7 +11,6 @@ import '../../../../core/utils/persian_number.dart';
 import '../../../../core/utils/price_formatter.dart';
 import '../../../../core/utils/size_config.dart';
 import '../../../../core/widgets/login_required_sheet.dart';
-import '../../../auth/data/repositories/auth_repository.dart';
 import '../../../auth/presentation/screens/login_screen.dart';
 
 class ProductCardEntity extends StatelessWidget {
@@ -92,7 +92,7 @@ class ProductCardEntity extends StatelessWidget {
                       child: InkWell(
                         borderRadius: BorderRadius.circular(20),
                         onTap: () async {
-                          final isAuthed = context.read<AuthRepository>().isAuthed;
+                          final isAuthed = context.read<AuthController>().isAuthed;
                           if (!isAuthed) {
                             final goLogin = await showLoginRequiredSheet(
                               context: context,
@@ -114,7 +114,7 @@ class ProductCardEntity extends StatelessWidget {
 
                               if (!context.mounted) return;
 
-                              if (context.read<AuthRepository>().isAuthed) {
+                              if (context.read<AuthController>().isAuthed) {
                                 context.read<WishlistController>().toggle(product.id);
                               }
                             }
@@ -126,7 +126,7 @@ class ProductCardEntity extends StatelessWidget {
                           isFav
                               ? 'assets/images/icons/HeartBold.svg'
                               : 'assets/images/icons/Heart_outline.svg',
-                          color: AppColors.primary,
+                          colorFilter: .mode(AppColors.primary, .srcIn),
                           width: SizeConfig.getProportionateScreenWidth(20),
                           height: SizeConfig.getProportionateScreenWidth(20),
                         ),
@@ -166,7 +166,7 @@ class ProductCardEntity extends StatelessWidget {
                 children: [
                   SvgPicture.asset(
                     'assets/images/icons/Star.svg',
-                    color: AppColors.primary,
+                    colorFilter: .mode(AppColors.primary, .srcIn),
                     width: SizeConfig.getProportionateScreenWidth(20),
                     height: SizeConfig.getProportionateScreenWidth(20),
                   ),

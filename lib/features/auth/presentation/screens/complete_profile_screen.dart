@@ -22,7 +22,6 @@ import '../../../../core/widgets/app_button.dart';
 import '../../../profile/data/models/profile_form_models.dart';
 import '../../data/datasources/profile_remote_data_source.dart';
 import '../../data/models/auth_tokens_model.dart';
-import '../../data/repositories/auth_repository.dart';
 import '../widgets/auth_scaffold.dart';
 
 class ProfileFormScreen extends StatefulWidget {
@@ -161,7 +160,7 @@ class _ProfileFormScreenState extends State<ProfileFormScreen> {
     if (!mounted) return;
 
     if (response.success && response.data != null) {
-      await context.read<AuthRepository>().loadMe();
+      // await context.read<AuthRepository>().loadMe();
 
       setState(() => _isLoading = true);
       await Future.delayed(const Duration(seconds: 1));

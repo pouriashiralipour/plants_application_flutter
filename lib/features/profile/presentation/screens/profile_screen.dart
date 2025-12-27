@@ -11,7 +11,7 @@ import '../../../../core/utils/size_config.dart';
 import '../../../../core/widgets/gap.dart';
 import '../../../../core/widgets/app_progress_indicator.dart';
 import '../../../../core/widgets/app_button.dart';
-import '../../../auth/data/repositories/auth_repository.dart';
+import '../../../auth/presentation/controllers/auth_controller.dart';
 
 import '../../../../core/config/app_constants.dart';
 import '../../../../core/config/root_screen.dart';
@@ -79,7 +79,7 @@ class AppToggle extends StatelessWidget {
                 shape: BoxShape.circle,
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.06),
+                    color: Colors.black.withValues(alpha: 0.06),
                     blurRadius: 6,
                     offset: const Offset(0, 2),
                   ),
@@ -138,11 +138,14 @@ class _CustomListTileState extends State<CustomListTile> {
       ),
       leading: SvgPicture.asset(
         widget.leadingIcon,
-        color: widget.isLogout!
-            ? AppColors.error
-            : isLightMode
-            ? AppColors.grey900
-            : AppColors.white,
+        colorFilter: .mode(
+          widget.isLogout!
+              ? AppColors.error
+              : isLightMode
+              ? AppColors.grey900
+              : AppColors.white,
+          .srcIn,
+        ),
         width: SizeConfig.getProportionateScreenWidth(24),
         height: SizeConfig.getProportionateScreenWidth(24),
       ),
@@ -151,7 +154,7 @@ class _CustomListTileState extends State<CustomListTile> {
           : widget.trailingIcon != null
           ? SvgPicture.asset(
               widget.trailingIcon!,
-              color: isLightMode ? AppColors.grey900 : AppColors.white,
+              colorFilter: .mode(isLightMode ? AppColors.grey900 : AppColors.white, .srcIn),
               width: SizeConfig.getProportionateScreenWidth(24),
               height: SizeConfig.getProportionateScreenWidth(24),
             )
@@ -173,14 +176,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     final bool isLightMode = Theme.of(context).brightness == Brightness.light;
-    final auth = context.watch<AuthRepository>();
-    final me = context.watch<AuthRepository>().me;
+    final auth = context.watch<AuthController>();
+    final me = auth.user;
 
     final avatarUrl = buildAvatarUrl(me?.profilePic);
 
     if (!auth.isAuthed || me == null) {
       return const Scaffold(
-        body: SafeArea(child: Center(child: CircularProgressIndicator())),
+        body: SafeArea(child: Center(child: Text('ابتدا وارد حساب شوید'))),
       );
     }
 
@@ -217,7 +220,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       'assets/images/icons/MoreCircle.svg',
                       width: SizeConfig.getProportionateScreenWidth(28),
                       height: SizeConfig.getProportionateScreenWidth(28),
-                      color: isLightMode ? AppColors.grey900 : AppColors.white,
+                      colorFilter: .mode(isLightMode ? AppColors.grey900 : AppColors.white, .srcIn),
                     ),
                   ],
                 ),
@@ -359,7 +362,7 @@ Future<void> showLogoutSheet(BuildContext rootContext, bool isLightMode) {
     useSafeArea: true,
     isDismissible: true,
     backgroundColor: isLightMode ? AppColors.white : AppColors.dark2,
-    barrierColor: AppColors.black.withOpacity(0.6), // ⬅️ withOpacity
+    barrierColor: AppColors.black.withValues(alpha: 0.6),
     shape: const RoundedRectangleBorder(
       borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
     ),
@@ -373,7 +376,7 @@ Future<void> showLogoutSheet(BuildContext rootContext, bool isLightMode) {
 
             await Future.delayed(const Duration(seconds: 2));
 
-            await rootContext.read<AuthRepository>().logout();
+            await rootContext.read<AuthController>().logout();
 
             context.read<AppMessageController>().showSuccess('خارج شدی');
 
@@ -451,7 +454,9 @@ Future<void> showLogoutSheet(BuildContext rootContext, bool isLightMode) {
                           },
                           text: 'خیر',
                           textColor: isLightMode ? AppColors.primary : AppColors.white,
-                          color: isLightMode ? AppColors.primary.withOpacity(0.1) : AppColors.dark3,
+                          color: isLightMode
+                              ? AppColors.primary.withValues(alpha: 0.1)
+                              : AppColors.dark3,
                           width: SizeConfig.getProportionateScreenWidth(184),
                           isShadow: false,
                           fontSize: SizeConfig.getProportionateFontSize(16),

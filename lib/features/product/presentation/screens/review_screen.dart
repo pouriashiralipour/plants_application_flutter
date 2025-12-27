@@ -12,7 +12,7 @@ import '../../../../core/widgets/app_progress_indicator.dart';
 import '../../../../core/widgets/gap.dart';
 import '../../../../core/widgets/app_alert_dialog.dart';
 import '../../../../core/widgets/login_required_sheet.dart';
-import '../../../auth/data/repositories/auth_repository.dart';
+import '../../../auth/presentation/controllers/auth_controller.dart';
 import '../../../auth/presentation/screens/login_screen.dart';
 
 import '../controllers/review_controller.dart';
@@ -306,7 +306,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
   }
 
   bool _isLoggedIn() {
-    return context.read<AuthRepository>().isAuthed;
+    return context.read<AuthController>().isAuthed;
   }
 
   Future<void> _openAddReviewSheet() async {
