@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:dio/io.dart';
+import 'package:flutter/foundation.dart';
 import 'package:cookie_jar/cookie_jar.dart';
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 import 'package:full_plants_ecommerce_app/core/config/app_constants.dart';
@@ -35,15 +36,14 @@ class ApiClient {
     );
     final adapter = _dio.httpClientAdapter as IOHttpClientAdapter;
     adapter.onHttpClientCreate = (HttpClient client) {
-      client.badCertificateCallback = (X509Certificate cert, String host, int port) => true;
+      if (kDebugMode) {
+        client.badCertificateCallback = (X509Certificate cert, String host, int port) => true;
+      }
       return client;
     };
 
     _dio.interceptors.add(CookieManager(_cookieJar));
     _dio.interceptors.add(_AuthInterceptor());
-    _dio.interceptors.add(
-      LogInterceptor(request: true, requestBody: true, responseBody: true, error: true),
-    );
   }
 
   static final ApiClient I = ApiClient._internal();
