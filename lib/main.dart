@@ -117,7 +117,6 @@ class MyApp extends StatelessWidget {
           create: (context) => GetAddresses(context.read<AddressRepository>()),
         ),
         Provider<AddAddress>(create: (context) => AddAddress(context.read<AddressRepository>())),
-        // --- Auth (مسیر جدید سه‌لایه) ---
         Provider<auth_domain_repo.AuthRepository>(create: (_) => AuthRepositoryImpl()),
         Provider<LoginWithPassword>(
           create: (c) => LoginWithPassword(c.read<auth_domain_repo.AuthRepository>()),
