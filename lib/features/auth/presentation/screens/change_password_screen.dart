@@ -107,26 +107,29 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
 
     setState(() => _isLoading = true);
 
-    final auth = context.read<AuthController>();
+    try {
+      final auth = context.read<AuthController>();
 
-    await auth.setNewPasswordWithToken(
-      resetToken: token,
-      newPassword: _passCtrl.text,
-      confirmNewPassword: _confirmCtrl.text,
-    );
+      await auth.setNewPasswordWithToken(
+        resetToken: token,
+        newPassword: _passCtrl.text,
+        confirmNewPassword: _confirmCtrl.text,
+      );
 
-    if (!mounted) return;
+      if (!mounted) return;
 
-    if (auth.error != null) {
+      if (auth.error != null) {
+        setState(() => _isLoading = false);
+        setState(() => _showServerError(auth.error!));
+        auth.clearError();
+        return;
+      }
+
+      await passwordRepostory.clear();
+      await customSuccessShowDialog(context);
+    } finally {
       setState(() => _isLoading = false);
-      setState(() => _showServerError(auth.error!));
-      auth.clearError();
-      return;
     }
-
-    await passwordRepostory.clear();
-    customSuccessShowDialog(context);
-    setState(() => _isLoading = false);
   }
 
   @override

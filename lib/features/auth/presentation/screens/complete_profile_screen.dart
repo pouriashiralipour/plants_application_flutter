@@ -22,7 +22,6 @@ import '../../../../core/widgets/app_button.dart';
 import '../../../profile/data/models/profile_form_models.dart';
 import '../../data/datasources/profile_remote_data_source.dart';
 import '../../../auth/presentation/controllers/auth_controller.dart';
-import '../../../profile/domain/entities/user_profile.dart';
 import '../widgets/auth_scaffold.dart';
 
 class ProfileFormScreen extends StatefulWidget {
@@ -152,20 +151,25 @@ class _ProfileFormScreenState extends State<ProfileFormScreen> {
 
     setState(() => _isLoading = true);
 
-    final res = await ProfileApi().complete(model, avatarFile: _imageFile);
+    try {
+      final res = await ProfileApi().complete(model, avatarFile: _imageFile);
 
-    if (!mounted) return;
-    setState(() => _isLoading = false);
-
-    if (res.success) {
-      final auth = context.read<AuthController>();
-      await auth.reloadProfile();
-
-      await Future.delayed(const Duration(seconds: 1));
+      if (!mounted) return;
       setState(() => _isLoading = false);
-      await customSuccessShowDialog(context);
-    } else {
-      _showServerError(res.error ?? 'خطا');
+
+      if (res.success) {
+        final auth = context.read<AuthController>();
+        await auth.reloadProfile();
+
+        await Future.delayed(const Duration(seconds: 1));
+        await customSuccessShowDialog(context);
+      } else {
+        _showServerError(res.error ?? 'خطا');
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
     }
   }
 

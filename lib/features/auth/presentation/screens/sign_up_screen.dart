@@ -69,7 +69,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
     });
   }
 
-  void _submit() async {
+  Future<void> _submit() async {
     setState(() {
       _showErrors = true;
       _serverErrorMessage = null;
@@ -82,29 +82,32 @@ class _SignUpScreenState extends State<SignUpScreen> {
     final prepared = raw.contains('@') ? raw : toEnglishDigits(raw);
     final normalized = prepared.contains('@') ? prepared : normalizeIranPhone(prepared);
 
-    final auth = context.read<AuthController>();
-
-    await auth.requestOtp(target: normalized, purpose: 'register');
-
-    if (!mounted) return;
-
-    if (auth.error != null) {
-      setState(() => _serverErrorMessage = auth.error);
-      _showServerError(_serverErrorMessage!);
-      auth.clearError();
-      return;
-    }
-
     setState(() => _isLoading = true);
-    await Future.delayed(const Duration(seconds: 2));
-    setState(() {
-      _isLoading = false;
-    });
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (_) => OTPScreen(target: normalized, purpose: 'register'),
-      ),
-    );
+
+    try {
+      final auth = context.read<AuthController>();
+
+      await auth.requestOtp(target: normalized, purpose: 'register');
+
+      if (!mounted) return;
+
+      if (auth.error != null) {
+        setState(() => _serverErrorMessage = auth.error);
+        _showServerError(_serverErrorMessage!);
+        auth.clearError();
+        return;
+      }
+      await Future.delayed(const Duration(seconds: 2));
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (_) => OTPScreen(target: normalized, purpose: 'register'),
+        ),
+      );
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
+    }
   }
 
   @override

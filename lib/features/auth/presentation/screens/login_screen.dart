@@ -67,7 +67,7 @@ class _LoginScreenState extends State<LoginScreen> {
     });
   }
 
-  void _submit() async {
+  Future<void> _submit() async {
     setState(() {
       _showErrors = true;
       _serverErrorMessage = null;

@@ -160,12 +160,13 @@ class _OTPScreenState extends State<OTPScreen> {
     return p;
   }
 
-  void _resendOtp() async {
+  Future<void> _resendOtp() async {
     if (_isLoading) return;
     if (_secondsRemaining > 0) return;
 
     setState(() {
       _serverErrorMessage = null;
+      _isLoading = true;
     });
 
     final auth = context.read<AuthController>();
