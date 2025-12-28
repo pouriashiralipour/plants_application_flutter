@@ -3,21 +3,19 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:full_plants_ecommerce_app/features/auth/data/repositories/password_reset_repository.dart';
-import 'package:full_plants_ecommerce_app/core/utils/persian_number.dart';
 import 'package:provider/provider.dart';
-
-import '../controllers/auth_controller.dart';
-import '../screens/change_password_screen.dart';
+import 'package:full_plants_ecommerce_app/core/utils/persian_number.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/gap.dart';
 import '../../../../core/widgets/app_alert_dialog.dart';
 import '../../../../core/widgets/app_progress_indicator.dart';
 import '../../../../core/widgets/app_button.dart';
-import '../../data/datasources/auth_remote_data_source.dart';
 import '../../../../core/utils/size_config.dart';
 
+import '../../data/repositories/password_reset_repository.dart';
+import '../../domain/usecases/request_password_reset_otp.dart';
+import '../../domain/usecases/verify_password_reset_otp.dart';
 import '../screens/change_password_screen.dart';
 import 'auth_scaffold.dart';
 
@@ -58,7 +56,9 @@ class _OtpPasswordScreenState extends State<OtpPasswordScreen> {
     _startTimer();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      FocusScope.of(context).requestFocus(_focusNodes[0]);
+      if (_focusNodes.isNotEmpty) {
+        FocusScope.of(context).requestFocus(_focusNodes[0]);
+      }
     });
   }
 
@@ -79,7 +79,8 @@ class _OtpPasswordScreenState extends State<OtpPasswordScreen> {
 
   Widget _buildOtpBox(int index) {
     final bool isLightMode = Theme.of(context).brightness == Brightness.light;
-    bool isFocused = _focusNodes[index].hasFocus;
+    final bool isFocused = _focusNodes[index].hasFocus;
+
     return SizedBox(
       width: SizeConfig.getProportionateScreenWidth(50),
       height: SizeConfig.getProportionateScreenWidth(60),
@@ -109,7 +110,6 @@ class _OtpPasswordScreenState extends State<OtpPasswordScreen> {
           counterText: "",
           isDense: true,
           filled: true,
-
           fillColor: isLightMode
               ? (isFocused ? AppColors.primary.withValues(alpha: 0.08) : AppColors.grey50)
               : (isFocused ? AppColors.primary.withValues(alpha: 0.08) : AppColors.dark2),
@@ -122,7 +122,7 @@ class _OtpPasswordScreenState extends State<OtpPasswordScreen> {
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(16),
-            borderSide: BorderSide(color: AppColors.primary, width: 2),
+            borderSide: const BorderSide(color: AppColors.primary, width: 2),
           ),
         ),
         onChanged: (value) {
@@ -145,6 +145,13 @@ class _OtpPasswordScreenState extends State<OtpPasswordScreen> {
     );
   }
 
+  String _extractErrorMessage(Object error, String fallback) {
+    final raw = error.toString().trim();
+    if (raw.isEmpty) return fallback;
+    final cleaned = raw.replaceFirst(RegExp(r'^Exception:\\s*'), '');
+    return cleaned.isEmpty ? fallback : cleaned;
+  }
+
   String _maskEmail(String e) {
     final parts = e.split('@');
     if (parts.length != 2) return e;
@@ -165,25 +172,24 @@ class _OtpPasswordScreenState extends State<OtpPasswordScreen> {
   }
 
   void _resendOtp() async {
-    if (_isLoading) return;
     if (_secondsRemaining > 0) return;
 
     setState(() {
       _serverErrorMessage = null;
     });
 
-    final response = await AuthApi().requestPasswordOtp(target: widget.target);
+    final requestOtp = context.read<RequestPasswordResetOtp>();
 
-    if (!mounted) return;
+    try {
+      await requestOtp(target: widget.target);
 
-    if (response.success) {
-      setState(() => _isLoading = true);
-      await Future.delayed(const Duration(seconds: 2));
-      setState(() => _isLoading = false);
+      if (!mounted) return;
+
       _secondsRemaining = 120;
       _startTimer();
-    } else {
-      _showServerError(response.error ?? 'ارسال مجدد ناموفق بود');
+    } catch (e) {
+      if (!mounted) return;
+      _showServerError(_extractErrorMessage(e, 'ارسال مجدد ناموفق بود'));
     }
   }
 
@@ -222,34 +228,36 @@ class _OtpPasswordScreenState extends State<OtpPasswordScreen> {
 
     final raw = _controllers.map((c) => c.text).join();
     final cleaned = normalizeDigits(raw).replaceAll(RegExp(r'\s+'), '');
-    debugPrint(cleaned);
     final expectedLen = _controllers.length;
 
     if (cleaned.length != expectedLen || !RegExp(r'^[0-9]+$').hasMatch(cleaned)) {
+      setState(() => _isLoading = false);
       _showServerError('کد ۶ رقمی را کامل و صحیح وارد کنید');
       return;
     }
 
-    final auth = context.read<AuthController>();
-
-    final resetToken = await auth.verifyPasswordResetCode(cleaned);
-
-    if (!mounted) return;
-
-    if (auth.error != null || resetToken == null) {
-      _showServerError(auth.error ?? 'تایید کد با خطا مواجه شد');
-      auth.clearError();
-      return;
-    }
-
-    await context.read<PasswordResetRepository>().setToken(resetToken);
-
     setState(() => _isLoading = true);
-    await Future.delayed(const Duration(seconds: 2));
-    if (!mounted) return;
-    setState(() => _isLoading = false);
 
-    Navigator.push(context, MaterialPageRoute(builder: (context) => const ChangePasswordScreen()));
+    final verifyOtp = context.read<VerifyPasswordResetOtp>();
+
+    try {
+      final resetToken = await verifyOtp(code: cleaned);
+
+      if (!mounted) return;
+
+      await context.read<PasswordResetRepository>().setToken(resetToken);
+
+      setState(() => _isLoading = false);
+
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => const ChangePasswordScreen()),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _isLoading = false);
+      _showServerError(_extractErrorMessage(e, 'تایید کد با خطا مواجه شد'));
+    }
   }
 
   @override
@@ -257,6 +265,7 @@ class _OtpPasswordScreenState extends State<OtpPasswordScreen> {
     final bool isLightMode = Theme.of(context).brightness == Brightness.light;
     final target = widget.target;
     final masked = target.contains('@') ? _maskEmail(target) : _maskPhone(target);
+
     return AuthScaffold(
       appBar: AppBar(
         title: Text(
@@ -340,7 +349,6 @@ class _OtpPasswordScreenState extends State<OtpPasswordScreen> {
               );
             }),
           ),
-
           Gap(SizeConfig.getProportionateScreenHeight(20)),
           _secondsRemaining > 0
               ? RichText(
@@ -349,13 +357,12 @@ class _OtpPasswordScreenState extends State<OtpPasswordScreen> {
                       fontFamily: 'Vazirmatn',
                       fontWeight: FontWeight.w500,
                       fontSize: SizeConfig.getProportionateFontSize(16),
-                      color: AppColors.grey900,
+                      color: isLightMode ? AppColors.grey900 : AppColors.white,
                     ),
                     children: [
                       TextSpan(
-                        text: "ارسال دوباره کد در ",
+                        text: 'ارسال دوباره کد در ',
                         style: TextStyle(
-                          fontFamily: 'Vazirmatn',
                           color: isLightMode ? AppColors.grey900 : AppColors.white,
                           fontWeight: FontWeight.w500,
                           fontSize: SizeConfig.getProportionateFontSize(16),
@@ -363,12 +370,11 @@ class _OtpPasswordScreenState extends State<OtpPasswordScreen> {
                       ),
                       TextSpan(
                         text: '$_secondsRemaining'.farsiNumber,
-                        style: const TextStyle(color: AppColors.primary, fontFamily: 'Vazirmatn'),
+                        style: const TextStyle(color: AppColors.primary),
                       ),
                       TextSpan(
-                        text: " ثانیه",
+                        text: ' ثانیه',
                         style: TextStyle(
-                          fontFamily: 'Vazirmatn',
                           color: isLightMode ? AppColors.grey900 : AppColors.white,
                           fontWeight: FontWeight.w500,
                           fontSize: SizeConfig.getProportionateFontSize(16),
@@ -380,7 +386,7 @@ class _OtpPasswordScreenState extends State<OtpPasswordScreen> {
               : TextButton(
                   onPressed: _resendOtp,
                   child: Text(
-                    "ارسال مجدد",
+                    'ارسال مجدد',
                     style: TextStyle(
                       color: AppColors.primary,
                       fontWeight: FontWeight.w900,
@@ -391,7 +397,7 @@ class _OtpPasswordScreenState extends State<OtpPasswordScreen> {
         ],
       ),
       footer: _isLoading
-          ? AppProgressBarIndicator()
+          ? const AppProgressBarIndicator()
           : AppButton(
               text: 'تایید',
               color: AppColors.disabledButton,
