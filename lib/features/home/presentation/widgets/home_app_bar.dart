@@ -73,16 +73,23 @@ class _CustomAppBarState extends State<CustomAppBar> {
         children: [
           Row(
             children: [
-              CircleAvatar(
-                radius: SizeConfig.getProportionateScreenWidth(30),
-                backgroundImage: avatarUrl != null ? NetworkImage(avatarUrl) : null,
-                backgroundColor: widget.isLightMode ? AppColors.grey200 : AppColors.dark3,
-                child: avatarUrl == null
-                    ? Icon(
-                        Icons.person,
-                        color: widget.isLightMode ? AppColors.grey600 : AppColors.grey100,
-                      )
-                    : null,
+              Container(
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: BoxBorder.all(color: AppColors.primary, width: 2),
+                ),
+                child: CircleAvatar(
+                  radius: SizeConfig.getProportionateScreenWidth(30),
+                  backgroundImage: avatarUrl != null ? NetworkImage(avatarUrl) : null,
+                  backgroundColor: widget.isLightMode ? AppColors.grey200 : AppColors.dark3,
+                  child: avatarUrl == null
+                      ? Image.asset(
+                          widget.isLightMode
+                              ? 'assets/images/profile.png'
+                              : 'assets/images/profile_dark.png',
+                        )
+                      : null,
+                ),
               ),
               SizedBox(width: SizeConfig.getProportionateScreenWidth(10)),
               Column(

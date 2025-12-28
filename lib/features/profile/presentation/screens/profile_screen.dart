@@ -241,10 +241,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           backgroundImage: avatarUrl != null ? NetworkImage(avatarUrl) : null,
                           backgroundColor: isLightMode ? AppColors.grey200 : AppColors.dark3,
                           child: avatarUrl == null
-                              ? Icon(
-                                  Icons.person,
-                                  color: isLightMode ? AppColors.grey600 : AppColors.grey100,
-                                  size: SizeConfig.getProportionateScreenWidth(40),
+                              ? Image.asset(
+                                  isLightMode
+                                      ? 'assets/images/profile.png'
+                                      : 'assets/images/profile_dark.png',
                                 )
                               : null,
                         ),

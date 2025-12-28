@@ -76,73 +76,16 @@ class MyApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider<ThemeRepository>.value(value: ThemeRepository.I),
         ChangeNotifierProvider<AuthRepository>.value(value: AuthRepository.I),
-        Provider<ProductRepository>(create: (_) => ProductRepositoryImpl()),
-        Provider<GetCategories>(
-          create: (context) => GetCategories(context.read<ProductRepository>()),
-        ),
-        Provider<GetProducts>(create: (context) => GetProducts(context.read<ProductRepository>())),
-        Provider<GetProductById>(
-          create: (context) => GetProductById(context.read<ProductRepository>()),
-        ),
-        Provider<CartRepository>(create: (_) => CartRepositoryImpl()),
-        Provider<GetCart>(create: (context) => GetCart(context.read<CartRepository>())),
-        Provider<AddCartItem>(create: (context) => AddCartItem(context.read<CartRepository>())),
-        Provider<UpdateCartItemQuantity>(
-          create: (context) => UpdateCartItemQuantity(context.read<CartRepository>()),
-        ),
-        Provider<RemoveCartItem>(
-          create: (context) => RemoveCartItem(context.read<CartRepository>()),
-        ),
-        Provider<ClearCart>(create: (context) => ClearCart(context.read<CartRepository>())),
 
-        Provider<ReviewRepository>(create: (_) => ReviewRepositoryImpl()),
-        Provider<GetProductReviews>(
-          create: (context) => GetProductReviews(context.read<ReviewRepository>()),
-        ),
-        Provider<ToggleReviewLike>(
-          create: (context) => ToggleReviewLike(context.read<ReviewRepository>()),
-        ),
-        Provider<RequestPasswordResetOtp>(
-          create: (c) => RequestPasswordResetOtp(c.read<auth_domain_repo.AuthRepository>()),
-        ),
-        Provider<VerifyPasswordResetOtp>(
-          create: (c) => VerifyPasswordResetOtp(c.read<auth_domain_repo.AuthRepository>()),
-        ),
-        Provider<SetNewPassword>(
-          create: (c) => SetNewPassword(c.read<auth_domain_repo.AuthRepository>()),
-        ),
 
-        Provider<AddProductReview>(
-          create: (context) => AddProductReview(context.read<ReviewRepository>()),
-        ),
-        Provider<WishlistRepository>(create: (_) => WishlistRepositoryImpl()),
-        Provider<GetWishlist>(create: (context) => GetWishlist(context.read<WishlistRepository>())),
-        Provider<AddToWishlist>(
-          create: (context) => AddToWishlist(context.read<WishlistRepository>()),
-        ),
-        Provider<RemoveFromWishlist>(
-          create: (context) => RemoveFromWishlist(context.read<WishlistRepository>()),
-        ),
-        Provider<ToggleWishlist>(
-          create: (context) => ToggleWishlist(context.read<WishlistRepository>()),
-        ),
-        Provider<AddressRepository>(create: (_) => AddressRepositoryImpl()),
-        Provider<GetAddresses>(
-          create: (context) => GetAddresses(context.read<AddressRepository>()),
-        ),
-        Provider<AddAddress>(create: (context) => AddAddress(context.read<AddressRepository>())),
         Provider<auth_domain_repo.AuthRepository>(create: (_) => AuthRepositoryImpl()),
-        Provider<LoginWithPassword>(
-          create: (c) => LoginWithPassword(c.read<auth_domain_repo.AuthRepository>()),
-        ),
+
         Provider<LoginWithPassword>(
           create: (c) => LoginWithPassword(c.read<auth_domain_repo.AuthRepository>()),
         ),
         Provider<LoginWithOtp>(
           create: (c) => LoginWithOtp(c.read<auth_domain_repo.AuthRepository>()),
         ),
-        Provider<Logout>(create: (c) => Logout(c.read<auth_domain_repo.AuthRepository>())),
-
         Provider<Logout>(create: (c) => Logout(c.read<auth_domain_repo.AuthRepository>())),
         Provider<LoadSavedSession>(
           create: (c) => LoadSavedSession(c.read<auth_domain_repo.AuthRepository>()),
@@ -153,6 +96,17 @@ class MyApp extends StatelessWidget {
         Provider<GetCurrentUser>(
           create: (c) => GetCurrentUser(c.read<auth_domain_repo.AuthRepository>()),
         ),
+
+        Provider<RequestPasswordResetOtp>(
+          create: (c) => RequestPasswordResetOtp(c.read<auth_domain_repo.AuthRepository>()),
+        ),
+        Provider<VerifyPasswordResetOtp>(
+          create: (c) => VerifyPasswordResetOtp(c.read<auth_domain_repo.AuthRepository>()),
+        ),
+        Provider<SetNewPassword>(
+          create: (c) => SetNewPassword(c.read<auth_domain_repo.AuthRepository>()),
+        ),
+
         ChangeNotifierProvider<AuthController>(
           create: (c) => AuthController(
             loginWithPassword: c.read<LoginWithPassword>(),
@@ -166,6 +120,60 @@ class MyApp extends StatelessWidget {
             setNewPassword: c.read<SetNewPassword>(),
           ),
         ),
+
+        // 3) Product
+        Provider<ProductRepository>(create: (_) => ProductRepositoryImpl()),
+        Provider<GetCategories>(
+          create: (context) => GetCategories(context.read<ProductRepository>()),
+        ),
+        Provider<GetProducts>(create: (context) => GetProducts(context.read<ProductRepository>())),
+        Provider<GetProductById>(
+          create: (context) => GetProductById(context.read<ProductRepository>()),
+        ),
+
+        // 4) Cart
+        Provider<CartRepository>(create: (_) => CartRepositoryImpl()),
+        Provider<GetCart>(create: (context) => GetCart(context.read<CartRepository>())),
+        Provider<AddCartItem>(create: (context) => AddCartItem(context.read<CartRepository>())),
+        Provider<UpdateCartItemQuantity>(
+          create: (context) => UpdateCartItemQuantity(context.read<CartRepository>()),
+        ),
+        Provider<RemoveCartItem>(
+          create: (context) => RemoveCartItem(context.read<CartRepository>()),
+        ),
+        Provider<ClearCart>(create: (context) => ClearCart(context.read<CartRepository>())),
+
+        // 5) Reviews
+        Provider<ReviewRepository>(create: (_) => ReviewRepositoryImpl()),
+        Provider<GetProductReviews>(
+          create: (context) => GetProductReviews(context.read<ReviewRepository>()),
+        ),
+        Provider<ToggleReviewLike>(
+          create: (context) => ToggleReviewLike(context.read<ReviewRepository>()),
+        ),
+        Provider<AddProductReview>(
+          create: (context) => AddProductReview(context.read<ReviewRepository>()),
+        ),
+
+        // 6) Wishlist
+        Provider<WishlistRepository>(create: (_) => WishlistRepositoryImpl()),
+        Provider<GetWishlist>(create: (context) => GetWishlist(context.read<WishlistRepository>())),
+        Provider<AddToWishlist>(
+          create: (context) => AddToWishlist(context.read<WishlistRepository>()),
+        ),
+        Provider<RemoveFromWishlist>(
+          create: (context) => RemoveFromWishlist(context.read<WishlistRepository>()),
+        ),
+        Provider<ToggleWishlist>(
+          create: (context) => ToggleWishlist(context.read<WishlistRepository>()),
+        ),
+
+        // 7) Address
+        Provider<AddressRepository>(create: (_) => AddressRepositoryImpl()),
+        Provider<GetAddresses>(
+          create: (context) => GetAddresses(context.read<AddressRepository>()),
+        ),
+        Provider<AddAddress>(create: (context) => AddAddress(context.read<AddressRepository>())),
 
         ChangeNotifierProvider<AddressController>(
           create: (context) => AddressController(
@@ -202,11 +210,14 @@ class MyApp extends StatelessWidget {
             toggleWishlist: context.read<ToggleWishlist>(),
           )..load(),
         ),
+
         ChangeNotifierProvider<PasswordResetRepository>(create: (_) => PasswordResetRepository()),
         ChangeNotifierProvider<AppMessageController>(create: (_) => AppMessageController()),
 
+        // 9) سرویس شبکه
         Provider(create: (_) => ConnectivityService()),
       ],
+
       child: Consumer<ThemeRepository>(
         builder: (_, theme, __) {
           return LayoutBuilder(
