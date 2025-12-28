@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/size_config.dart';
@@ -6,7 +7,6 @@ import '../../../../core/widgets/gap.dart';
 import '../../../../core/widgets/app_alert_dialog.dart';
 import '../../../../core/widgets/app_progress_indicator.dart';
 import '../../../../core/widgets/app_button.dart';
-import '../../data/datasources/auth_remote_data_source.dart';
 
 import '../../../../core/widgets/app_logo.dart';
 import '../../../../core/widgets/app_text_field.dart';
@@ -14,6 +14,7 @@ import '../../../../core/widgets/app_text_field.dart';
 import '../../../../core/utils/iran_contact_validator.dart';
 import '../../../../core/utils/validators.dart';
 
+import '../controllers/auth_controller.dart';
 import '../widgets/auth_bottom_action.dart';
 import '../widgets/auth_header.dart';
 import '../widgets/auth_illustration.dart';
@@ -80,27 +81,30 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
     final prepared = raw.contains('@') ? raw : toEnglishDigits(raw);
     final normalized = prepared.contains('@') ? prepared : normalizeIranPhone(prepared);
-    debugPrint(normalized);
 
-    final response = await AuthApi().requestOtp(target: normalized, purpose: 'register');
+    final auth = context.read<AuthController>();
+
+    await auth.requestOtp(target: normalized, purpose: 'register');
 
     if (!mounted) return;
 
-    if (response.success) {
-      setState(() => _isLoading = true);
-      await Future.delayed(const Duration(seconds: 2));
-      setState(() {
-        _isLoading = false;
-      });
-      Navigator.of(context).push(
-        MaterialPageRoute(
-          builder: (_) => OTPScreen(target: normalized, purpose: 'register'),
-        ),
-      );
-    } else {
-      setState(() => _serverErrorMessage = response.error ?? 'ارسال کد ناموفق بود');
+    if (auth.error != null) {
+      setState(() => _serverErrorMessage = auth.error);
       _showServerError(_serverErrorMessage!);
+      auth.clearError();
+      return;
     }
+
+    setState(() => _isLoading = true);
+    await Future.delayed(const Duration(seconds: 2));
+    setState(() {
+      _isLoading = false;
+    });
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => OTPScreen(target: normalized, purpose: 'register'),
+      ),
+    );
   }
 
   @override

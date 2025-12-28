@@ -51,6 +51,7 @@ import 'features/auth/domain/usecases/login_with_otp.dart';
 import 'features/auth/domain/usecases/request_password_reset_otp.dart';
 import 'features/auth/domain/usecases/verify_password_reset_otp.dart';
 import 'features/auth/domain/usecases/set_new_password.dart';
+import 'features/auth/domain/usecases/request_otp.dart';
 
 import 'core/services/app_message_controller.dart';
 import 'core/utils/size_config.dart';
@@ -77,7 +78,6 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider<ThemeRepository>.value(value: ThemeRepository.I),
         ChangeNotifierProvider<AuthRepository>.value(value: AuthRepository.I),
 
-
         Provider<auth_domain_repo.AuthRepository>(create: (_) => AuthRepositoryImpl()),
 
         Provider<LoginWithPassword>(
@@ -100,6 +100,8 @@ class MyApp extends StatelessWidget {
         Provider<RequestPasswordResetOtp>(
           create: (c) => RequestPasswordResetOtp(c.read<auth_domain_repo.AuthRepository>()),
         ),
+        Provider<RequestOtp>(create: (c) => RequestOtp(c.read<auth_domain_repo.AuthRepository>())),
+
         Provider<VerifyPasswordResetOtp>(
           create: (c) => VerifyPasswordResetOtp(c.read<auth_domain_repo.AuthRepository>()),
         ),
@@ -118,6 +120,7 @@ class MyApp extends StatelessWidget {
             requestPasswordResetOtp: c.read<RequestPasswordResetOtp>(),
             verifyPasswordResetOtp: c.read<VerifyPasswordResetOtp>(),
             setNewPassword: c.read<SetNewPassword>(),
+            requestOtp: c.read<RequestOtp>(),
           ),
         ),
 

@@ -11,6 +11,7 @@ import '../../domain/usecases/login_with_otp.dart';
 import '../../domain/usecases/request_password_reset_otp.dart';
 import '../../domain/usecases/verify_password_reset_otp.dart';
 import '../../domain/usecases/set_new_password.dart';
+import '../../domain/usecases/request_otp.dart';
 
 class AuthController extends ChangeNotifier {
   AuthController({
@@ -23,6 +24,7 @@ class AuthController extends ChangeNotifier {
     required RequestPasswordResetOtp requestPasswordResetOtp,
     required VerifyPasswordResetOtp verifyPasswordResetOtp,
     required SetNewPassword setNewPassword,
+    required RequestOtp requestOtp,
   }) : _loginWithPassword = loginWithPassword,
        _loginWithOtp = loginWithOtp,
        _logoutUseCase = logout,
@@ -31,7 +33,8 @@ class AuthController extends ChangeNotifier {
        _getCurrentUser = getCurrentUser,
        _requestPasswordResetOtp = requestPasswordResetOtp,
        _verifyPasswordResetOtp = verifyPasswordResetOtp,
-       _setNewPassword = setNewPassword;
+       _setNewPassword = setNewPassword,
+       _requestOtp = requestOtp;
 
   final GetCurrentUser _getCurrentUser;
   final LoadSavedSession _loadSavedSession;
@@ -39,6 +42,7 @@ class AuthController extends ChangeNotifier {
   final LoginWithPassword _loginWithPassword;
   final Logout _logoutUseCase;
   final RefreshTokensIfNeeded _refreshTokensIfNeeded;
+  final RequestOtp _requestOtp;
   final RequestPasswordResetOtp _requestPasswordResetOtp;
   final SetNewPassword _setNewPassword;
   final VerifyPasswordResetOtp _verifyPasswordResetOtp;
@@ -145,6 +149,21 @@ class AuthController extends ChangeNotifier {
     }
   }
 
+  Future<void> requestOtp({required String target, required String purpose}) async {
+    _setLoading(true);
+    _error = null;
+
+    try {
+      await _requestOtp(target: target, purpose: purpose);
+    } catch (e) {
+      final raw = e.toString();
+      final cleaned = raw.replaceFirst(RegExp(r'^Exception:\s*'), '');
+      _error = cleaned.isEmpty ? 'ارسال کد ناموفق بود' : cleaned;
+    } finally {
+      _setLoading(false);
+    }
+  }
+
   Future<void> requestPasswordResetCode(String target) async {
     _setLoading(true);
     _error = null;
@@ -155,23 +174,6 @@ class AuthController extends ChangeNotifier {
       final raw = e.toString();
       final cleaned = raw.replaceFirst(RegExp(r'^Exception:\s*'), '');
       _error = cleaned.isEmpty ? 'درخواست کد بازیابی ناموفق بود' : cleaned;
-    } finally {
-      _setLoading(false);
-    }
-  }
-
-  Future<String?> verifyPasswordResetCode(String code) async {
-    _setLoading(true);
-    _error = null;
-
-    try {
-      final resetToken = await _verifyPasswordResetOtp(code: code);
-      return resetToken;
-    } catch (e) {
-      final raw = e.toString();
-      final cleaned = raw.replaceFirst(RegExp(r'^Exception:\s*'), '');
-      _error = cleaned.isEmpty ? 'کد بازیابی نامعتبر است' : cleaned;
-      return null;
     } finally {
       _setLoading(false);
     }
@@ -195,6 +197,23 @@ class AuthController extends ChangeNotifier {
       final raw = e.toString();
       final cleaned = raw.replaceFirst(RegExp(r'^Exception:\s*'), '');
       _error = cleaned.isEmpty ? 'تنظیم رمز جدید ناموفق بود' : cleaned;
+    } finally {
+      _setLoading(false);
+    }
+  }
+
+  Future<String?> verifyPasswordResetCode(String code) async {
+    _setLoading(true);
+    _error = null;
+
+    try {
+      final resetToken = await _verifyPasswordResetOtp(code: code);
+      return resetToken;
+    } catch (e) {
+      final raw = e.toString();
+      final cleaned = raw.replaceFirst(RegExp(r'^Exception:\s*'), '');
+      _error = cleaned.isEmpty ? 'کد بازیابی نامعتبر است' : cleaned;
+      return null;
     } finally {
       _setLoading(false);
     }

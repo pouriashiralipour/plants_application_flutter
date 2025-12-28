@@ -14,7 +14,6 @@ import '../../../../core/widgets/gap.dart';
 import '../../../../core/widgets/app_alert_dialog.dart';
 import '../../../../core/widgets/app_progress_indicator.dart';
 import '../../../../core/widgets/app_button.dart';
-import '../../data/datasources/auth_remote_data_source.dart';
 import '../widgets/auth_scaffold.dart';
 
 class OTPScreen extends StatefulWidget {
@@ -169,19 +168,22 @@ class _OTPScreenState extends State<OTPScreen> {
       _serverErrorMessage = null;
     });
 
-    final response = await AuthApi().requestOtp(target: widget.target, purpose: widget.purpose);
+    final auth = context.read<AuthController>();
+    await auth.requestOtp(target: widget.target, purpose: widget.purpose);
 
     if (!mounted) return;
 
-    if (response.success) {
-      setState(() => _isLoading = true);
-      await Future.delayed(const Duration(seconds: 2));
-      setState(() => _isLoading = false);
-      _secondsRemaining = 120;
-      _startTimer();
-    } else {
-      _showServerError(response.error ?? 'ارسال مجدد ناموفق بود');
+    if (auth.error != null) {
+      _showServerError(auth.error!);
+      auth.clearError();
+      return;
     }
+
+    setState(() => _isLoading = true);
+    await Future.delayed(const Duration(seconds: 2));
+    setState(() => _isLoading = false);
+    _secondsRemaining = 120;
+    _startTimer();
   }
 
   void _showServerError(String message) {
@@ -241,16 +243,10 @@ class _OTPScreenState extends State<OTPScreen> {
       return;
     }
 
-    // در این نقطه: OTP درست بوده، توکن‌ها در AuthStorage ذخیره شده‌اند
-    // و AuthController.user مقدار دارد.
-    // برای ثبت‌نام، کاربر را به فرم تکمیل پروفایل می‌بریم.
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => ProfileFormScreen(
-          target: widget.target,
-          purpose: widget.purpose,
-        ),
+        builder: (context) => ProfileFormScreen(target: widget.target, purpose: widget.purpose),
       ),
     );
   }

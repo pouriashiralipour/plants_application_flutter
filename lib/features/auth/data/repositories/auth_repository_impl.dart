@@ -74,6 +74,14 @@ class AuthRepositoryImpl implements domain_auth_repo.AuthRepository {
   }
 
   @override
+  Future<void> requestOtp({required String target, required String purpose}) async {
+    final result = await _authApi.requestOtp(target: target, purpose: purpose);
+    if (!result.success) {
+      throw Exception(result.error ?? 'ارسال کد ناموفق بود');
+    }
+  }
+
+  @override
   Future<void> requestPasswordResetOtp({required String target}) async {
     final result = await _authApi.requestPasswordOtp(target: target);
 

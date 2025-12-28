@@ -16,6 +16,8 @@ abstract class AuthRepository {
 
   Future<void> saveTokens(AuthTokens tokens);
 
+  Future<void> requestOtp({required String target, required String purpose});
+
   Future<void> setNewPassword({
     required String resetToken,
     required String newPassword,
