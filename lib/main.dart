@@ -23,7 +23,6 @@ import 'features/wishlist/domain/usecases/remove_from_wishlist.dart';
 import 'features/wishlist/domain/usecases/toggle_wishlist.dart';
 import 'features/product/presentation/controllers/product_search_controller.dart';
 import 'features/splash/presentation/screens/splash_screen.dart';
-import 'features/auth/data/repositories/auth_repository.dart';
 import 'features/auth/data/repositories/password_reset_repository.dart';
 import 'features/product/data/repositories/product_repository_impl.dart';
 import 'features/product/domain/repositories/product_repository.dart';
@@ -63,7 +62,6 @@ import 'core/theme/app_theme.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await ThemeRepository.I.init();
-  await AuthRepository.I.init();
 
   runApp(MyApp());
 }
@@ -76,7 +74,6 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider<ThemeRepository>.value(value: ThemeRepository.I),
-        ChangeNotifierProvider<AuthRepository>.value(value: AuthRepository.I),
 
         Provider<auth_domain_repo.AuthRepository>(create: (_) => AuthRepositoryImpl()),
 
