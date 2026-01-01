@@ -2,8 +2,6 @@
 
 A cross‑platform **Flutter** application for browsing and purchasing plants — designed with a clean UI and a scalable project layout.
 
-> Repository includes standard Flutter modules (`android/`, `ios/`, `lib/`, `test/`) and tooling files like `pubspec.yaml`, `analysis_options.yaml`, etc.
-
 ---
 
 ## ✨ Highlights
