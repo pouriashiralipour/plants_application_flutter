@@ -40,23 +40,6 @@ Typical Flutter layout (as in this repo):
 └── README.md
 ```
 
-> Tip: if your `lib/` uses feature-based folders (recommended), a clean structure looks like:
-```text
-lib/
-  core/
-    constants/
-    theme/
-    utils/
-    widgets/
-  features/
-    auth/
-    catalog/
-    product/
-    cart/
-    profile/
-  main.dart
-```
-
 ---
 
 ## 🚀 Getting Started
