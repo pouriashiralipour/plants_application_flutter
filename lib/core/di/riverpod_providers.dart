@@ -1,5 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
+import 'package:flutter_riverpod/legacy.dart';
 import 'package:full_plants_ecommerce_app/core/services/connectivity_service.dart';
 import 'package:full_plants_ecommerce_app/core/theme/theme_repository.dart';
 
