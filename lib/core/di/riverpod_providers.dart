@@ -21,6 +21,8 @@ import '../../features/cart/domain/usecases/get_cart.dart';
 import '../../features/cart/domain/usecases/remove_cart_item.dart';
 import '../../features/cart/domain/usecases/update_cart_item_quantity.dart';
 import '../../features/cart/presentation/controllers/cart_controller.dart';
+import '../../features/cart/presentation/notifiers/cart_notifier.dart';
+import '../../features/cart/presentation/notifiers/cart_state.dart';
 import '../../features/product/data/repositories/product_repository_impl.dart';
 import '../../features/product/data/repositories/review_repository_impl.dart';
 import '../../features/product/domain/repositories/product_repository.dart';
@@ -119,6 +121,8 @@ final removeCartItemProvider = Provider<RemoveCartItem>(
 final clearCartProvider = Provider<ClearCart>(
   (ref) => ClearCart(ref.watch(cartRepositoryProvider)),
 );
+
+final cartNotifierProvider = NotifierProvider<CartNotifier, CartState>(CartNotifier.new);
 
 final cartControllerProvider = ChangeNotifierProvider<CartController>((ref) {
   final controller = CartController(
