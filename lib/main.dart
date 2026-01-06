@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart' as riverpod;
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:persian_datetime_picker/persian_datetime_picker.dart';
 
@@ -63,7 +64,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await ThemeRepository.I.init();
 
-  runApp(MyApp());
+  runApp(const riverpod.ProviderScope(child: MyApp()));
 }
 
 class MyApp extends StatelessWidget {
