@@ -1,10 +1,10 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:full_plants_ecommerce_app/core/services/connectivity_service.dart';
+import 'package:full_plants_ecommerce_app/core/theme/theme_repository.dart';
 
 import 'package:full_plants_ecommerce_app/features/auth/data/repositories/auth_repository_impl.dart';
-import 'package:full_plants_ecommerce_app/features/auth/domain/repositories/auth_repository.dart'
-    as auth_domain_repo;
+import 'package:full_plants_ecommerce_app/features/auth/domain/repositories/auth_repository.dart';
 import 'package:full_plants_ecommerce_app/features/auth/domain/usecases/get_current_user.dart';
 import 'package:full_plants_ecommerce_app/features/auth/domain/usecases/load_saved_session.dart';
 import 'package:full_plants_ecommerce_app/features/auth/domain/usecases/login_with_otp.dart';
@@ -48,9 +48,9 @@ import 'package:full_plants_ecommerce_app/features/profile/domain/usecases/get_a
 
 final connectivityServiceProvider = Provider<ConnectivityService>((ref) => ConnectivityService());
 
-final authRepositoryProvider = Provider<auth_domain_repo.AuthRepository>(
-  (ref) => AuthRepositoryImpl(),
-);
+final authRepositoryProvider = Provider<AuthRepository>((ref) => AuthRepositoryImpl());
+
+final themeRepositoryProvider = ChangeNotifierProvider<ThemeRepository>((ref) => ThemeRepository.I);
 
 final loginWithPasswordProvider = Provider<LoginWithPassword>(
   (ref) => LoginWithPassword(ref.watch(authRepositoryProvider)),

@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:full_plants_ecommerce_app/core/utils/persian_number.dart';
-
+import 'package:flutter_riverpod/flutter_riverpod.dart' as rp;
 import 'package:provider/provider.dart';
 
+import '../../../../core/di/riverpod_providers.dart';
 import '../../../../core/services/app_message_controller.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/theme_repository.dart';
@@ -310,9 +311,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   title: 'تم تاریک',
                   onTap: () {},
                   leadingIcon: 'assets/images/icons/ShowCurve.svg',
-                  trailing: AppToggle(
-                    value: context.watch<ThemeRepository>().isDark,
-                    onChanged: (v) => context.read<ThemeRepository>().setDark(v),
+                  trailing: rp.Consumer(
+                    builder: (context, ref, _) {
+                      final isDark = ref.watch(themeRepositoryProvider.select((t) => t.isDark));
+                      return AppToggle(
+                        value: isDark,
+                        onChanged: (v) => ref.read(themeRepositoryProvider).setDark(v),
+                      );
+                    },
                   ),
                   isWidget: true,
                 ),

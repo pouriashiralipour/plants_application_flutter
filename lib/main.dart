@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart' as riverpod;
+import 'package:provider/provider.dart' hide Consumer;
+import 'package:flutter_riverpod/flutter_riverpod.dart' as rp;
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:persian_datetime_picker/persian_datetime_picker.dart';
 
+import 'core/di/riverpod_providers.dart';
 import 'features/cart/domain/usecases/get_cart.dart';
 import 'features/cart/domain/usecases/clear_cart.dart';
 import 'features/product/data/repositories/review_repository_impl.dart';
@@ -64,7 +66,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await ThemeRepository.I.init();
 
-  runApp(const riverpod.ProviderScope(child: MyApp()));
+  runApp(const rp.ProviderScope(child: MyApp()));
 }
 
 class MyApp extends StatelessWidget {
@@ -74,8 +76,6 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider<ThemeRepository>.value(value: ThemeRepository.I),
-
         Provider<auth_domain_repo.AuthRepository>(create: (_) => AuthRepositoryImpl()),
 
         Provider<LoginWithPassword>(
@@ -215,12 +215,12 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider<PasswordResetRepository>(create: (_) => PasswordResetRepository()),
         ChangeNotifierProvider<AppMessageController>(create: (_) => AppMessageController()),
 
-        // 9) سرویس شبکه
         Provider(create: (_) => ConnectivityService()),
       ],
 
-      child: Consumer<ThemeRepository>(
-        builder: (_, theme, __) {
+      child: rp.Consumer(
+        builder: (context, ref, _) {
+          final themeMode = ref.watch(themeRepositoryProvider.select((t) => t.themeMode));
           return LayoutBuilder(
             builder: (context, constraints) {
               SizeConfig.init(context);
@@ -238,7 +238,7 @@ class MyApp extends StatelessWidget {
                 ],
                 theme: AppTheme.lightTheme,
                 darkTheme: AppTheme.darkTheme,
-                themeMode: theme.themeMode,
+                themeMode: themeMode,
                 builder: (context, child) {
                   return Stack(children: [if (child != null) child, const AppToastLayer()]);
                 },
