@@ -1,50 +1,46 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
-import 'package:full_plants_ecommerce_app/core/services/connectivity_service.dart';
-import 'package:full_plants_ecommerce_app/core/theme/theme_repository.dart';
 
-import 'package:full_plants_ecommerce_app/features/auth/data/repositories/auth_repository_impl.dart';
-import 'package:full_plants_ecommerce_app/features/auth/domain/repositories/auth_repository.dart';
-import 'package:full_plants_ecommerce_app/features/auth/domain/usecases/get_current_user.dart';
-import 'package:full_plants_ecommerce_app/features/auth/domain/usecases/load_saved_session.dart';
-import 'package:full_plants_ecommerce_app/features/auth/domain/usecases/login_with_otp.dart';
-import 'package:full_plants_ecommerce_app/features/auth/domain/usecases/login_with_password.dart';
-import 'package:full_plants_ecommerce_app/features/auth/domain/usecases/logout.dart';
-import 'package:full_plants_ecommerce_app/features/auth/domain/usecases/refresh_tokens_if_needed.dart';
-import 'package:full_plants_ecommerce_app/features/auth/domain/usecases/request_otp.dart';
-import 'package:full_plants_ecommerce_app/features/auth/domain/usecases/request_password_reset_otp.dart';
-import 'package:full_plants_ecommerce_app/features/auth/domain/usecases/set_new_password.dart';
-import 'package:full_plants_ecommerce_app/features/auth/domain/usecases/verify_password_reset_otp.dart';
-
-import 'package:full_plants_ecommerce_app/features/product/data/repositories/product_repository_impl.dart';
-import 'package:full_plants_ecommerce_app/features/product/domain/repositories/product_repository.dart';
-import 'package:full_plants_ecommerce_app/features/product/domain/usecases/get_categories.dart';
-import 'package:full_plants_ecommerce_app/features/product/domain/usecases/get_product_by_id.dart';
-import 'package:full_plants_ecommerce_app/features/product/domain/usecases/get_products.dart';
-
-import 'package:full_plants_ecommerce_app/features/cart/data/repositories/cart_repository_impl.dart';
-import 'package:full_plants_ecommerce_app/features/cart/domain/repositories/cart_repository.dart';
-import 'package:full_plants_ecommerce_app/features/cart/domain/usecases/add_cart_item.dart';
-import 'package:full_plants_ecommerce_app/features/cart/domain/usecases/clear_cart.dart';
-import 'package:full_plants_ecommerce_app/features/cart/domain/usecases/get_cart.dart';
-import 'package:full_plants_ecommerce_app/features/cart/domain/usecases/remove_cart_item.dart';
-import 'package:full_plants_ecommerce_app/features/cart/domain/usecases/update_cart_item_quantity.dart';
-
-import 'package:full_plants_ecommerce_app/features/product/data/repositories/review_repository_impl.dart';
-import 'package:full_plants_ecommerce_app/features/product/domain/repositories/review_repository.dart';
-import 'package:full_plants_ecommerce_app/features/product/domain/usecases/add_product_review.dart';
-import 'package:full_plants_ecommerce_app/features/product/domain/usecases/get_product_reviews.dart';
-import 'package:full_plants_ecommerce_app/features/product/domain/usecases/toggle_review_like.dart';
-
-import 'package:full_plants_ecommerce_app/features/wishlist/data/repositories/wishlist_repository_impl.dart';
-import 'package:full_plants_ecommerce_app/features/wishlist/domain/repositories/wishlist_repository.dart';
-import 'package:full_plants_ecommerce_app/features/wishlist/domain/usecases/get_wishlist.dart';
-import 'package:full_plants_ecommerce_app/features/wishlist/domain/usecases/toggle_wishlist.dart';
-
-import 'package:full_plants_ecommerce_app/features/profile/data/repositories/address_repository_impl.dart';
-import 'package:full_plants_ecommerce_app/features/profile/domain/repositories/address_repository.dart';
-import 'package:full_plants_ecommerce_app/features/profile/domain/usecases/add_address.dart';
-import 'package:full_plants_ecommerce_app/features/profile/domain/usecases/get_addresses.dart';
+import '../../features/auth/data/repositories/auth_repository_impl.dart';
+import '../../features/auth/domain/repositories/auth_repository.dart';
+import '../../features/auth/domain/usecases/get_current_user.dart';
+import '../../features/auth/domain/usecases/load_saved_session.dart';
+import '../../features/auth/domain/usecases/login_with_otp.dart';
+import '../../features/auth/domain/usecases/login_with_password.dart';
+import '../../features/auth/domain/usecases/logout.dart';
+import '../../features/auth/domain/usecases/refresh_tokens_if_needed.dart';
+import '../../features/auth/domain/usecases/request_otp.dart';
+import '../../features/auth/domain/usecases/request_password_reset_otp.dart';
+import '../../features/auth/domain/usecases/set_new_password.dart';
+import '../../features/auth/domain/usecases/verify_password_reset_otp.dart';
+import '../../features/cart/data/repositories/cart_repository_impl.dart';
+import '../../features/cart/domain/repositories/cart_repository.dart';
+import '../../features/cart/domain/usecases/add_cart_item.dart';
+import '../../features/cart/domain/usecases/clear_cart.dart';
+import '../../features/cart/domain/usecases/get_cart.dart';
+import '../../features/cart/domain/usecases/remove_cart_item.dart';
+import '../../features/cart/domain/usecases/update_cart_item_quantity.dart';
+import '../../features/cart/presentation/controllers/cart_controller.dart';
+import '../../features/product/data/repositories/product_repository_impl.dart';
+import '../../features/product/data/repositories/review_repository_impl.dart';
+import '../../features/product/domain/repositories/product_repository.dart';
+import '../../features/product/domain/repositories/review_repository.dart';
+import '../../features/product/domain/usecases/add_product_review.dart';
+import '../../features/product/domain/usecases/get_categories.dart';
+import '../../features/product/domain/usecases/get_product_by_id.dart';
+import '../../features/product/domain/usecases/get_product_reviews.dart';
+import '../../features/product/domain/usecases/get_products.dart';
+import '../../features/product/domain/usecases/toggle_review_like.dart';
+import '../../features/profile/data/repositories/address_repository_impl.dart';
+import '../../features/profile/domain/repositories/address_repository.dart';
+import '../../features/profile/domain/usecases/add_address.dart';
+import '../../features/profile/domain/usecases/get_addresses.dart';
+import '../../features/wishlist/data/repositories/wishlist_repository_impl.dart';
+import '../../features/wishlist/domain/repositories/wishlist_repository.dart';
+import '../../features/wishlist/domain/usecases/get_wishlist.dart';
+import '../../features/wishlist/domain/usecases/toggle_wishlist.dart';
+import '../services/connectivity_service.dart';
+import '../theme/theme_repository.dart';
 
 final connectivityServiceProvider = Provider<ConnectivityService>((ref) => ConnectivityService());
 
@@ -123,6 +119,17 @@ final removeCartItemProvider = Provider<RemoveCartItem>(
 final clearCartProvider = Provider<ClearCart>(
   (ref) => ClearCart(ref.watch(cartRepositoryProvider)),
 );
+
+final cartControllerProvider = ChangeNotifierProvider<CartController>((ref) {
+  final controller = CartController(
+    getCart: ref.watch(getCartProvider),
+    addCartItem: ref.watch(addCartItemProvider),
+    updateCartItemQuantity: ref.watch(updateCartItemQuantityProvider),
+    removeCartItem: ref.watch(removeCartItemProvider),
+    clearCart: ref.watch(clearCartProvider),
+  )..load();
+  return controller;
+});
 
 final reviewRepositoryProvider = Provider<ReviewRepository>((ref) => ReviewRepositoryImpl());
 
