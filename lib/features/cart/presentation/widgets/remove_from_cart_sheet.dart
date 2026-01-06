@@ -107,7 +107,7 @@ class _RemoveFromCartSheetState extends rp.ConsumerState<RemoveFromCartSheet> {
                             final startedAt = DateTime.now();
 
                             await ref
-                                .read(cartControllerProvider)
+                                .read(cartNotifierProvider.notifier)
                                 .removeItem(itemId: widget.item.id);
 
                             final elapsed = DateTime.now().difference(startedAt);

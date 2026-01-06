@@ -40,7 +40,7 @@ class CartNotifier extends Notifier<CartState> {
     );
   }
 
-  Future<void> clear() async {
+  Future<void> clearCart() async {
     state = state.copyWith(isLoading: true, error: null);
     try {
       await _clearCart();

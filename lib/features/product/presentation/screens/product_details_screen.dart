@@ -3,13 +3,17 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart' as rp;
 import 'package:provider/provider.dart';
 
+import 'review_screen.dart';
+import '../../domain/usecases/get_product_by_id.dart';
+import '../../domain/entities/product.dart';
+
+import '../../../auth/presentation/controllers/auth_controller.dart';
+import '../../../auth/presentation/screens/login_screen.dart';
+
 import '../../../../core/di/riverpod_providers.dart';
 import '../../../../core/utils/persian_number.dart';
 import '../../../../core/utils/price_formatter.dart';
-import 'review_screen.dart';
 
-import '../../../auth/presentation/controllers/auth_controller.dart';
-import '../../domain/usecases/get_product_by_id.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/size_config.dart';
 import '../../../../core/widgets/app_alert_dialog.dart';
@@ -19,12 +23,11 @@ import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/shimmer/product/product_card_shimmer.dart';
 import '../../../../core/widgets/shimmer/product/product_screen_shimmer.dart';
 import '../../../../core/services/connectivity_service.dart';
+import '../../../../core/widgets/login_required_sheet.dart';
+
+import '../controllers/product_details_controller.dart';
 import '../../../wishlist/presentation/controllers/wishlist_controller.dart';
 import '../../../offline/presentation/screens/offline_screen.dart';
-import '../controllers/product_details_controller.dart';
-import '../../domain/entities/product.dart';
-import '../../../../core/widgets/login_required_sheet.dart';
-import '../../../auth/presentation/screens/login_screen.dart';
 
 class ProductScreen extends rp.ConsumerStatefulWidget {
   const ProductScreen({super.key, required this.productId});
@@ -185,7 +188,7 @@ class _ProductScreenState extends rp.ConsumerState<ProductScreen> {
   }
 
   Widget _buildPriceAndButtonSection(Product product, bool isLightMode) {
-    ref.watch(cartControllerProvider);
+    ref.watch(cartNotifierProvider);
     final totalPrice = _quantity * _displayPrice(product);
     final isLoading = _isAddingToCart;
     return Column(
@@ -218,12 +221,12 @@ class _ProductScreenState extends rp.ConsumerState<ProductScreen> {
                       final startedAt = DateTime.now();
 
                       await ref
-                          .read(cartControllerProvider)
+                          .read(cartNotifierProvider.notifier)
                           .addItem(productId: product.id, quantity: _quantity);
 
                       if (!mounted) return;
 
-                      final cartRepo = ref.read(cartControllerProvider);
+                      final cartState = ref.read(cartNotifierProvider);
 
                       final elapsed = DateTime.now().difference(startedAt);
                       const minDuration = Duration(seconds: 1);
@@ -233,8 +236,8 @@ class _ProductScreenState extends rp.ConsumerState<ProductScreen> {
 
                       if (!mounted) return;
 
-                      if (cartRepo.error != null) {
-                        _showCartMessage(cartRepo.error!, isError: true);
+                      if (cartState.error != null) {
+                        _showCartMessage(cartState.error!, isError: true);
                       } else {
                         _showCartMessage('محصول به سبد خرید اضافه شد.');
                       }

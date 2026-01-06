@@ -32,10 +32,10 @@ class CartScreen extends rp.ConsumerWidget {
   @override
   Widget build(BuildContext context, rp.WidgetRef ref) {
     final bool isLightMode = Theme.of(context).brightness == Brightness.light;
-    final cart = ref.watch(cartControllerProvider);
-    final items = cart.items;
+    final cartState = ref.watch(cartNotifierProvider);
+    final items = cartState.items;
 
-    if (cart.isLoading && items.isEmpty) {
+    if (cartState.isLoading && items.isEmpty) {
       return const Center(child: AppProgressBarIndicator());
     }
 
@@ -105,12 +105,12 @@ class CartScreen extends rp.ConsumerWidget {
                     isLightMode: isLightMode,
                     onIncrease: () {
                       ref
-                          .read(cartControllerProvider)
+                          .read(cartNotifierProvider.notifier)
                           .increaseItemQuantity(currentQuantity: item.quantity, itemId: item.id);
                     },
                     onDecrease: () {
                       ref
-                          .read(cartControllerProvider)
+                          .read(cartNotifierProvider.notifier)
                           .decreaseItemQuantity(itemId: item.id, currentQuantity: item.quantity);
                     },
                     onRemove: () => _showRemoveFromCartSheet(context, item, isLightMode),
@@ -118,7 +118,7 @@ class CartScreen extends rp.ConsumerWidget {
                 },
               ),
             ),
-            CartSummaryBar(totalPrice: cart.displayTotalPrice, isLightMode: isLightMode),
+            CartSummaryBar(totalPrice: cartState.displayTotalPrice, isLightMode: isLightMode),
           ],
         ),
       ),
