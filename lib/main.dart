@@ -13,7 +13,6 @@ import 'features/product/domain/repositories/review_repository.dart';
 import 'features/product/domain/usecases/get_product_reviews.dart';
 import 'features/product/domain/usecases/toggle_review_like.dart';
 import 'features/product/domain/usecases/add_product_review.dart';
-import 'features/cart/presentation/controllers/cart_controller.dart';
 
 import 'features/cart/domain/usecases/add_cart_item.dart';
 import 'features/cart/domain/usecases/update_cart_item_quantity.dart';
@@ -195,15 +194,6 @@ class MyApp extends StatelessWidget {
             getCategories: context.read<GetCategories>(),
             getProducts: context.read<GetProducts>(),
           ),
-        ),
-        ChangeNotifierProvider<CartController>(
-          create: (context) => CartController(
-            getCart: context.read<GetCart>(),
-            addCartItem: context.read<AddCartItem>(),
-            updateCartItemQuantity: context.read<UpdateCartItemQuantity>(),
-            removeCartItem: context.read<RemoveCartItem>(),
-            clearCart: context.read<ClearCart>(),
-          )..load(),
         ),
         ChangeNotifierProvider<WishlistController>(
           create: (context) => WishlistController(

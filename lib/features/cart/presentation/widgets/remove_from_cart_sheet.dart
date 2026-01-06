@@ -1,26 +1,28 @@
 import 'package:flutter/material.dart';
-import 'package:full_plants_ecommerce_app/core/widgets/app_progress_indicator.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart' as rp;
 
+import 'cart_item_card.dart';
+
+import '../../domain/entities/cart_item.dart';
+
+import '../../../../core/di/riverpod_providers.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/size_config.dart';
 import '../../../../core/widgets/app_button.dart';
+import '../../../../core/widgets/app_progress_indicator.dart';
 import '../../../../core/widgets/gap.dart';
-import '../controllers/cart_controller.dart';
-import '../../domain/entities/cart_item.dart';
-import 'cart_item_card.dart';
 
-class RemoveFromCartSheet extends StatefulWidget {
+class RemoveFromCartSheet extends rp.ConsumerStatefulWidget {
   const RemoveFromCartSheet({required this.item, required this.isLightMode});
 
   final CartItem item;
   final bool isLightMode;
 
   @override
-  State<RemoveFromCartSheet> createState() => _RemoveFromCartSheetState();
+  rp.ConsumerState<RemoveFromCartSheet> createState() => _RemoveFromCartSheetState();
 }
 
-class _RemoveFromCartSheetState extends State<RemoveFromCartSheet> {
+class _RemoveFromCartSheetState extends rp.ConsumerState<RemoveFromCartSheet> {
   bool _isRemoving = false;
   @override
   Widget build(BuildContext context) {
@@ -104,7 +106,9 @@ class _RemoveFromCartSheetState extends State<RemoveFromCartSheet> {
 
                             final startedAt = DateTime.now();
 
-                            await context.read<CartController>().removeItem(itemId: widget.item.id);
+                            await ref
+                                .read(cartControllerProvider)
+                                .removeItem(itemId: widget.item.id);
 
                             final elapsed = DateTime.now().difference(startedAt);
                             const minDuration = Duration(seconds: 1);

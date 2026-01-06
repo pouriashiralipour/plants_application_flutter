@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:full_plants_ecommerce_app/core/utils/persian_number.dart';
-import 'package:full_plants_ecommerce_app/core/utils/price_formatter.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart' as rp;
 import 'package:provider/provider.dart';
 
+import '../../../../core/di/riverpod_providers.dart';
+import '../../../../core/utils/persian_number.dart';
+import '../../../../core/utils/price_formatter.dart';
+import 'review_screen.dart';
+
 import '../../../auth/presentation/controllers/auth_controller.dart';
-import '../../../cart/presentation/controllers/cart_controller.dart';
 import '../../domain/usecases/get_product_by_id.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/size_config.dart';
@@ -23,18 +26,16 @@ import '../../domain/entities/product.dart';
 import '../../../../core/widgets/login_required_sheet.dart';
 import '../../../auth/presentation/screens/login_screen.dart';
 
-import 'review_screen.dart';
-
-class ProductScreen extends StatefulWidget {
+class ProductScreen extends rp.ConsumerStatefulWidget {
   const ProductScreen({super.key, required this.productId});
 
   final String productId;
 
   @override
-  State<ProductScreen> createState() => _ProductScreenState();
+  rp.ConsumerState<ProductScreen> createState() => _ProductScreenState();
 }
 
-class _ProductScreenState extends State<ProductScreen> {
+class _ProductScreenState extends rp.ConsumerState<ProductScreen> {
   PageController pageController = PageController(initialPage: 0);
 
   late final ProductDetailsController _detailsController;
@@ -184,100 +185,95 @@ class _ProductScreenState extends State<ProductScreen> {
   }
 
   Widget _buildPriceAndButtonSection(Product product, bool isLightMode) {
-    return Consumer<CartController>(
-      builder: (context, cart, _) {
-        final totalPrice = _quantity * _displayPrice(product);
-        final isLoading = _isAddingToCart;
-
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+    ref.watch(cartControllerProvider);
+    final totalPrice = _quantity * _displayPrice(product);
+    final isLoading = _isAddingToCart;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (_cartMessage != null) ...[
+          Padding(
+            padding: EdgeInsets.only(bottom: SizeConfig.getProportionateScreenHeight(12)),
+            child: AppAlertDialog(text: _cartMessage!, isError: _cartIsError),
+          ),
+        ],
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            if (_cartMessage != null) ...[
-              Padding(
-                padding: EdgeInsets.only(bottom: SizeConfig.getProportionateScreenHeight(12)),
-                child: AppAlertDialog(text: _cartMessage!, isError: _cartIsError),
-              ),
-            ],
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              crossAxisAlignment: CrossAxisAlignment.center,
+            isLoading
+                ? SizedBox(
+                    width: SizeConfig.screenWidth * 0.6,
+                    height: SizeConfig.getProportionateScreenHeight(48),
+                    child: const Center(child: AppProgressBarIndicator()),
+                  )
+                : AppButton(
+                    onTap: () async {
+                      setState(() {
+                        _cartMessage = null;
+                        _cartIsError = false;
+                        _isAddingToCart = true;
+                      });
+
+                      final startedAt = DateTime.now();
+
+                      await ref
+                          .read(cartControllerProvider)
+                          .addItem(productId: product.id, quantity: _quantity);
+
+                      if (!mounted) return;
+
+                      final cartRepo = ref.read(cartControllerProvider);
+
+                      final elapsed = DateTime.now().difference(startedAt);
+                      const minDuration = Duration(seconds: 1);
+                      if (elapsed < minDuration) {
+                        await Future.delayed(minDuration - elapsed);
+                      }
+
+                      if (!mounted) return;
+
+                      if (cartRepo.error != null) {
+                        _showCartMessage(cartRepo.error!, isError: true);
+                      } else {
+                        _showCartMessage('محصول به سبد خرید اضافه شد.');
+                      }
+
+                      setState(() {
+                        _isAddingToCart = false;
+                      });
+                    },
+                    text: 'افزودن به سبد خرید',
+                    color: AppColors.primary,
+                    width: SizeConfig.screenWidth * 0.6,
+                    is_icon: true,
+                    fontSize: SizeConfig.getProportionateFontSize(13),
+                  ),
+
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                isLoading
-                    ? SizedBox(
-                        width: SizeConfig.screenWidth * 0.6,
-                        height: SizeConfig.getProportionateScreenHeight(48),
-                        child: const Center(child: AppProgressBarIndicator()),
-                      )
-                    : AppButton(
-                        onTap: () async {
-                          setState(() {
-                            _cartMessage = null;
-                            _cartIsError = false;
-                            _isAddingToCart = true;
-                          });
-
-                          final startedAt = DateTime.now();
-
-                          await context.read<CartController>().addItem(
-                            productId: product.id,
-                            quantity: _quantity,
-                          );
-
-                          if (!mounted) return;
-
-                          final cartRepo = context.read<CartController>();
-
-                          final elapsed = DateTime.now().difference(startedAt);
-                          const minDuration = Duration(seconds: 1);
-                          if (elapsed < minDuration) {
-                            await Future.delayed(minDuration - elapsed);
-                          }
-
-                          if (!mounted) return;
-
-                          if (cartRepo.error != null) {
-                            _showCartMessage(cartRepo.error!, isError: true);
-                          } else {
-                            _showCartMessage('محصول به سبد خرید اضافه شد.');
-                          }
-
-                          setState(() {
-                            _isAddingToCart = false;
-                          });
-                        },
-                        text: 'افزودن به سبد خرید',
-                        color: AppColors.primary,
-                        width: SizeConfig.screenWidth * 0.6,
-                        is_icon: true,
-                        fontSize: SizeConfig.getProportionateFontSize(13),
-                      ),
-
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'قیمت',
-                      style: TextStyle(
-                        color: isLightMode ? AppColors.grey600 : AppColors.grey400,
-                        fontSize: SizeConfig.getProportionateFontSize(12),
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    Text(
-                      '${totalPrice.toString().priceFormatter} تومان'.farsiNumber,
-                      style: TextStyle(
-                        color: isLightMode ? AppColors.grey900 : AppColors.white,
-                        fontSize: SizeConfig.getProportionateFontSize(14),
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                  ],
+                Text(
+                  'قیمت',
+                  style: TextStyle(
+                    color: isLightMode ? AppColors.grey600 : AppColors.grey400,
+                    fontSize: SizeConfig.getProportionateFontSize(12),
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                Text(
+                  '${totalPrice.toString().priceFormatter} تومان'.farsiNumber,
+                  style: TextStyle(
+                    color: isLightMode ? AppColors.grey900 : AppColors.white,
+                    fontSize: SizeConfig.getProportionateFontSize(14),
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
               ],
             ),
           ],
-        );
-      },
+        ),
+      ],
     );
   }
 

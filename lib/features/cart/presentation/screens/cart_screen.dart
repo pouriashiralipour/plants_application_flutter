@@ -1,26 +1,38 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:full_plants_ecommerce_app/features/cart/presentation/widgets/cart_item_card.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart' as rp;
 
+import '../widgets/cart_empty.dart';
+import '../widgets/cart_item_card.dart';
+import '../widgets/cart_summery_bar.dart';
+import '../widgets/remove_from_cart_sheet.dart';
+
+import '../../domain/entities/cart_item.dart';
+
+import '../../../../core/di/riverpod_providers.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/size_config.dart';
 import '../../../../core/widgets/app_progress_indicator.dart';
 import '../../../../core/widgets/gap.dart';
-import '../widgets/cart_empty.dart';
-import '../widgets/cart_summery_bar.dart';
-import '../controllers/cart_controller.dart';
-import '../../domain/entities/cart_item.dart';
 
-import '../widgets/remove_from_cart_sheet.dart';
-
-class CartScreen extends StatelessWidget {
+class CartScreen extends rp.ConsumerWidget {
   const CartScreen({super.key});
 
+  void _showRemoveFromCartSheet(BuildContext context, CartItem item, bool isLightMode) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: false,
+      builder: (context) {
+        return RemoveFromCartSheet(item: item, isLightMode: isLightMode);
+      },
+    );
+  }
+
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, rp.WidgetRef ref) {
     final bool isLightMode = Theme.of(context).brightness == Brightness.light;
-    final cart = context.watch<CartController>();
+    final cart = ref.watch(cartControllerProvider);
     final items = cart.items;
 
     if (cart.isLoading && items.isEmpty) {
@@ -65,7 +77,10 @@ class CartScreen extends StatelessWidget {
                         'assets/images/icons/Search.svg',
                         width: SizeConfig.getProportionateScreenWidth(24),
                         height: SizeConfig.getProportionateScreenWidth(24),
-                        color: isLightMode ? AppColors.grey900 : AppColors.white,
+                        colorFilter: .mode(
+                          isLightMode ? AppColors.grey900 : AppColors.white,
+                          .srcIn,
+                        ),
                       ),
                     ],
                   ),
@@ -89,16 +104,14 @@ class CartScreen extends StatelessWidget {
                     item: item,
                     isLightMode: isLightMode,
                     onIncrease: () {
-                      context.read<CartController>().increaseItemQuantity(
-                        currentQuantity: item.quantity,
-                        itemId: item.id,
-                      );
+                      ref
+                          .read(cartControllerProvider)
+                          .increaseItemQuantity(currentQuantity: item.quantity, itemId: item.id);
                     },
                     onDecrease: () {
-                      context.read<CartController>().decreaseItemQuantity(
-                        itemId: item.id,
-                        currentQuantity: item.quantity,
-                      );
+                      ref
+                          .read(cartControllerProvider)
+                          .decreaseItemQuantity(itemId: item.id, currentQuantity: item.quantity);
                     },
                     onRemove: () => _showRemoveFromCartSheet(context, item, isLightMode),
                   );
@@ -109,17 +122,6 @@ class CartScreen extends StatelessWidget {
           ],
         ),
       ),
-    );
-  }
-
-  void _showRemoveFromCartSheet(BuildContext context, CartItem item, bool isLightMode) {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.transparent,
-      isScrollControlled: false,
-      builder: (context) {
-        return RemoveFromCartSheet(item: item, isLightMode: isLightMode);
-      },
     );
   }
 }
