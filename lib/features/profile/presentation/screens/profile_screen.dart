@@ -7,7 +7,6 @@ import 'package:provider/provider.dart';
 import '../../../../core/di/riverpod_providers.dart';
 import '../../../../core/services/app_message_controller.dart';
 import '../../../../core/theme/app_colors.dart';
-import '../../../../core/theme/theme_repository.dart';
 import '../../../../core/utils/size_config.dart';
 import '../../../../core/widgets/gap.dart';
 import '../../../../core/widgets/app_progress_indicator.dart';

@@ -25,7 +25,7 @@ class CartNotifier extends Notifier<CartState> {
     _removeCartItem = ref.watch(removeCartItemProvider);
     _updateCartItemQuantity = ref.watch(updateCartItemQuantityProvider);
 
-    unawaited(load());
+    unawaited(Future.microtask(load));
     return const CartState(cart: null, isLoading: true, error: null);
   }
 
