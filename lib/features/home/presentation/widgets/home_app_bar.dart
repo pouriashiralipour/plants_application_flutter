@@ -5,27 +5,74 @@ import 'package:provider/provider.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/size_config.dart';
 import '../../../../core/config/app_constants.dart';
+import '../../../../core/widgets/login_required_sheet.dart';
 import '../../../auth/presentation/controllers/auth_controller.dart';
 
 import '../../../../core/widgets/app_logo.dart';
 import '../../../wishlist/presentation/screens/wishlist_screen.dart';
 
 class CustomAppBar extends StatefulWidget {
-  const CustomAppBar({super.key, required this.isLightMode});
+  const CustomAppBar({super.key, required this.isLightMode, required this.loginBuilder});
 
   final bool isLightMode;
+  final WidgetBuilder loginBuilder;
 
   @override
   State<CustomAppBar> createState() => _CustomAppBarState();
 }
 
 class _CustomAppBarState extends State<CustomAppBar> {
+  Future<void> _openWishlist() async {
+    final auth = context.read<AuthController>();
+    final me = auth.user;
+
+    if (auth.isAuthed && me != null) {
+      if (!mounted) return;
+      await Navigator.of(context).push(MaterialPageRoute(builder: (_) => const WishlistScreen()));
+      return;
+    }
+
+    final goLogin = await showLoginRequiredSheet(
+      context: context,
+      title: 'علاقه‌مندی‌ها',
+      message: 'برای مشاهده ی لیست علاقه‌مندی‌ها ابتدا وارد حساب کاربری شوید.',
+      icon: "assets/images/icons/HeartBold.svg",
+      loginText: 'ورود / ثبت‌نام',
+      cancelText: 'بعداً',
+    );
+
+    if (goLogin != true || !mounted) return;
+
+    await Navigator.of(
+      context,
+    ).push(MaterialPageRoute(fullscreenDialog: true, builder: widget.loginBuilder));
+
+    if (!mounted) return;
+
+    final authAfter = context.read<AuthController>();
+    final meAfter = authAfter.user;
+
+    if (authAfter.isAuthed && meAfter != null) {
+      await Navigator.of(context).push(MaterialPageRoute(builder: (_) => const WishlistScreen()));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final auth = context.watch<AuthController>();
     final me = auth.user;
+
     final avatarUrl = buildAvatarUrl(me?.profilePic);
-    ;
+
+    final heartButton = IconButton(
+      onPressed: _openWishlist,
+      icon: SvgPicture.asset(
+        'assets/images/icons/Heart.svg',
+        height: SizeConfig.getProportionateScreenWidth(24),
+        width: SizeConfig.getProportionateScreenWidth(24),
+        color: widget.isLightMode ? AppColors.grey900 : AppColors.white,
+      ),
+    );
 
     if (!auth.isAuthed || me == null) {
       return Container(
@@ -35,7 +82,7 @@ class _CustomAppBarState extends State<CustomAppBar> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            AppLogo(iconSize: 40, textSize: 32),
+            const AppLogo(iconSize: 40, textSize: 32),
             Row(
               children: [
                 SvgPicture.asset(
@@ -45,17 +92,7 @@ class _CustomAppBarState extends State<CustomAppBar> {
                   color: widget.isLightMode ? AppColors.grey900 : AppColors.white,
                 ),
                 SizedBox(width: SizeConfig.getProportionateScreenWidth(16)),
-                IconButton(
-                  onPressed: () {
-                    Navigator.of(context).push(MaterialPageRoute(builder: (_) => WishlistScreen()));
-                  },
-                  icon: SvgPicture.asset(
-                    'assets/images/icons/Heart.svg',
-                    height: SizeConfig.getProportionateScreenWidth(24),
-                    width: SizeConfig.getProportionateScreenWidth(24),
-                    color: widget.isLightMode ? AppColors.grey900 : AppColors.white,
-                  ),
-                ),
+                heartButton,
               ],
             ),
           ],
@@ -103,16 +140,14 @@ class _CustomAppBarState extends State<CustomAppBar> {
                       fontWeight: FontWeight.w500,
                     ),
                   ),
-                  auth.isAuthed
-                      ? Text(
-                          '${me.firstName} جان',
-                          style: TextStyle(
-                            color: widget.isLightMode ? AppColors.grey800 : AppColors.white,
-                            fontSize: SizeConfig.getProportionateFontSize(18),
-                            fontWeight: FontWeight.w700,
-                          ),
-                        )
-                      : Text(''),
+                  Text(
+                    '${me.firstName} جان',
+                    style: TextStyle(
+                      color: widget.isLightMode ? AppColors.grey800 : AppColors.white,
+                      fontSize: SizeConfig.getProportionateFontSize(18),
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
                 ],
               ),
             ],
@@ -126,17 +161,7 @@ class _CustomAppBarState extends State<CustomAppBar> {
                 color: widget.isLightMode ? AppColors.grey900 : AppColors.white,
               ),
               SizedBox(width: SizeConfig.getProportionateScreenWidth(16)),
-              IconButton(
-                onPressed: () {
-                  Navigator.of(context).push(MaterialPageRoute(builder: (_) => WishlistScreen()));
-                },
-                icon: SvgPicture.asset(
-                  'assets/images/icons/Heart.svg',
-                  height: SizeConfig.getProportionateScreenWidth(24),
-                  width: SizeConfig.getProportionateScreenWidth(24),
-                  color: widget.isLightMode ? AppColors.grey900 : AppColors.white,
-                ),
-              ),
+              heartButton,
             ],
           ),
         ],

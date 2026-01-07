@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../../../core/utils/size_config.dart';
 import '../../../../core/widgets/shimmer/home_screen_shimmer.dart';
 import '../../../../core/widgets/shimmer/product/product_grid_shimmer.dart';
+import '../../../auth/presentation/screens/login_screen.dart';
 import '../../../product/presentation/controllers/product_controller.dart';
 import '../../../product/presentation/screens/search_screen.dart';
 import '../../../product/presentation/widgets/product_grid_entity.dart';
@@ -148,7 +149,7 @@ class _HomeScreenState extends State<HomeScreen> {
             child: Column(
               children: [
                 SizedBox(height: SizeConfig.getProportionateScreenHeight(20)),
-                CustomAppBar(isLightMode: isLightMode),
+                CustomAppBar(isLightMode: isLightMode, loginBuilder: (_) => const LoginScreen()),
                 SizedBox(height: SizeConfig.getProportionateScreenHeight(20)),
                 AppSearchBar(
                   filterOnTap: () {},
