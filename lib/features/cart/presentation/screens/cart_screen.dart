@@ -33,6 +33,10 @@ class CartScreen extends rp.ConsumerWidget {
   Widget build(BuildContext context, rp.WidgetRef ref) {
     final bool isLightMode = Theme.of(context).brightness == Brightness.light;
     final cartState = ref.watch(cartNotifierProvider);
+    ref.listen(cartNotifierProvider.select((s) => s.error), (prev, next) {
+      if (next == null || next.isEmpty) return;
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(next)));
+    });
     final items = cartState.items;
 
     if (cartState.isLoading && items.isEmpty) {
