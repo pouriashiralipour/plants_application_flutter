@@ -13,15 +13,6 @@ import '../../features/auth/domain/usecases/request_otp.dart';
 import '../../features/auth/domain/usecases/request_password_reset_otp.dart';
 import '../../features/auth/domain/usecases/set_new_password.dart';
 import '../../features/auth/domain/usecases/verify_password_reset_otp.dart';
-import '../../features/cart/data/repositories/cart_repository_impl.dart';
-import '../../features/cart/domain/repositories/cart_repository.dart';
-import '../../features/cart/domain/usecases/add_cart_item.dart';
-import '../../features/cart/domain/usecases/clear_cart.dart';
-import '../../features/cart/domain/usecases/get_cart.dart';
-import '../../features/cart/domain/usecases/remove_cart_item.dart';
-import '../../features/cart/domain/usecases/update_cart_item_quantity.dart';
-import '../../features/cart/presentation/notifiers/cart_notifier.dart';
-import '../../features/cart/presentation/notifiers/cart_state.dart';
 import '../../features/product/data/repositories/product_repository_impl.dart';
 import '../../features/product/data/repositories/review_repository_impl.dart';
 import '../../features/product/domain/repositories/product_repository.dart';
@@ -100,28 +91,6 @@ final getProductsProvider = Provider<GetProducts>(
 final getProductByIdProvider = Provider<GetProductById>(
   (ref) => GetProductById(ref.watch(productRepositoryProvider)),
 );
-
-final cartRepositoryProvider = Provider<CartRepository>((ref) => CartRepositoryImpl());
-
-final getCartProvider = Provider<GetCart>((ref) => GetCart(ref.watch(cartRepositoryProvider)));
-
-final addCartItemProvider = Provider<AddCartItem>(
-  (ref) => AddCartItem(ref.watch(cartRepositoryProvider)),
-);
-
-final updateCartItemQuantityProvider = Provider<UpdateCartItemQuantity>(
-  (ref) => UpdateCartItemQuantity(ref.watch(cartRepositoryProvider)),
-);
-
-final removeCartItemProvider = Provider<RemoveCartItem>(
-  (ref) => RemoveCartItem(ref.watch(cartRepositoryProvider)),
-);
-
-final clearCartProvider = Provider<ClearCart>(
-  (ref) => ClearCart(ref.watch(cartRepositoryProvider)),
-);
-
-final cartNotifierProvider = NotifierProvider<CartNotifier, CartState>(CartNotifier.new);
 
 final reviewRepositoryProvider = Provider<ReviewRepository>((ref) => ReviewRepositoryImpl());
 

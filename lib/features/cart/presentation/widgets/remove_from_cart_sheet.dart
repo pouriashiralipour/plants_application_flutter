@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart' as rp;
 
+import '../notifiers/cart_notifier.dart';
 import 'cart_item_card.dart';
 
 import '../../domain/entities/cart_item.dart';
 
-import '../../../../core/di/riverpod_providers.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/size_config.dart';
 import '../../../../core/widgets/app_button.dart';
@@ -15,8 +15,8 @@ import '../../../../core/widgets/gap.dart';
 class RemoveFromCartSheet extends rp.ConsumerStatefulWidget {
   const RemoveFromCartSheet({required this.item, required this.isLightMode});
 
-  final CartItem item;
   final bool isLightMode;
+  final CartItem item;
 
   @override
   rp.ConsumerState<RemoveFromCartSheet> createState() => _RemoveFromCartSheetState();
@@ -24,6 +24,7 @@ class RemoveFromCartSheet extends rp.ConsumerStatefulWidget {
 
 class _RemoveFromCartSheetState extends rp.ConsumerState<RemoveFromCartSheet> {
   bool _isRemoving = false;
+
   @override
   Widget build(BuildContext context) {
     final isLoading = _isRemoving;

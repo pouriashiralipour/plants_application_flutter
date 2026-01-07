@@ -7,8 +7,28 @@ import '../../domain/usecases/clear_cart.dart';
 import '../../domain/usecases/get_cart.dart';
 import '../../domain/usecases/remove_cart_item.dart';
 import '../../domain/usecases/update_cart_item_quantity.dart';
-import '../../../../core/di/riverpod_providers.dart';
+import '../../data/repositories/cart_repository_impl.dart';
+import '../../domain/repositories/cart_repository.dart';
+
 import 'cart_state.dart';
+
+final cartRepositoryProvider = Provider<CartRepository>((ref) => CartRepositoryImpl());
+
+final getCartProvider = Provider<GetCart>((ref) => GetCart(ref.watch(cartRepositoryProvider)));
+final addCartItemProvider = Provider<AddCartItem>(
+  (ref) => AddCartItem(ref.watch(cartRepositoryProvider)),
+);
+final updateCartItemQuantityProvider = Provider<UpdateCartItemQuantity>(
+  (ref) => UpdateCartItemQuantity(ref.watch(cartRepositoryProvider)),
+);
+final removeCartItemProvider = Provider<RemoveCartItem>(
+  (ref) => RemoveCartItem(ref.watch(cartRepositoryProvider)),
+);
+final clearCartProvider = Provider<ClearCart>(
+  (ref) => ClearCart(ref.watch(cartRepositoryProvider)),
+);
+
+final cartNotifierProvider = NotifierProvider<CartNotifier, CartState>(CartNotifier.new);
 
 class CartNotifier extends Notifier<CartState> {
   late final AddCartItem _addCartItem;

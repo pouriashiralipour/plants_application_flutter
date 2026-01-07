@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart' as rp;
 
+import '../notifiers/cart_notifier.dart';
 import '../widgets/cart_empty.dart';
 import '../widgets/cart_item_card.dart';
 import '../widgets/cart_summery_bar.dart';
@@ -9,7 +10,6 @@ import '../widgets/remove_from_cart_sheet.dart';
 
 import '../../domain/entities/cart_item.dart';
 
-import '../../../../core/di/riverpod_providers.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/size_config.dart';
 import '../../../../core/widgets/app_progress_indicator.dart';

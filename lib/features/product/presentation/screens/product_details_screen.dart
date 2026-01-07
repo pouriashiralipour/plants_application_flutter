@@ -4,16 +4,17 @@ import 'package:flutter_riverpod/flutter_riverpod.dart' as rp;
 import 'package:provider/provider.dart';
 
 import 'review_screen.dart';
+
+import '../../../cart/presentation/notifiers/cart_notifier.dart';
+
 import '../../domain/usecases/get_product_by_id.dart';
 import '../../domain/entities/product.dart';
 
 import '../../../auth/presentation/controllers/auth_controller.dart';
 import '../../../auth/presentation/screens/login_screen.dart';
 
-import '../../../../core/di/riverpod_providers.dart';
 import '../../../../core/utils/persian_number.dart';
 import '../../../../core/utils/price_formatter.dart';
-
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/size_config.dart';
 import '../../../../core/widgets/app_alert_dialog.dart';
@@ -26,7 +27,9 @@ import '../../../../core/services/connectivity_service.dart';
 import '../../../../core/widgets/login_required_sheet.dart';
 
 import '../controllers/product_details_controller.dart';
+
 import '../../../wishlist/presentation/controllers/wishlist_controller.dart';
+
 import '../../../offline/presentation/screens/offline_screen.dart';
 
 class ProductScreen extends rp.ConsumerStatefulWidget {
