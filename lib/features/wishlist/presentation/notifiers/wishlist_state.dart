@@ -20,7 +20,7 @@ class WishlistState {
     return WishlistState(
       items: items ?? this.items,
       isLoading: isLoading ?? this.isLoading,
-      error: identical(error, _unset) ? this.error : error as String,
+      error: identical(error, _unset) ? this.error : error as String?,
     );
   }
 }
