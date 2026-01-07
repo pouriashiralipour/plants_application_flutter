@@ -17,6 +17,9 @@ final getWishListProvider = Provider<GetWishlist>(
 final toggleWishlistProvider = Provider<ToggleWishlist>(
   (ref) => ToggleWishlist(ref.watch(wishlistRepositoryProvider)),
 );
+final wishlistNotifierProvider = NotifierProvider<WishlistNotifier, WishlistState>(
+  WishlistNotifier.new,
+);
 
 class WishlistNotifier extends Notifier<WishlistState> {
   late final GetWishlist _getWishlist;
