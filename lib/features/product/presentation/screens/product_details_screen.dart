@@ -3,6 +3,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart' as rp;
 import 'package:provider/provider.dart';
 
+import '../../../wishlist/presentation/notifiers/wishlist_notifier.dart';
 import 'review_screen.dart';
 
 import '../../../cart/presentation/notifiers/cart_notifier.dart';
@@ -27,8 +28,6 @@ import '../../../../core/services/connectivity_service.dart';
 import '../../../../core/widgets/login_required_sheet.dart';
 
 import '../controllers/product_details_controller.dart';
-
-import '../../../wishlist/presentation/controllers/wishlist_controller.dart';
 
 import '../../../offline/presentation/screens/offline_screen.dart';
 
@@ -351,13 +350,15 @@ class _ProductScreenState extends rp.ConsumerState<ProductScreen> {
                               if (!mounted) return;
 
                               if (context.read<AuthController>().isAuthed) {
-                                context.read<WishlistController>().toggle(product.id);
+                                ref
+                                    .read(wishlistNotifierProvider.notifier)
+                                    .toggle(productId: product.id);
                               }
                             }
                             return;
                           }
 
-                          context.read<WishlistController>().toggle(product.id);
+                          ref.read(wishlistNotifierProvider.notifier).toggle(productId: product.id);
                         },
 
                         icon: SvgPicture.asset(
@@ -755,7 +756,11 @@ class _ProductScreenState extends rp.ConsumerState<ProductScreen> {
               final shortDescription = _getShortDescription(product.description);
               final hasLongDescription = _hasLongDescription(product.description);
 
-              final isFav = context.watch<WishlistController>().isWishlisted(product.id);
+              final isFav = ref.watch(
+                wishlistNotifierProvider.select(
+                  (s) => s.items.any((e) => e.product.id == product.id),
+                ),
+              );
 
               return Column(
                 children: [

@@ -1,19 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart' as rp;
 import 'package:provider/provider.dart';
 
 import '../../../auth/presentation/controllers/auth_controller.dart';
+import '../../../auth/presentation/screens/login_screen.dart';
+
 import '../screens/product_details_screen.dart';
 import '../../domain/entities/product.dart';
-import '../../../wishlist/presentation/controllers/wishlist_controller.dart';
+
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/persian_number.dart';
 import '../../../../core/utils/price_formatter.dart';
 import '../../../../core/utils/size_config.dart';
 import '../../../../core/widgets/login_required_sheet.dart';
-import '../../../auth/presentation/screens/login_screen.dart';
 
-class ProductCardEntity extends StatelessWidget {
+import 'package:full_plants_ecommerce_app/features/wishlist/presentation/notifiers/wishlist_notifier.dart';
+
+class ProductCardEntity extends rp.ConsumerWidget {
   const ProductCardEntity({
     super.key,
     required this.product,
@@ -30,6 +34,7 @@ class ProductCardEntity extends StatelessWidget {
   final double textSize;
 
   int get _displayPrice => product.price ~/ 10;
+
   String get _formattedDisplayPrice =>
       '${_displayPrice.toString().priceFormatter} تومان'.farsiNumber;
 
@@ -45,11 +50,39 @@ class ProductCardEntity extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
-    final wishlist = context.watch<WishlistController>();
-    final isFav = wishlist.isWishlisted(product.id);
+  Widget build(BuildContext context, rp.WidgetRef ref) {
+    final wishlistState = ref.watch(wishlistNotifierProvider);
+
+    final isFav = wishlistState.items.any((e) => e.product.id == product.id);
 
     final mainImage = _mainImage;
+
+    Future<void> toggleWishlist() async {
+      final isAuthed = context.read<AuthController>().isAuthed;
+
+      if (!isAuthed) {
+        final goLogin = await showLoginRequiredSheet(
+          context: context,
+          title: 'علاقه‌مندی‌ها',
+          message: 'برای افزودن یا حذف از علاقه‌مندی‌ها ابتدا وارد حساب کاربری شوید.',
+          icon: "assets/images/icons/HeartBold.svg",
+          loginText: 'ورود / ثبت‌نام',
+          cancelText: 'بعداً',
+        );
+
+        if (goLogin != true || !context.mounted) return;
+
+        await Navigator.push<bool>(
+          context,
+          MaterialPageRoute(fullscreenDialog: true, builder: (_) => const LoginScreen()),
+        );
+
+        if (!context.mounted) return;
+        if (!context.read<AuthController>().isAuthed) return;
+      }
+
+      await ref.read(wishlistNotifierProvider.notifier).toggle(productId: product.id);
+    }
 
     return Padding(
       padding: !isGrid
@@ -64,7 +97,7 @@ class ProductCardEntity extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
+            SizedBox(
               width: SizeConfig.getProportionateScreenWidth(boxSize),
               height: SizeConfig.getProportionateScreenHeight(boxSize),
               child: Stack(
@@ -91,42 +124,12 @@ class ProductCardEntity extends StatelessWidget {
                       ),
                       child: InkWell(
                         borderRadius: BorderRadius.circular(20),
-                        onTap: () async {
-                          final isAuthed = context.read<AuthController>().isAuthed;
-                          if (!isAuthed) {
-                            final goLogin = await showLoginRequiredSheet(
-                              context: context,
-                              title: 'علاقه‌مندی‌ها',
-                              message:
-                                  'برای افزودن یا حذف از علاقه‌مندی‌ها ابتدا وارد حساب کاربری شوید.',
-                              icon: "assets/images/icons/HeartBold.svg",
-                              loginText: 'ورود / ثبت‌نام',
-                              cancelText: 'بعداً',
-                            );
-                            if (goLogin == true && context.mounted) {
-                              await Navigator.push<bool>(
-                                context,
-                                MaterialPageRoute(
-                                  fullscreenDialog: true,
-                                  builder: (_) => const LoginScreen(),
-                                ),
-                              );
-
-                              if (!context.mounted) return;
-
-                              if (context.read<AuthController>().isAuthed) {
-                                context.read<WishlistController>().toggle(product.id);
-                              }
-                            }
-                            return;
-                          }
-                          context.read<WishlistController>().toggle(product.id);
-                        },
+                        onTap: toggleWishlist,
                         child: SvgPicture.asset(
                           isFav
                               ? 'assets/images/icons/HeartBold.svg'
                               : 'assets/images/icons/Heart_outline.svg',
-                          colorFilter: .mode(AppColors.primary, .srcIn),
+                          colorFilter: const ColorFilter.mode(AppColors.primary, BlendMode.srcIn),
                           width: SizeConfig.getProportionateScreenWidth(20),
                           height: SizeConfig.getProportionateScreenWidth(20),
                         ),
@@ -166,7 +169,7 @@ class ProductCardEntity extends StatelessWidget {
                 children: [
                   SvgPicture.asset(
                     'assets/images/icons/Star.svg',
-                    colorFilter: .mode(AppColors.primary, .srcIn),
+                    colorFilter: const ColorFilter.mode(AppColors.primary, BlendMode.srcIn),
                     width: SizeConfig.getProportionateScreenWidth(20),
                     height: SizeConfig.getProportionateScreenWidth(20),
                   ),
@@ -195,7 +198,7 @@ class ProductCardEntity extends StatelessWidget {
                     alignment: Alignment.center,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(6),
-                      border: BoxBorder.all(
+                      border: Border.all(
                         color: AppColors.primary,
                         width: 1,
                         style: BorderStyle.solid,

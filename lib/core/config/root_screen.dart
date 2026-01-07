@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart' as rp;
 
 import '../../features/auth/presentation/controllers/auth_controller.dart';
-import '../../features/wishlist/presentation/controllers/wishlist_controller.dart';
+
+import '../../features/wishlist/presentation/notifiers/wishlist_notifier.dart';
 import '../theme/app_colors.dart';
 import '../../features/auth/presentation/screens/login_screen.dart';
 import '../../features/cart/presentation/screens/cart_screen.dart';
@@ -13,14 +15,14 @@ import '../../features/profile/presentation/screens/profile_screen.dart';
 import '../../features/wallet/presentation/screens/wallet_screen.dart';
 import '../utils/size_config.dart';
 
-class RootScreen extends StatefulWidget {
+class RootScreen extends rp.ConsumerStatefulWidget {
   const RootScreen({super.key});
 
   @override
-  State<RootScreen> createState() => _RootScreenState();
+  rp.ConsumerState<RootScreen> createState() => _RootScreenState();
 }
 
-class _RootScreenState extends State<RootScreen> {
+class _RootScreenState extends rp.ConsumerState<RootScreen> {
   List<Widget> _screens = [
     HomeScreen(),
     CartScreen(),
@@ -63,7 +65,7 @@ class _RootScreenState extends State<RootScreen> {
     Future.microtask(() {
       final auth = context.read<AuthController>();
       if (auth.isAuthed) {
-        context.read<WishlistController>().load();
+        ref.read(wishlistNotifierProvider.notifier).load();
       }
     });
   }

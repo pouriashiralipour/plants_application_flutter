@@ -33,7 +33,6 @@ import 'features/product/domain/usecases/get_products.dart';
 import 'features/product/presentation/controllers/product_controller.dart';
 import 'features/cart/data/repositories/cart_repository_impl.dart';
 import 'features/cart/domain/repositories/cart_repository.dart';
-import 'features/wishlist/presentation/controllers/wishlist_controller.dart';
 import 'features/profile/data/repositories/address_repository_impl.dart';
 import 'features/profile/domain/repositories/address_repository.dart';
 import 'features/profile/domain/usecases/add_address.dart';
@@ -194,13 +193,6 @@ class MyApp extends StatelessWidget {
             getProducts: context.read<GetProducts>(),
           ),
         ),
-        ChangeNotifierProvider<WishlistController>(
-          create: (context) => WishlistController(
-            getWishlist: context.read<GetWishlist>(),
-            toggleWishlist: context.read<ToggleWishlist>(),
-          )..load(),
-        ),
-
         ChangeNotifierProvider<PasswordResetRepository>(create: (_) => PasswordResetRepository()),
         ChangeNotifierProvider<AppMessageController>(create: (_) => AppMessageController()),
 
